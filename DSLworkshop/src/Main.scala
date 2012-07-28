@@ -9,6 +9,7 @@ object Main {
     def main(args:Array[String]) = {
     val display = new Display()
 
+    
     val shell = new Shell(display)
     shell.setText("MySWT")
     shell.setSize(200, 100)
