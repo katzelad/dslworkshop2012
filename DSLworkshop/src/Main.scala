@@ -11,7 +11,7 @@ object Main {
 
     
     val shell = new Shell(display)
-    shell.setText("MySWT")
+    shell.setText("Elad")
     shell.setSize(200, 100)
     shell.setLayout(new GridLayout());
 
