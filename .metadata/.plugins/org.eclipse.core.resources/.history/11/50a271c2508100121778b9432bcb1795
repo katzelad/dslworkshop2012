@@ -1,0 +1,56 @@
+import org.eclipse.swt._
+import org.eclipse.swt.layout._
+import org.eclipse.swt.widgets._
+import org.eclipse.swt.events._
+import org.tau.workshop2011.parser._
+import org.tau.workshop2011.parser.AST._
+
+object Main {
+  def evalExprInt(exp: Expr) = exp match {
+    case Literal(value: Int) => value
+  }
+  def evalExprString(exp: Expr) = exp match {
+    case Literal(value: String) => value
+  }
+  def evalNode(code: ASTNode, parent: Composite/*, top: Int, left: Int, */) = code match {
+    case AtomicWidget(kind, attributes, width, height) => kind match {
+      case "label" =>
+        val label = new Label(parent, SWT.WRAP)
+        attributes.find(x => x.getName == "text") match {
+          case Some(a) => label setText evalExprString(a.getValue.get)
+          case None =>
+        }
+        label setSize(evalExprInt(width.get), evalExprInt(height.get))
+    }
+  }
+  def evalCode(code: Program, window: Shell) = {
+    code.defs  find { case (s, w) => s == "main_window" } match {
+      case Some((s, w)) => evalNode(w, window)
+      case None => println("main_window not found")
+    }
+  }
+
+  def main(args: Array[String]) = {
+    val display = new Display
+    val shell = new Shell(display)
+    val code = """main_window<-( label :20x100 )[ text ="typical bla"]
+      l<-( label :? x(a+b) )
+      m<-( label :20x20 )[ text =" typical "]""";
+    val prog = LayoutParser.iParse(code);
+    LayoutParser.parseAll(LayoutParser.Program, code) match {
+      case LayoutParser.Success(result, nextInput) => evalCode(result, shell)
+      case LayoutParser.NoSuccess(msg, nextInput) =>
+        println("Could not parse the input.");
+        println(msg)
+    }
+    shell setText "Test"
+
+    shell.open
+    while (!shell.isDisposed) {
+      if (!display.readAndDispatch) {
+        display.sleep
+      }
+    }
+    display.dispose
+  }
+}

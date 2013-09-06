@@ -1,0 +1,83 @@
+import org.eclipse.swt._
+import org.eclipse.swt.layout._
+import org.eclipse.swt.widgets._
+import org.eclipse.swt.events._
+import org.tau.workshop2011.parser._
+import org.tau.workshop2011.parser.AST._
+import collection.mutable.ArrayBuffer
+
+object Main {
+  class Box(left: Option[Int], top: Option[Int], right: Option[Int], bottom: Option[Int]) {
+    def left(): Option[Int] = this.left
+    def right(): Option[Int] = this.right
+    def top(): Option[Int] = this.top
+    def bottom(): Option[Int] = this.bottom
+  }
+  def evalExprInt(exp: Option[Expr]) = exp match {
+    case Some(value) => value match {case Literal(value: Int) => Some(value)}
+    case None => None
+  }
+  def evalExprString(exp: Expr) = exp match {
+    case Literal(value: String) => value
+  }
+  def evalNode(code: ASTNode, parent: Composite, top: Int, left: Int): (Option[Int], Option[Int], (Int, Int, Int, Int) => Unit) = code match {
+    case AtomicWidget(kind, attributes, width, height) => kind match {
+      case "label" =>
+        val label = new Label(parent, SWT.WRAP)
+        attributes.find(_.getName == "text") match {
+          case Some(a) => label setText evalExprString(a.getValue.get)
+        }
+        val widthVal = evalExprInt(width)
+        val heightVal = evalExprInt(height)
+        (widthVal, heightVal, (left: Int, top: Int, right: Int, bottom: Int) => {
+          label setBounds (left, top, right - left, bottom - top)
+          println("label", left, top, right, bottom)})
+    }
+    // TODO deal with vertical
+    case Container(direction, children, _, _) =>
+      var width = 0
+      var height: Option[Int] = None
+      val changeSizes = children map (child => {
+        val (childWidth, childHeight, changeSize) = evalNode(child, parent, top, left + width)
+        if (height.getOrElse(0) < childHeight.getOrElse(0)) height = childHeight
+        width += childWidth.get
+        (changeSize, width, width + childWidth.get)
+      })
+      (Option(width), height, (left: Int, top: Int, right: Int, bottom: Int) => {
+        for ((changeSize, leftMargin, rightMargin) <- changeSizes)
+          changeSize(left + leftMargin, top, right + rightMargin, bottom)
+      })
+  }
+  def evalCode(code: Program, window: Shell) = {
+    code.defs find { case (s, w) => s == "main_window" } match {
+      case Some((_, w)) =>
+        val (width, height, changeSize) = evalNode(w, window, 20, 20)
+        changeSize(0, 0, width.get, height.get)
+      case None => println("main_window not found")
+    }
+  }
+
+  def main(args: Array[String]) = {
+    val display = new Display
+    val shell = new Shell(display)
+    val code = """main_window<-( label :50x? )[ text ="typicaltypicaltypical"] | ( label :100x? )[ text ="eladeladeladeladeladeladeladelad"] | ( label :20x100 )[ text ="shirshirshirshirshirshir"]
+      l<-( label :? x(a+b) )
+      m<-( label :20x20 )[ text =" typical "]""";
+    val prog = LayoutParser.iParse(code);
+    LayoutParser.parseAll(LayoutParser.Program, code) match {
+      case LayoutParser.Success(result, nextInput) => evalCode(result, shell) // print(result)
+      case LayoutParser.NoSuccess(msg, nextInput) =>
+        println("Could not parse the input.");
+        println(msg)
+    }
+    shell setText "Test"
+
+    shell.open
+    while (!shell.isDisposed) {
+      if (!display.readAndDispatch) {
+        display.sleep
+      }
+    }
+    display.dispose
+  }
+}

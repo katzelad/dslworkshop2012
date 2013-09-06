@@ -1,0 +1,174 @@
+import org.eclipse.swt._
+import org.eclipse.swt.layout._
+import org.eclipse.swt.widgets._
+import org.eclipse.swt.events._
+import org.eclipse.swt.graphics.Image
+import org.tau.workshop2011.parser._
+import org.tau.workshop2011.parser.AST._
+import org.tau.workshop2011.expressions._
+import collection.mutable.ArrayBuffer
+
+object Main {
+  /*class Box(left: Option[Int], top: Option[Int], right: Option[Int], bottom: Option[Int]) {
+    def left(): Option[Int] = this.left
+    def right(): Option[Int] = this.right
+    def top(): Option[Int] = this.top
+    def bottom(): Option[Int] = this.bottom
+  }*/
+
+  def evalExpr[T](exp: Option[Expr]) = exp match {
+    case Some(value) => value match { case Literal(value: T) => Some(value) }
+    case None => None
+  }
+  def evalNode(code: ASTNode, parent: Composite): (Option[Int], Option[Int], (Int, Int, Int, Int) => Unit) = code match {
+    case AtomicWidget(kind, attributes, width, height) =>
+      var hAlign = 0
+      var text = ""
+      var checked = false
+      var image = "E:/error.jpg"
+      var minValue, maxValue = 0
+      var value: Option[Int] = None
+      var changeImageSize = (width: Int, height: Int) => {}
+      for (att <- attributes) att.getName match {
+        case "halign" => hAlign = evalExpr[HAlign](att getValue).get match {
+          case HAlign.left => SWT.LEFT
+          case HAlign.center => SWT.CENTER
+          case HAlign.right => SWT.RIGHT
+        }
+        case "text" => text = evalExpr(att getValue).get
+        case "checked" => checked = evalExpr(att getValue).get
+        case "image" => image = evalExpr(att getValue).get
+        case "value" => value = evalExpr(att getValue)
+        case "maxvalue" => maxValue = evalExpr(att getValue).get
+        case "minvalue" => minValue = evalExpr(att getValue).get
+        case _ =>
+      }
+      val widget = kind match {
+        case "label" =>
+          val label = new Label(parent, SWT.WRAP | hAlign)
+          label setText text
+          label
+        case "textbox" =>
+          val textbox = new Text(parent, SWT.WRAP | hAlign)
+          textbox setText text
+          textbox
+        case "button" =>
+          val button = new Button(parent, SWT.PUSH | SWT.WRAP | hAlign)
+          button setText text
+          button
+        case "checkbox" =>
+          val checkbox = new Button(parent, SWT.CHECK) //TODO see if it's 0/1 or true/false
+          checkbox.setSelection(checked)
+          checkbox
+        case "radio" =>
+          val radio = new Button(parent, SWT.RADIO)
+          radio.setSelection(checked)
+          radio
+        case "image" =>
+          val label = new Label(parent, SWT.NONE)
+          label setImage new Image(label.getDisplay(), image)
+          changeImageSize = (width, height) => {
+            val prevImage = label.getImage
+            label setImage new Image(label.getDisplay(), prevImage.getImageData().scaledTo(width, height))
+            prevImage dispose
+          }
+          label
+        case "combo" =>
+          val combo = new Combo(parent, SWT.DROP_DOWN | SWT.READ_ONLY)
+          combo setItems (text split ",")
+          value match {
+            case Some(v) => combo select v
+            case None =>
+          }
+          combo
+        case "slider" =>
+          val slider = new Slider(parent, SWT.HORIZONTAL)
+          slider.setMaximum(maxValue)
+          slider.setMinimum(minValue)
+          slider.setSelection(value.getOrElse(0))
+          slider
+      }
+      for (att <- attributes) att.getName match {
+        case "enabled" => widget setEnabled evalExpr(att getValue).get
+        case "fgcolor" =>
+          val color = evalExpr[Color](att getValue).get
+          widget setForeground new org.eclipse.swt.graphics.Color(widget.getDisplay(), color.red, color.green, color.blue)
+        case "bgcolor" =>
+          val color = evalExpr[Color](att getValue).get
+          widget setBackground new org.eclipse.swt.graphics.Color(widget.getDisplay(), color.red, color.green, color.blue)
+        case "font" =>
+          val font = evalExpr[Font](att getValue).get
+          val style = font.style match {
+            case TextStyle.bold => SWT.BOLD
+            case TextStyle.italic => SWT.ITALIC
+            case TextStyle.regular => SWT.NORMAL
+          }
+          widget setFont new org.eclipse.swt.graphics.Font(widget.getDisplay(), font.face, font.size, style)
+        case _ =>
+      }
+      val widthVal = evalExpr(width)
+      val heightVal = evalExpr(height)
+      (widthVal, heightVal, (left: Int, top: Int, right: Int, bottom: Int) => {
+        widget setBounds (left, top, math.min(right - left, widthVal.getOrElse(Int.MaxValue)),
+          math.min(bottom - top, heightVal.getOrElse(Int.MaxValue)))
+        changeImageSize(widget.getSize.x, widget.getSize.y)
+        println("label", widget getBounds)
+      })
+    // TODO deal with vertical
+    case Container(direction, children, _, _) =>
+      var width = 0
+      var height: Option[Int] = None
+      val changeSizes = children map (child => {
+        val (childWidth, childHeight, changeSize) = evalNode(child, parent)
+        if (height.getOrElse(0) < childHeight.getOrElse(0))
+          height = childHeight
+        width += childWidth.get //TODO fix option for ?
+        (changeSize, width - childWidth.get, width)
+      })
+      (Option(width), height, (left: Int, top: Int, right: Int, bottom: Int) => {
+        for ((changeSize, leftMargin, rightMargin) <- changeSizes)
+          changeSize(left + leftMargin, top, left + rightMargin, bottom)
+      })
+  }
+  def evalCode(code: Program, window: Shell) = {
+    code.defs find { case (s, w) => s == "main_window" } match {
+      case Some((_, w)) =>
+        val (width, height, changeSize) = evalNode(w, window)
+        changeSize(0, 0, width.get, height.get)
+        window.pack
+      case None => println("main_window not found")
+    }
+  }
+
+  def main(args: Array[String]) = {
+    val display = new Display
+    val shell = new Shell(display)
+    val code = """main_window<-( label :50x? )[ text ="typicaltypicaltypical", enabled = true, bgcolor = 0x0000FF, fgcolor = 0xFF0000, font = ("times new roman", 14, bold), halign = left] |
+      ( textbox :100x70 )[ text ="eladeladeladeladeladeladeladelad", enabled = false, bgcolor = 0x0000FF, fgcolor = 0x00FF00, font = ("times new roman", 12, italic), halign = center] |
+      ( button :30x100 )[ text ="shirshirshirshirshirshir", enabled = false, bgcolor = 0x00FFFF, fgcolor = 0x008F8F, font = ("times new roman", 16, italic), halign = center] |
+      ( checkbox :100x70 )[enabled = true, bgcolor = 0x0000FF, fgcolor = 0x00FF00, checked = true] |
+      ( radio :60x70 )[enabled = true, bgcolor = 0x00AAFF, fgcolor = 0xAAFF00, checked = false] |
+      ( radio :60x70 )[enabled = true, bgcolor = 0x00AAFF, fgcolor = 0xAAFF00, checked = true] |
+      ( image :50x90 )[enabled = true, bgcolor = 0x00AAFF, fgcolor = 0xAAFF00 ] |
+      ( slider :100x50 )[enabled = true, bgcolor = 0x00CADF, fgcolor = 0x7ABF00, maxvalue=300, minvalue =1 , value=50] |
+      ( combo :100x50 )[text = "a,b,c",enabled = false, bgcolor = 0x00CADF, fgcolor = 0x7ABF00, value=1]
+      l<-( label :? x(a+b) )
+      m<-( label :20x20 )[ text =" typical "]""";
+    val prog = LayoutParser iParse code;
+    LayoutParser parseAll (LayoutParser.Program, code) match {
+      case LayoutParser.Success(result, nextInput) => evalCode(result, shell) //print(result)
+      case LayoutParser.NoSuccess(msg, nextInput) =>
+        println("Could not parse the input.");
+        println(msg)
+    }
+    shell setText "Test"
+
+    shell.open
+    while (!shell.isDisposed) {
+      if (!display.readAndDispatch) {
+        display.sleep
+      }
+    }
+    display.dispose
+  }
+}

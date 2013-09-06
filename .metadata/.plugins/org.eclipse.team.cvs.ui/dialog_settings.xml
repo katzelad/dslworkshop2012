@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<section name="Workbench">
+	<section name="SharingWizard">
+	</section>
+	<section name="NewLocationWizard">
+		<list key="ConfigurationWizardMainPage.STORE_PATH_ID">
+			<item value="/p/dslworkshop2012"/>
+			<item value="/cvsroot/dslworkshop"/>
+			<item value="/cvsroot"/>
+			<item value="/.."/>
+			<item value="/cvsroot/dslworkshop/code"/>
+		</list>
+		<list key="ConfigurationWizardMainPage.STORE_HOSTNAME_ID">
+			<item value="code.google.com"/>
+			<item value="dslworkshop.cvs.sourceforge.net"/>
+			<item value="cvs.sourceforge.net"/>
+			<item value="dslworkshop@dslworkshop.cvs.sourceforge.net"/>
+			<item value="katzelad@code.google.com/p/dslworkshop2012/"/>
+		</list>
+		<list key="ConfigurationWizardMainPage.STORE_USERNAME_ID">
+			<item value="katzelad@gmail.com"/>
+			<item value="katzelad"/>
+			<item value="dslworkshop"/>
+			<item value="Elad"/>
+		</list>
+	</section>
+	<section name="org.eclipse.team.ccvs.ui.RepositoriesView">
+		<item value="0" key="selectedOrderBy"/>
+		<item value="" key="SelectedWorkingSet"/>
+		<item value="true" key="selectedSortingOrder"/>
+		<item value="" key="filterShowModules"/>
+	</section>
+</section>
