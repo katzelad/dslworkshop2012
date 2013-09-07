@@ -11,6 +11,7 @@ import org.eclipse.swt.custom.ScrolledComposite
 import scala.collection.mutable.{ Map => mutableMap, Buffer => mutableBuffer }
 import org.eclipse.swt.graphics.{ Color => swtColor }
 import org.eclipse.swt.graphics.{ Font => swtFont }
+import evalExpr._
 
 object Main {
 
@@ -18,17 +19,6 @@ object Main {
 
   var widgetsMap: Map[String, AST.Widget] = null
 
-  /*
-  def evalExpr(exp: Expr, expType: Type) = (exp: @unchecked) match {
-    case Literal(value) => value
-  }
-  */
-
-  //TODO change this function - added the old evalExp back - to allow everything to work
-  def evalExpr[T](exp: Option[Expr]) = exp match {
-    case Some(value) => value match { case Literal(value: T) => Some(value) }
-    case None => None
-  }
 
   def evalNode(code: ASTNode, parent: Composite): (Int, Int, Boolean, Boolean, (Int, Int, Int, Int) => Unit) = code match {
     case AtomicWidget(kind, attributes, width, height) =>
@@ -42,17 +32,17 @@ object Main {
       var changeImageSize = (width: Int, height: Int) => {}
       var (minWidth, minHeight, isWidthQM, isHeightQM) = (0, 0, true, true)
       for (att <- attributes) att.getName match {
-        case "halign" => hAlign = (evalExpr[HAlign](att getValue).get: @unchecked) match {
+        case "halign" => hAlign = (EvalExpr.evalExpr[HAlign](att getValue).get: @unchecked) match {
           case HAlign.left => SWT.LEFT
           case HAlign.center => SWT.CENTER
           case HAlign.right => SWT.RIGHT
         }
-        case "text" => text = evalExpr(att getValue).get
-        case "checked" => checked = evalExpr(att getValue).get
-        case "image" => image = evalExpr(att getValue).get
-        case "value" => value = evalExpr(att getValue)
-        case "maxvalue" => maxValue = evalExpr(att getValue).get
-        case "minvalue" => minValue = evalExpr(att getValue).get
+        case "text" => text = EvalExpr.evalExpr(att getValue).get
+        case "checked" => checked = EvalExpr.evalExpr(att getValue).get
+        case "image" => image = EvalExpr.evalExpr(att getValue).get
+        case "value" => value = EvalExpr.evalExpr(att getValue)
+        case "maxvalue" => maxValue = EvalExpr.evalExpr(att getValue).get
+        case "minvalue" => minValue = EvalExpr.evalExpr(att getValue).get
         case _ =>
       }
       val widget = kind match {
@@ -121,15 +111,15 @@ object Main {
           scrolledComposite
       }
       for (att <- attributes) att.getName match {
-        case "enabled" => widget setEnabled evalExpr(att getValue).get
+        case "enabled" => widget setEnabled EvalExpr.evalExpr(att getValue).get
         case "fgcolor" =>
-          val color = evalExpr[Color](att getValue).get
+          val color = EvalExpr.evalExpr[Color](att getValue).get
           widget setForeground new swtColor(widget.getDisplay(), color.red, color.green, color.blue)
         case "bgcolor" =>
-          val color = evalExpr[Color](att getValue).get
+          val color = EvalExpr.evalExpr[Color](att getValue).get
           widget setBackground new swtColor(widget.getDisplay(), color.red, color.green, color.blue)
         case "font" =>
-          val font = evalExpr[Font](att getValue).get
+          val font = EvalExpr.evalExpr[Font](att getValue).get
           val style = (font.style: @unchecked) match {
             case TextStyle.bold => SWT.BOLD
             case TextStyle.italic => SWT.ITALIC
@@ -138,8 +128,8 @@ object Main {
           widget setFont new swtFont(widget.getDisplay(), font.face, font.size, style)
         case _ =>
       }
-      val widthVal = evalExpr(width)
-      val heightVal = evalExpr(height)
+      val widthVal = EvalExpr.evalExpr(width)
+      val heightVal = EvalExpr.evalExpr(height)
       (widthVal getOrElse 0, heightVal getOrElse 0, widthVal.isEmpty, heightVal.isEmpty, (left: Int, top: Int, right: Int, bottom: Int) => {
         widget setBounds (left, top, math.min(right - left, widthVal.getOrElse(Int.MaxValue)),
           math.min(bottom - top, heightVal.getOrElse(Int.MaxValue)))
