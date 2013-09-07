@@ -32,17 +32,17 @@ object Main {
       var changeImageSize = (width: Int, height: Int) => {}
       var (minWidth, minHeight, isWidthQM, isHeightQM) = (0, 0, true, true)
       for (att <- attributes) att.getName match {
-        case "halign" => hAlign = (EvalExpr.evalExpr[HAlign](att getValue).get: @unchecked) match {
+        case "halign" => hAlign = (EvalExpr[HAlign](att getValue).get: @unchecked) match {
           case HAlign.left => SWT.LEFT
           case HAlign.center => SWT.CENTER
           case HAlign.right => SWT.RIGHT
         }
-        case "text" => text = EvalExpr.evalExpr(att getValue).get
-        case "checked" => checked = EvalExpr.evalExpr(att getValue).get
-        case "image" => image = EvalExpr.evalExpr(att getValue).get
-        case "value" => value = EvalExpr.evalExpr(att getValue)
-        case "maxvalue" => maxValue = EvalExpr.evalExpr(att getValue).get
-        case "minvalue" => minValue = EvalExpr.evalExpr(att getValue).get
+        case "text" => text = EvalExpr(att getValue).get
+        case "checked" => checked = EvalExpr(att getValue).get
+        case "image" => image = EvalExpr(att getValue).get
+        case "value" => value = EvalExpr(att getValue)
+        case "maxvalue" => maxValue = EvalExpr(att getValue).get
+        case "minvalue" => minValue = EvalExpr(att getValue).get
         case _ =>
       }
       val widget = kind match {
@@ -111,15 +111,15 @@ object Main {
           scrolledComposite
       }
       for (att <- attributes) att.getName match {
-        case "enabled" => widget setEnabled EvalExpr.evalExpr(att getValue).get
+        case "enabled" => widget setEnabled EvalExpr(att getValue).get
         case "fgcolor" =>
-          val color = EvalExpr.evalExpr[Color](att getValue).get
+          val color = EvalExpr[Color](att getValue).get
           widget setForeground new swtColor(widget.getDisplay(), color.red, color.green, color.blue)
         case "bgcolor" =>
-          val color = EvalExpr.evalExpr[Color](att getValue).get
+          val color = EvalExpr[Color](att getValue).get
           widget setBackground new swtColor(widget.getDisplay(), color.red, color.green, color.blue)
         case "font" =>
-          val font = EvalExpr.evalExpr[Font](att getValue).get
+          val font = EvalExpr[Font](att getValue).get
           val style = (font.style: @unchecked) match {
             case TextStyle.bold => SWT.BOLD
             case TextStyle.italic => SWT.ITALIC
@@ -128,8 +128,8 @@ object Main {
           widget setFont new swtFont(widget.getDisplay(), font.face, font.size, style)
         case _ =>
       }
-      val widthVal = EvalExpr.evalExpr(width)
-      val heightVal = EvalExpr.evalExpr(height)
+      val widthVal = EvalExpr(width)
+      val heightVal = EvalExpr(height)
       (widthVal getOrElse 0, heightVal getOrElse 0, widthVal.isEmpty, heightVal.isEmpty, (left: Int, top: Int, right: Int, bottom: Int) => {
         widget setBounds (left, top, math.min(right - left, widthVal.getOrElse(Int.MaxValue)),
           math.min(bottom - top, heightVal.getOrElse(Int.MaxValue)))
