@@ -18,8 +18,16 @@ object Main {
 
   var widgetsMap: Map[String, AST.Widget] = null
 
+  /*
   def evalExpr(exp: Expr, expType: Type) = (exp: @unchecked) match {
     case Literal(value) => value
+  }
+  */
+
+  //TODO change this function - added the old evalExp back - to allow everything to work
+  def evalExpr[T](exp: Option[Expr]) = exp match {
+    case Some(value) => value match { case Literal(value: T) => Some(value) }
+    case None => None
   }
 
   def evalNode(code: ASTNode, parent: Composite): (Int, Int, Boolean, Boolean, (Int, Int, Int, Int) => Unit) = code match {
@@ -446,7 +454,8 @@ object Main {
       l<-( label :? x(a+b) )
       x<-(y)[x=?(3)]
       m<-( label :20x20 )[ text =" typical "]"""*/
-      """main_window<-(l:?x?)[x=3] |
+      
+      /*"""main_window<-(l:?x?)[x=3] |
       ( textbox :?x70 )[ text ="eladeladeladeladeladeladeladelad", enabled = false, bgcolor = 0x0000FF, fgcolor = 0x00FF00, font = ("times new roman", 12, italic), halign = center] |
       ( button :?x100 )[ text ="shirshirshirshirshirshir", enabled = false, bgcolor = 0x00FFFF, fgcolor = 0x008F8F, font = ("times new roman", 16, italic), halign = center] | (
       ( checkbox :?x70 )[enabled = true, bgcolor = 0x0000FF, fgcolor = 0x00FF00, checked = true] |
@@ -457,7 +466,46 @@ object Main {
       ( combo :100x100 )[text = "a,b,c",enabled = true, bgcolor = 0x00CADF, fgcolor = 0x7ABF00]
       l<-( label :100x? )[ text ="typicaltypicaltypical", enabled = true, bgcolor = 0x0000FF, fgcolor = 0xFF0000, font = ("times new roman", 14, bold), halign = left]
       x<-(y)[x=?(3)]
-      m<-( label :20x20 )[ text =" typical "]""";
+      m<-( label :20x20 )[ text =" typical "]"""; */
+      
+      /* including complicated expression
+       *
+      val shell = new Shell(display)
+       val originalDSLcode = """main_window <- (( label :?x? )[ text ="label-typicaltypicaltypical", enabled = true, bgcolor = 0x00FF00, fgcolor = 0xFF0000, font = ("times new roman", 14, bold), halign = left] |
+      ( textbox :?x70 )[ text ="textbox-eladeladeladeladeladeladeladelad", enabled = false, bgcolor = 0xAACC00, fgcolor = 0x00FF00, font = ("times new roman", 12, italic), halign = center] |
+      ( button :?x100 )[ text ="button-shirshirshirshirshirshir", enabled = false, bgcolor = 0x0000FF, fgcolor = 0x008F8F, font = ("times new roman", 16, italic), halign = center] |
+      (
+	    ( checkbox :?x70 )[enabled = true, bgcolor = 0x9900FF, fgcolor = 0x00FF00, checked = {false => true, otherwise false}] |
+	    ( radio :?x70 )[enabled = true, bgcolor = 0x00FFFF, fgcolor = 0xAAFF00, myVar=?(false), checked = true] |
+	    ( radio :?x70 )[enabled = true, bgcolor = 0x00AAFF, fgcolor = 0xAAFF00, checked = false]
+      )|
+      ( textbox :?x100 )[bgcolor = 0xDD00AA, fgcolor = 0xDDDD00, text = "kjfdhjk"] |
+      (
+      	( slider :?x50 )[enabled = true, bgcolor = 0xDDDD00, fgcolor = 0xDDDD00, maxvalue=300, minvalue =1 , value={true => 20, otherwise 250}] |
+      	( combo :?x100 )[text = "a,b,c",enabled = true, bgcolor = 0x00CADF, fgcolor = 0x7ABF00] 
+      ))[willThisWork=?(3)]
+      l<-( label :? x(a+b))
+      x<-(y)[x=?(3)]
+      m<-(label :20x20 )[ text =" typical "]""";
+    */
+    
+      """main_window <- (( label :?x? )[ text ="label-typicaltypicaltypical", enabled = true, bgcolor = 0x00FF00, fgcolor = 0xFF0000, font = ("times new roman", 14, bold), halign = left] |
+      ( textbox :?x70 )[ text ="textbox-eladeladeladeladeladeladeladelad", enabled = false, bgcolor = 0xAACC00, fgcolor = 0x00FF00, font = ("times new roman", 12, italic), halign = center] |
+      ( button :?x100 )[ text ="button-shirshirshirshirshirshir", enabled = false, bgcolor = 0x0000FF, fgcolor = 0x008F8F, font = ("times new roman", 16, italic), halign = center] |
+      (
+	    ( checkbox :?x70 )[enabled = true, bgcolor = 0x9900FF, fgcolor = 0x00FF00, checked = false] |
+	    ( radio :?x70 )[enabled = true, bgcolor = 0x00FFFF, fgcolor = 0xAAFF00, checked = true] |
+	    ( radio :?x70 )[enabled = true, bgcolor = 0x00AAFF, fgcolor = 0xAAFF00, checked = false]
+      )|
+      ( textbox :?x100 )[bgcolor = 0xDD00AA, fgcolor = 0xDDDD00, text = "kjfdhjk"] |
+      (
+      	( slider :?x50 )[enabled = true, bgcolor = 0xDDDD00, fgcolor = 0xDDDD00, maxvalue=300, minvalue =1 , value=250] |
+      	( combo :?x100 )[text = "a,b,c",enabled = true, bgcolor = 0x00CADF, fgcolor = 0x7ABF00] 
+      ))
+      l<-( label :? x(a+b))
+      x<-(y)[x=?(3)]
+      m<-(label :20x20 )[ text =" typical "]""";
+      
     val prog = LayoutParser iParse code;
     LayoutParser parseAll (LayoutParser.Program, code) match {
       case LayoutParser.Success(result, nextInput) => evalCode(result, shell) //print(result) 
