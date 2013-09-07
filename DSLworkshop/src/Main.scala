@@ -15,7 +15,7 @@ import org.eclipse.swt.graphics.{ Font => swtFont }
 object Main {
 
   val SASH_WIDTH = 5
-//TEST
+//TES
   var widgetsMap: Map[String, AST.Widget] = null
 
   def evalNode(code: ASTNode, parent: Composite): (Int, Int, Boolean, Boolean, (Int, Int, Int, Int) => Unit) = code match {
