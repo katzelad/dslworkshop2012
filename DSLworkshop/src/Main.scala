@@ -11,14 +11,12 @@ import org.eclipse.swt.custom.ScrolledComposite
 import scala.collection.mutable.{ Map => mutableMap, Buffer => mutableBuffer }
 import org.eclipse.swt.graphics.{ Color => swtColor }
 import org.eclipse.swt.graphics.{ Font => swtFont }
-import evalExpr._
 
 object Main {
 
   val SASH_WIDTH = 5
-
+//TEST
   var widgetsMap: Map[String, AST.Widget] = null
-
 
   def evalNode(code: ASTNode, parent: Composite): (Int, Int, Boolean, Boolean, (Int, Int, Int, Int) => Unit) = code match {
     case AtomicWidget(kind, attributes, width, height) =>

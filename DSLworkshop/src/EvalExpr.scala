@@ -9,8 +9,6 @@ import org.tau.workshop2011.parser.AST._
 import org.tau.workshop2011.expressions._
 import collection.mutable.ArrayBuffer
 
-package evalExpr {
-
   
       //TODO added the old evalExp back - to allow everything to work, work on this and replace existing
   /*
@@ -184,7 +182,4 @@ object EvalExpr {
   
   
   
-}
-
-
 }
