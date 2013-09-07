@@ -3,7 +3,6 @@ INDEX VERSION 1.126+E:\מחשבים\סדנה\dslworkshop2012\.metadata\.plugins\org.eclips
 2492643284.index
 384216248.index
 98627305.index
-2969414522.index
 4149142647.index
 3626931047.index
 1144188029.index
