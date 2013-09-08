@@ -11,14 +11,55 @@ import org.eclipse.swt.custom.ScrolledComposite
 import scala.collection.mutable.{ Map => mutableMap, Buffer => mutableBuffer }
 import org.eclipse.swt.graphics.{ Color => swtColor }
 import org.eclipse.swt.graphics.{ Font => swtFont }
+import evalExpr._
 
 object Main {
-
+  
   val SASH_WIDTH = 5
-//TES
+
   var widgetsMap: Map[String, AST.Widget] = null
 
-  def evalNode(code: ASTNode, parent: Composite): (Int, Int, Boolean, Boolean, (Int, Int, Int, Int) => Unit) = code match {
+  
+  def evalCode(code: Program, window: Shell, unevaluatedVarMap: scala.collection.mutable.Map[String, Any], evaluatedVarMap: Map[String, Any]) = {
+    widgetsMap = code.defs.toMap
+    widgetsMap get "main_window" match {
+      case Some(w) =>
+        window setLayout new FillLayout
+        val scrolledComposite = new ScrolledComposite(window, SWT.H_SCROLL)
+        scrolledComposite setLayout new FillLayout
+        scrolledComposite setExpandHorizontal true
+        //scrolledComposite setExpandVertical true
+        val composite = new Composite(scrolledComposite, SWT.NONE)
+        scrolledComposite setContent composite
+        val (width, height, _, _, changeSize) = evalNode(w, composite, unevaluatedVarMap, evaluatedVarMap)
+        scrolledComposite setMinWidth width
+        window addControlListener new ControlAdapter {
+          override def controlResized(event: ControlEvent) {
+            composite.setSize(scrolledComposite.getSize)
+            changeSize(0, 0, composite.getSize.x, composite.getSize.y)
+          }
+        }
+        window.setSize(1000, 500)
+        composite.setSize(1000, 500)
+        changeSize(0, 0, composite.getSize.x, composite.getSize.y)
+      /*val (width, height, changeSize) = evalNode(w, window)
+        window addControlListener new ControlAdapter {
+          override def controlResized(event: ControlEvent) {
+            changeSize(0, 0, window.getSize.x, window.getSize.y)
+          }
+        }
+        window.setSize(1000, 500)
+        changeSize(0, 0, 1000, 500)*/
+
+      case None => println("main_window not found")
+    }
+  }
+  
+  
+  def evalNode(code: ASTNode, parent: Composite,
+		  		unevaluatedVarMap: scala.collection.mutable.Map[String, Any],
+		  		evaluatedVarMap: Map[String, Any]):
+		  		(Int, Int, Boolean, Boolean, (Int, Int, Int, Int) => Unit) = code match {
     case AtomicWidget(kind, attributes, width, height) =>
       var hAlign = 0
       var text = ""
@@ -96,7 +137,7 @@ object Main {
           //scrolledComposite setExpandVertical true
           val composite = new Composite(scrolledComposite, SWT.NONE)
           scrolledComposite setContent composite
-          val (width, height, _, _, changeSize) = evalNode(widgetsMap(s), composite)
+          val (width, height, _, _, changeSize) = evalNode(widgetsMap(s), composite, unevaluatedVarMap, evaluatedVarMap)
           minWidth = width
           minHeight = height
           scrolledComposite setMinWidth width
@@ -124,6 +165,13 @@ object Main {
             case TextStyle.regular => SWT.NORMAL
           }
           widget setFont new swtFont(widget.getDisplay(), font.face, font.size, style)
+        //attribute "code" helps handling "bind" 
+        case "code" =>
+          widget.addListener(SWT.Selection, new Listener{
+            override def handleEvent(e: Event) = {
+              EvalExpr (att.getValue).get
+            }
+          })
         case _ =>
       }
       val widthVal = EvalExpr(width)
@@ -138,7 +186,7 @@ object Main {
     case Container(Container.Direction.Horizontal, children, _, _) =>
       var seenQM = 0
       var sashes = mutableBuffer[Sash]()
-      val childInfo = children map (evalNode(_, parent))
+      val childInfo = children map (evalNode(_, parent,unevaluatedVarMap, evaluatedVarMap))
       val qms = childInfo count { case (_, _, b, _, _) => b } // total number of question marks (qms)
       val numWidth = childInfo map { case (w, _, _, _, _) => w } sum
       var sashMap = mutableMap[Sash, Double]()
@@ -392,40 +440,7 @@ object Main {
       })
   }
 
-  def evalCode(code: Program, window: Shell) = {
-    widgetsMap = code.defs.toMap
-    widgetsMap get "main_window" match {
-      case Some(w) =>
-        window setLayout new FillLayout
-        val scrolledComposite = new ScrolledComposite(window, SWT.H_SCROLL)
-        scrolledComposite setLayout new FillLayout
-        scrolledComposite setExpandHorizontal true
-        //scrolledComposite setExpandVertical true
-        val composite = new Composite(scrolledComposite, SWT.NONE)
-        scrolledComposite setContent composite
-        val (width, height, _, _, changeSize) = evalNode(w, composite)
-        scrolledComposite setMinWidth width
-        window addControlListener new ControlAdapter {
-          override def controlResized(event: ControlEvent) {
-            composite.setSize(scrolledComposite.getSize)
-            changeSize(0, 0, composite.getSize.x, composite.getSize.y)
-          }
-        }
-        window.setSize(1000, 500)
-        composite.setSize(1000, 500)
-        changeSize(0, 0, composite.getSize.x, composite.getSize.y)
-      /*val (width, height, changeSize) = evalNode(w, window)
-        window addControlListener new ControlAdapter {
-          override def controlResized(event: ControlEvent) {
-            changeSize(0, 0, window.getSize.x, window.getSize.y)
-          }
-        }
-        window.setSize(1000, 500)
-        changeSize(0, 0, 1000, 500)*/
 
-      case None => println("main_window not found")
-    }
-  }
 
   def main(args: Array[String]) = {
     val display = new Display
@@ -495,8 +510,10 @@ object Main {
       m<-(label :20x20 )[ text =" typical "]""";
       
     val prog = LayoutParser iParse code;
+    val unevaluatedVarMap = scala.collection.mutable.Map[String, Any]()
+    val evaluatedVarMap = Map[String, Any]()
     LayoutParser parseAll (LayoutParser.Program, code) match {
-      case LayoutParser.Success(result, nextInput) => evalCode(result, shell) //print(result) 
+      case LayoutParser.Success(result, nextInput) => evalCode(result, shell, unevaluatedVarMap, evaluatedVarMap) //print(result) 
       case LayoutParser.NoSuccess(msg, nextInput) =>
         println("Could not parse the input.");
         println(msg)
