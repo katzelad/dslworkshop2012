@@ -484,7 +484,7 @@ object Main {
           unevaluatedVarMap(att.getName)=att.getValue
         }
       }
-      //then handle the rest of the container:
+      //then, handle the rest of the container:
       container match {
         case Container(Container.Direction.Horizontal, children, _, _) =>
           handleHorizontalContainer(code, parent, unevaluatedVarMap, evaluatedVarMap, children)
