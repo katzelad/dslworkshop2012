@@ -1,7 +1,7 @@
 import org.eclipse.swt._
 import scala.List
 import org.eclipse.swt.layout._
-import org.eclipse.swt.widgets._
+import org.eclipse.swt.widgets.{ Widget => swtWidget }
 import org.eclipse.swt.events._
 import org.eclipse.swt.graphics.Image
 import org.tau.workshop2011.parser._
@@ -12,37 +12,45 @@ import scala.collection.mutable.{ Map => mutableMap, Buffer => mutableBuffer }
 import org.eclipse.swt.graphics.{ Color => swtColor }
 import org.eclipse.swt.graphics.{ Font => swtFont }
 import evalExpr._
+import org.eclipse.swt.widgets.Shell
+import org.eclipse.swt.widgets.Display
+import org.eclipse.swt.widgets.Combo
+import org.eclipse.swt.widgets.Sash
+import org.eclipse.swt.widgets.Composite
+import org.eclipse.swt.widgets.Slider
+import org.eclipse.swt.widgets.Button
+import org.eclipse.swt.widgets.Label
+import org.eclipse.swt.widgets.Text
+import org.eclipse.swt.widgets.Listener
+import org.eclipse.swt.widgets.Event
+import scala.collection.mutable.MultiMap
 
 object Main {
-  
+
   val SASH_WIDTH = 5
 
   var widgetsMap: Map[String, AST.Widget] = null
 
-  
-  def evalCode(code: Program, window: Shell, unevaluatedVarMap: scala.collection.mutable.Map[String, Any], evaluatedVarMap: Map[String, Any]) = {
-    widgetsMap = code.defs.toMap
-    widgetsMap get "main_window" match {
-      case Some(w) =>
-        window setLayout new FillLayout
-        val scrolledComposite = new ScrolledComposite(window, SWT.H_SCROLL)
-        scrolledComposite setLayout new FillLayout
-        scrolledComposite setExpandHorizontal true
-        //scrolledComposite setExpandVertical true
-        val composite = new Composite(scrolledComposite, SWT.NONE)
-        scrolledComposite setContent composite
-        val (width, height, _, _, changeSize) = evalNode(w, composite, unevaluatedVarMap, evaluatedVarMap)
-        scrolledComposite setMinWidth width
-        window addControlListener new ControlAdapter {
-          override def controlResized(event: ControlEvent) {
-            composite.setSize(scrolledComposite.getSize)
-            changeSize(0, 0, composite.getSize.x, composite.getSize.y)
-          }
-        }
-        window.setSize(1000, 500)
-        composite.setSize(1000, 500)
+  def evalCode(w: Widget, window: Shell, parametersList: Map[String, Any], unevaluatedVarMap: MultiMap[String, () => Unit], evaluatedVarMap: Map[String, Any]) = {
+    window setLayout new FillLayout
+    val scrolledComposite = new ScrolledComposite(window, SWT.H_SCROLL)
+    scrolledComposite setLayout new FillLayout
+    scrolledComposite setExpandHorizontal true
+    //scrolledComposite setExpandVertical true
+    val composite = new Composite(scrolledComposite, SWT.NONE)
+    scrolledComposite setContent composite
+    val (width, height, _, _, changeSize) = evalNode(w, composite, unevaluatedVarMap, evaluatedVarMap)
+    scrolledComposite setMinWidth width
+    window addControlListener new ControlAdapter {
+      override def controlResized(event: ControlEvent) {
+        composite.setSize(scrolledComposite.getSize)
         changeSize(0, 0, composite.getSize.x, composite.getSize.y)
-      /*val (width, height, changeSize) = evalNode(w, window)
+      }
+    }
+    window.setSize(1000, 500)
+    composite.setSize(1000, 500)
+    changeSize(0, 0, composite.getSize.x, composite.getSize.y)
+    /*val (width, height, changeSize) = evalNode(w, window)
         window addControlListener new ControlAdapter {
           override def controlResized(event: ControlEvent) {
             changeSize(0, 0, window.getSize.x, window.getSize.y)
@@ -51,15 +59,11 @@ object Main {
         window.setSize(1000, 500)
         changeSize(0, 0, 1000, 500)*/
 
-      case None => println("main_window not found")
-    }
   }
-  
-  
+
   def evalNode(code: ASTNode, parent: Composite,
-		  		unevaluatedVarMap: scala.collection.mutable.Map[String, Any],
-		  		evaluatedVarMap: Map[String, Any]):
-		  		(Int, Int, Boolean, Boolean, (Int, Int, Int, Int) => Unit) = code match {
+    unevaluatedVarMap: MultiMap[String, () => Unit],
+    evaluatedVarMap: Map[String, Any]): (Int, Int, Boolean, Boolean, (Int, Int, Int, Int) => Unit) = code match {
     case AtomicWidget(kind, attributes, width, height) =>
       var hAlign = 0
       var text = ""
@@ -167,9 +171,9 @@ object Main {
           widget setFont new swtFont(widget.getDisplay(), font.face, font.size, style)
         //attribute "code" helps handling "bind" 
         case "code" =>
-          widget.addListener(SWT.Selection, new Listener{
+          widget.addListener(SWT.Selection, new Listener {
             override def handleEvent(e: Event) = {
-              EvalExpr (att.getValue).get
+              EvalExpr(att.getValue).get
             }
           })
         case _ =>
@@ -186,7 +190,7 @@ object Main {
     case Container(Container.Direction.Horizontal, children, _, _) =>
       var seenQM = 0
       var sashes = mutableBuffer[Sash]()
-      val childInfo = children map (evalNode(_, parent,unevaluatedVarMap, evaluatedVarMap))
+      val childInfo = children map (evalNode(_, parent, unevaluatedVarMap, evaluatedVarMap))
       val qms = childInfo count { case (_, _, b, _, _) => b } // total number of question marks (qms)
       val numWidth = childInfo map { case (w, _, _, _, _) => w } sum
       var sashMap = mutableMap[Sash, Double]()
@@ -440,8 +444,6 @@ object Main {
       })
   }
 
-
-
   def main(args: Array[String]) = {
     val display = new Display
     val shell = new Shell(display)
@@ -457,7 +459,7 @@ object Main {
       l<-( label :? x(a+b) )
       x<-(y)[x=?(3)]
       m<-( label :20x20 )[ text =" typical "]"""*/
-      
+
       /*"""main_window<-(l:?x?)[x=3] |
       ( textbox :?x70 )[ text ="eladeladeladeladeladeladeladelad", enabled = false, bgcolor = 0x0000FF, fgcolor = 0x00FF00, font = ("times new roman", 12, italic), halign = center] |
       ( button :?x100 )[ text ="shirshirshirshirshirshir", enabled = false, bgcolor = 0x00FFFF, fgcolor = 0x008F8F, font = ("times new roman", 16, italic), halign = center] | (
@@ -470,7 +472,7 @@ object Main {
       l<-( label :100x? )[ text ="typicaltypicaltypical", enabled = true, bgcolor = 0x0000FF, fgcolor = 0xFF0000, font = ("times new roman", 14, bold), halign = left]
       x<-(y)[x=?(3)]
       m<-( label :20x20 )[ text =" typical "]"""; */
-      
+
       /* including complicated expression
        *
       val shell = new Shell(display)
@@ -491,7 +493,7 @@ object Main {
       x<-(y)[x=?(3)]
       m<-(label :20x20 )[ text =" typical "]""";
     */
-    
+
       """main_window <- (( label :?x? )[ text ="label-typicaltypicaltypical", enabled = true, bgcolor = 0x00FF00, fgcolor = 0xFF0000, font = ("times new roman", 14, bold), halign = left] |
       ( textbox :?x70 )[ text ="textbox-eladeladeladeladeladeladeladelad", enabled = false, bgcolor = 0xAACC00, fgcolor = 0x00FF00, font = ("times new roman", 12, italic), halign = center] |
       ( button :?x100 )[ text ="button-shirshirshirshirshirshir", enabled = false, bgcolor = 0x0000FF, fgcolor = 0x008F8F, font = ("times new roman", 16, italic), halign = center] |
@@ -508,12 +510,12 @@ object Main {
       l<-( label :? x(a+b))
       x<-(y)[x=?(3)]
       m<-(label :20x20 )[ text =" typical "]""";
-      
+
     val prog = LayoutParser iParse code;
     val unevaluatedVarMap = scala.collection.mutable.Map[String, Any]()
     val evaluatedVarMap = Map[String, Any]()
     LayoutParser parseAll (LayoutParser.Program, code) match {
-      case LayoutParser.Success(result, nextInput) => evalCode(result, shell, unevaluatedVarMap, evaluatedVarMap) //print(result) 
+      case LayoutParser.Success(result, nextInput) => evalCode(result.defs.toMap.apply("main_window"), shell, Map(), unevaluatedVarMap, evaluatedVarMap) //print(result) 
       case LayoutParser.NoSuccess(msg, nextInput) =>
         println("Could not parse the input.");
         println(msg)
