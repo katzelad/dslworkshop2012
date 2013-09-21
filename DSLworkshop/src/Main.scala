@@ -1,37 +1,44 @@
-import org.eclipse.swt._
-import scala.List
-import org.eclipse.swt.layout._
-import org.eclipse.swt.widgets.{ Widget => swtWidget }
-import org.eclipse.swt.events._
-import org.eclipse.swt.graphics.Image
-import org.tau.workshop2011.parser._
-import org.tau.workshop2011.parser.AST._
-import org.tau.workshop2011.expressions._
+import scala.collection.mutable.{Buffer => mutableBuffer}
+import scala.collection.mutable.{Map => mutableMap}
+
+import org.eclipse.swt.SWT
 import org.eclipse.swt.custom.ScrolledComposite
-import scala.collection.mutable.{ Map => mutableMap, Buffer => mutableBuffer }
-import org.eclipse.swt.graphics.{ Color => swtColor }
-import org.eclipse.swt.graphics.{ Font => swtFont }
-import evalExpr._
-import org.eclipse.swt.widgets.Shell
-import org.eclipse.swt.widgets.Display
-import org.eclipse.swt.widgets.Combo
-import org.eclipse.swt.widgets.Sash
-import org.eclipse.swt.widgets.Composite
-import org.eclipse.swt.widgets.Slider
+import org.eclipse.swt.events.ControlAdapter
+import org.eclipse.swt.events.ControlEvent
+import org.eclipse.swt.graphics.{Color => swtColor}
+import org.eclipse.swt.graphics.{Font => swtFont}
+import org.eclipse.swt.graphics.Image
+import org.eclipse.swt.layout.FillLayout
 import org.eclipse.swt.widgets.Button
-import org.eclipse.swt.widgets.Label
-import org.eclipse.swt.widgets.Text
-import org.eclipse.swt.widgets.Listener
+import org.eclipse.swt.widgets.Combo
+import org.eclipse.swt.widgets.Composite
+import org.eclipse.swt.widgets.Display
 import org.eclipse.swt.widgets.Event
-import scala.collection.mutable.MultiMap
+import org.eclipse.swt.widgets.Label
+import org.eclipse.swt.widgets.Listener
+import org.eclipse.swt.widgets.Sash
+import org.eclipse.swt.widgets.Shell
+import org.eclipse.swt.widgets.Slider
+import org.eclipse.swt.widgets.Text
+import org.tau.workshop2011.expressions.Color
+import org.tau.workshop2011.expressions.Font
+import org.tau.workshop2011.expressions.HAlign
+import org.tau.workshop2011.expressions.TextStyle
+import org.tau.workshop2011.parser.AST.ASTNode
+import org.tau.workshop2011.parser.AST.AtomicWidget
+import org.tau.workshop2011.parser.AST.Container
+import org.tau.workshop2011.parser.AST.Widget
+import org.tau.workshop2011.parser.LayoutParser
+
+import evalExpr.EvalExpr
 
 object Main {
 
   val SASH_WIDTH = 5
 
-  var widgetsMap: Map[String, AST.Widget] = null
+  var widgetsMap: Map[String, Widget] = null
 
-  def evalCode(w: Widget, window: Shell, parametersList: Map[String, Any], unevaluatedVarMap: MultiMap[String, () => Unit], evaluatedVarMap: Map[String, Any]) = {
+  def evalCode(w: Widget, window: Shell, parametersList: mutableMap[String, Any], unevaluatedVarMap: mutableMap[String, Set[() => Unit]], evaluatedVarMap: mutableMap[String, Any]) = {
     window setLayout new FillLayout
     val scrolledComposite = new ScrolledComposite(window, SWT.H_SCROLL)
     scrolledComposite setLayout new FillLayout
@@ -62,8 +69,8 @@ object Main {
   }
 
   def evalNode(code: ASTNode, parent: Composite,
-    unevaluatedVarMap: MultiMap[String, () => Unit],
-    evaluatedVarMap: Map[String, Any]): (Int, Int, Boolean, Boolean, (Int, Int, Int, Int) => Unit) = code match {
+    unevaluatedVarMap: mutableMap[String, Set[() => Unit]],
+    evaluatedVarMap: mutableMap[String, Any]): (Int, Int, Boolean, Boolean, (Int, Int, Int, Int) => Unit) = code match {
     case AtomicWidget(kind, attributes, width, height) =>
       var hAlign = 0
       var text = ""
@@ -512,10 +519,10 @@ object Main {
       m<-(label :20x20 )[ text =" typical "]""";
 
     val prog = LayoutParser iParse code;
-    val unevaluatedVarMap = scala.collection.mutable.Map[String, Any]()
-    val evaluatedVarMap = Map[String, Any]()
+    val unevaluatedVarMap = mutableMap[String, Set[() => Unit]]()
+    val evaluatedVarMap = mutableMap[String, Any]()
     LayoutParser parseAll (LayoutParser.Program, code) match {
-      case LayoutParser.Success(result, nextInput) => evalCode(result.defs.toMap.apply("main_window"), shell, Map(), unevaluatedVarMap, evaluatedVarMap) //print(result) 
+      case LayoutParser.Success(result, nextInput) => evalCode(result.defs.toMap.apply("main_window"), shell, mutableMap(), unevaluatedVarMap, evaluatedVarMap) //print(result) 
       case LayoutParser.NoSuccess(msg, nextInput) =>
         println("Could not parse the input.");
         println(msg)
