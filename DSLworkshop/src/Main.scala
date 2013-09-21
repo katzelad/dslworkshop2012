@@ -522,7 +522,7 @@ object Main {
     val unevaluatedVarMap = mutableMap[String, Set[() => Unit]]()
     val evaluatedVarMap = mutableMap[String, Any]()
     LayoutParser parseAll (LayoutParser.Program, code) match {
-      case LayoutParser.Success(result, nextInput) => evalCode(result.defs.toMap.apply("main_window"), shell, mutableMap(), unevaluatedVarMap, evaluatedVarMap) //print(result) 
+      case LayoutParser.Success(result, nextInput) => /*evalCode(result.defs.toMap.apply("main_window"), shell, mutableMap(), unevaluatedVarMap, evaluatedVarMap) */print(result) 
       case LayoutParser.NoSuccess(msg, nextInput) =>
         println("Could not parse the input.");
         println(msg)

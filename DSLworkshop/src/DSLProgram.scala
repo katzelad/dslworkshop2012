@@ -1,14 +1,9 @@
-import org.eclipse.swt.widgets.Shell
-import org.eclipse.swt.widgets.Display
-import org.tau.workshop2011.parser.LayoutParser
-import org.eclipse.swt.events.ControlAdapter
-import org.eclipse.swt.layout.FillLayout
-import org.eclipse.swt.custom.ScrolledComposite
-import org.eclipse.swt.widgets.Composite
-import org.eclipse.swt.events.ControlEvent
-import org.eclipse.swt.SWT
 import scala.collection.immutable.HashSet
 import scala.collection.mutable.Map
+
+import org.eclipse.swt.widgets.Display
+import org.eclipse.swt.widgets.Shell
+import org.tau.workshop2011.parser.LayoutParser
 
 class DSLProgram(code: String) {
   val display = new Display
@@ -31,13 +26,14 @@ class DSLProgram(code: String) {
     }
     def set(varName: String, value: Any) {
       evaluatedVarMap(varName) = value
+      unevaluatedVarMap(varName) foreach (_())
     }
 
     def bind(name: String, value: Any) { //TODO not good - functionToAdd should be able to have multiple parameters, and we don't know how many and of which type
       bindedFunctionsMap(name) = value
     }
 
-    def when_changed(varName: String, func: () => Unit) {
+    def when_changed(varName: String, func: (/*Any, Any*/) => Unit) {
       if (!unevaluatedVarMap.contains(varName))
         unevaluatedVarMap(varName) = new HashSet[() => Unit]
       unevaluatedVarMap(varName) += func
