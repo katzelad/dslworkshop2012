@@ -1,13 +1,16 @@
-import org.eclipse.swt._
-import scala.List
-import org.eclipse.swt.layout._
-import org.eclipse.swt.widgets._
-import org.eclipse.swt.events._
-import org.eclipse.swt.graphics.Image
-import org.tau.workshop2011.parser._
-import org.tau.workshop2011.parser.AST._
-import org.tau.workshop2011.expressions._
-import collection.mutable.ArrayBuffer
+import org.tau.workshop2011.expressions.Type
+import org.tau.workshop2011.parser.AST.Attribute
+import org.tau.workshop2011.parser.AST.Comparision
+import org.tau.workshop2011.parser.AST.Condition
+import org.tau.workshop2011.parser.AST.Conjuction
+import org.tau.workshop2011.parser.AST.DirectExpr
+import org.tau.workshop2011.parser.AST.Disjunction
+import org.tau.workshop2011.parser.AST.Expr
+import org.tau.workshop2011.parser.AST.Literal
+import org.tau.workshop2011.parser.AST.Negation
+import org.tau.workshop2011.parser.AST.Product
+import org.tau.workshop2011.parser.AST.Sum
+import org.tau.workshop2011.parser.AST.Variable
 
 package evalExpr {
 

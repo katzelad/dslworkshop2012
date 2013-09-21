@@ -1,12 +1,11 @@
-import scala.collection.mutable.{Buffer => mutableBuffer}
-import scala.collection.mutable.{Map => mutableMap}
-
+import scala.collection.mutable.{ Buffer => mutableBuffer }
+import scala.collection.mutable.{ Map => mutableMap }
 import org.eclipse.swt.SWT
 import org.eclipse.swt.custom.ScrolledComposite
 import org.eclipse.swt.events.ControlAdapter
 import org.eclipse.swt.events.ControlEvent
-import org.eclipse.swt.graphics.{Color => swtColor}
-import org.eclipse.swt.graphics.{Font => swtFont}
+import org.eclipse.swt.graphics.{ Color => swtColor }
+import org.eclipse.swt.graphics.{ Font => swtFont }
 import org.eclipse.swt.graphics.Image
 import org.eclipse.swt.layout.FillLayout
 import org.eclipse.swt.widgets.Button
@@ -29,8 +28,8 @@ import org.tau.workshop2011.parser.AST.AtomicWidget
 import org.tau.workshop2011.parser.AST.Container
 import org.tau.workshop2011.parser.AST.Widget
 import org.tau.workshop2011.parser.LayoutParser
-
 import evalExpr.EvalExpr
+import org.tau.workshop2011.parser.AST.PropertyScope
 
 object Main {
 
@@ -68,133 +67,26 @@ object Main {
 
   }
 
-  def evalNode(code: ASTNode, parent: Composite,
-    unevaluatedVarMap: mutableMap[String, Set[() => Unit]],
-    evaluatedVarMap: mutableMap[String, Any]): (Int, Int, Boolean, Boolean, (Int, Int, Int, Int) => Unit) = code match {
-    case AtomicWidget(kind, attributes, width, height) =>
-      var hAlign = 0
-      var text = ""
-      var checked = false
-      // TODO change image location
-      var image = "E:/error.jpg"
-      var minValue, maxValue = 0
-      var value: Option[Int] = None
-      var changeImageSize = (width: Int, height: Int) => {}
-      var (minWidth, minHeight, isWidthQM, isHeightQM) = (0, 0, true, true)
-      for (att <- attributes) att.getName match {
-        case "halign" => hAlign = (EvalExpr[HAlign](att getValue).get: @unchecked) match {
-          case HAlign.left => SWT.LEFT
-          case HAlign.center => SWT.CENTER
-          case HAlign.right => SWT.RIGHT
-        }
-        case "text" => text = EvalExpr(att getValue).get
-        case "checked" => checked = EvalExpr(att getValue).get
-        case "image" => image = EvalExpr(att getValue).get
-        case "value" => value = EvalExpr(att getValue)
-        case "maxvalue" => maxValue = EvalExpr(att getValue).get
-        case "minvalue" => minValue = EvalExpr(att getValue).get
-        case _ =>
-      }
-      val widget = kind match {
-        case "label" | "" =>
-          val label = new Label(parent, SWT.WRAP | hAlign)
-          label setText text
-          label
-        case "textbox" =>
-          val textbox = new Text(parent, SWT.WRAP | hAlign)
-          textbox setText text
-          textbox
-        case "button" =>
-          val button = new Button(parent, SWT.PUSH | SWT.WRAP | hAlign)
-          button setText text
-          button
-        case "checkbox" =>
-          val checkbox = new Button(parent, SWT.CHECK) //TODO see if it's 0/1 or true/false
-          checkbox.setSelection(checked)
-          checkbox
-        case "radio" =>
-          val radio = new Button(parent, SWT.RADIO)
-          radio.setSelection(checked)
-          radio
-        case "image" =>
-          val label = new Label(parent, SWT.NONE)
-          label setImage new Image(label.getDisplay(), image)
-          changeImageSize = (width, height) => { // TODO fix change image size
-            if (width > 0 && height > 0) {
-              val prevImage = label.getImage
-              label setImage new Image(label.getDisplay(), prevImage.getImageData().scaledTo(width, height))
-              prevImage dispose
-            }
-          }
-          label
-        case "combo" =>
-          val combo = new Combo(parent, SWT.DROP_DOWN | SWT.READ_ONLY)
-          combo setItems text.split(",")
-          value match {
-            case Some(v) => combo select v
-            case None =>
-          }
-          combo
-        case "slider" =>
-          val slider = new Slider(parent, SWT.HORIZONTAL)
-          slider setMaximum maxValue
-          slider setMinimum minValue
-          slider setSelection value.getOrElse(0)
-          slider
-        case s =>
-          val scrolledComposite = new ScrolledComposite(parent, SWT.H_SCROLL)
-          scrolledComposite setLayout new FillLayout
-          scrolledComposite setExpandHorizontal true
-          //scrolledComposite setExpandVertical true
-          val composite = new Composite(scrolledComposite, SWT.NONE)
-          scrolledComposite setContent composite
-          val (width, height, _, _, changeSize) = evalNode(widgetsMap(s), composite, unevaluatedVarMap, evaluatedVarMap)
-          minWidth = width
-          minHeight = height
-          scrolledComposite setMinWidth width
-          scrolledComposite addControlListener new ControlAdapter {
-            override def controlResized(event: ControlEvent) {
-              composite.setSize(scrolledComposite.getSize)
-              changeSize(0, 0, composite.getSize.x, composite.getSize.y)
-            }
-          }
-          scrolledComposite
-      }
-      for (att <- attributes) att.getName match {
-        case "enabled" => widget setEnabled EvalExpr(att getValue).get
-        case "fgcolor" =>
-          val color = EvalExpr[Color](att getValue).get
-          widget setForeground new swtColor(widget.getDisplay(), color.red, color.green, color.blue)
-        case "bgcolor" =>
-          val color = EvalExpr[Color](att getValue).get
-          widget setBackground new swtColor(widget.getDisplay(), color.red, color.green, color.blue)
-        case "font" =>
-          val font = EvalExpr[Font](att getValue).get
-          val style = (font.style: @unchecked) match {
-            case TextStyle.bold => SWT.BOLD
-            case TextStyle.italic => SWT.ITALIC
-            case TextStyle.regular => SWT.NORMAL
-          }
-          widget setFont new swtFont(widget.getDisplay(), font.face, font.size, style)
-        //attribute "code" helps handling "bind" 
-        case "code" =>
-          widget.addListener(SWT.Selection, new Listener {
-            override def handleEvent(e: Event) = {
-              EvalExpr(att.getValue).get
-            }
-          })
-        case _ =>
-      }
-      val widthVal = EvalExpr(width)
-      val heightVal = EvalExpr(height)
-      (widthVal getOrElse 0, heightVal getOrElse 0, widthVal.isEmpty, heightVal.isEmpty, (left: Int, top: Int, right: Int, bottom: Int) => {
-        widget setBounds (left, top, math.min(right - left, widthVal.getOrElse(Int.MaxValue)),
-          math.min(bottom - top, heightVal.getOrElse(Int.MaxValue)))
-        changeImageSize(widget.getSize.x, widget.getSize.y)
-        // println(widget, widget.getBounds)
-      })
-    // TODO deal with vertical
-    case Container(Container.Direction.Horizontal, children, _, _) =>
+  def isReservedAtrribute(att: String) = att match {
+    case "halign" => true
+    case "text" => true
+    case "checked" => true
+    case "image" => true
+    case "value" => true
+    case "maxvalue" => true
+    case "minvalue" => true
+    case "enabled" => true
+    case "fgcolor" => true
+    case "bgcolor" => true
+    case "font" => true
+    case _ => false
+  }
+
+  def handleHorizontalContainer(code: ASTNode, parent: Composite,
+    unevaluatedVarMap: mutableMap[String, Set[()=>Unit]], evaluatedVarMap: mutableMap[String, Any],
+    children: List[org.tau.workshop2011.parser.AST.Widget]): (Int, Int, Boolean, Boolean, (Int, Int, Int, Int) => Unit) =
+
+    {
       var seenQM = 0
       var sashes = mutableBuffer[Sash]()
       val childInfo = children map (evalNode(_, parent, unevaluatedVarMap, evaluatedVarMap))
@@ -449,6 +341,156 @@ object Main {
 
         isChangingSize = false
       })
+    }
+
+  def evalNode(code: ASTNode, parent: Composite,
+    unevaluatedVarMap: mutableMap[String, Set[() => Unit]],
+    evaluatedVarMap: mutableMap[String, Any]): (Int, Int, Boolean, Boolean, (Int, Int, Int, Int) => Unit) = code match {
+    //***case 1/3 atomic widget***
+    case AtomicWidget(kind, attributes, width, height) =>
+      var hAlign = 0
+      var text = ""
+      var checked = false
+      // TODO change image location
+      var image = "E:/error.jpg"
+      var minValue, maxValue = 0
+      var value: Option[Int] = None
+      var changeImageSize = (width: Int, height: Int) => {}
+      var (minWidth, minHeight, isWidthQM, isHeightQM) = (0, 0, true, true)
+      for (att <- attributes) att.getName match {
+        case "halign" => hAlign = (EvalExpr[HAlign](att getValue).get: @unchecked) match {
+          case HAlign.left => SWT.LEFT
+          case HAlign.center => SWT.CENTER
+          case HAlign.right => SWT.RIGHT
+        }
+        case "text" => text = EvalExpr(att getValue).get
+        case "checked" => checked = EvalExpr(att getValue).get
+        case "image" => image = EvalExpr(att getValue).get
+        case "value" => value = EvalExpr(att getValue)
+        case "maxvalue" => maxValue = EvalExpr(att getValue).get
+        case "minvalue" => minValue = EvalExpr(att getValue).get
+        case _ =>
+      }
+      val widget = kind match {
+        case "label" | "" =>
+          val label = new Label(parent, SWT.WRAP | hAlign)
+          label setText text
+          label
+        case "textbox" =>
+          val textbox = new Text(parent, SWT.WRAP | hAlign)
+          textbox setText text
+          textbox
+        case "button" =>
+          val button = new Button(parent, SWT.PUSH | SWT.WRAP | hAlign)
+          button setText text
+          button
+        case "checkbox" =>
+          val checkbox = new Button(parent, SWT.CHECK) //TODO see if it's 0/1 or true/false
+          checkbox.setSelection(checked)
+          checkbox
+        case "radio" =>
+          val radio = new Button(parent, SWT.RADIO)
+          radio.setSelection(checked)
+          radio
+        case "image" =>
+          val label = new Label(parent, SWT.NONE)
+          label setImage new Image(label.getDisplay(), image)
+          changeImageSize = (width, height) => { // TODO fix change image size
+            if (width > 0 && height > 0) {
+              val prevImage = label.getImage
+              label setImage new Image(label.getDisplay(), prevImage.getImageData().scaledTo(width, height))
+              prevImage dispose
+            }
+          }
+          label
+        case "combo" =>
+          val combo = new Combo(parent, SWT.DROP_DOWN | SWT.READ_ONLY)
+          combo setItems text.split(",")
+          value match {
+            case Some(v) => combo select v
+            case None =>
+          }
+          combo
+        case "slider" =>
+          val slider = new Slider(parent, SWT.HORIZONTAL)
+          slider setMaximum maxValue
+          slider setMinimum minValue
+          slider setSelection value.getOrElse(0)
+          slider
+        case s =>
+          val scrolledComposite = new ScrolledComposite(parent, SWT.H_SCROLL)
+          scrolledComposite setLayout new FillLayout
+          scrolledComposite setExpandHorizontal true
+          //scrolledComposite setExpandVertical true
+          val composite = new Composite(scrolledComposite, SWT.NONE)
+          scrolledComposite setContent composite
+          val (width, height, _, _, changeSize) = evalNode(widgetsMap(s), composite, unevaluatedVarMap, evaluatedVarMap)
+          minWidth = width
+          minHeight = height
+          scrolledComposite setMinWidth width
+          scrolledComposite addControlListener new ControlAdapter {
+            override def controlResized(event: ControlEvent) {
+              composite.setSize(scrolledComposite.getSize)
+              changeSize(0, 0, composite.getSize.x, composite.getSize.y)
+            }
+          }
+          scrolledComposite
+      }
+      for (att <- attributes) att.getName match {
+        case "enabled" => widget setEnabled EvalExpr(att getValue).get
+        case "fgcolor" =>
+          val color = EvalExpr[Color](att getValue).get
+          widget setForeground new swtColor(widget.getDisplay(), color.red, color.green, color.blue)
+        case "bgcolor" =>
+          val color = EvalExpr[Color](att getValue).get
+          widget setBackground new swtColor(widget.getDisplay(), color.red, color.green, color.blue)
+        case "font" =>
+          val font = EvalExpr[Font](att getValue).get
+          val style = (font.style: @unchecked) match {
+            case TextStyle.bold => SWT.BOLD
+            case TextStyle.italic => SWT.ITALIC
+            case TextStyle.regular => SWT.NORMAL
+          }
+          widget setFont new swtFont(widget.getDisplay(), font.face, font.size, style)
+        //attribute "code" helps handling "bind" 
+        case "code" =>
+          widget.addListener(SWT.Selection, new Listener {
+            override def handleEvent(e: Event) = {
+              EvalExpr(att.getValue).get
+            }
+          })
+        case _ =>
+      }
+      val widthVal = EvalExpr(width)
+      val heightVal = EvalExpr(height)
+      (widthVal getOrElse 0, heightVal getOrElse 0, widthVal.isEmpty, heightVal.isEmpty, (left: Int, top: Int, right: Int, bottom: Int) => {
+        widget setBounds (left, top, math.min(right - left, widthVal.getOrElse(Int.MaxValue)),
+          math.min(bottom - top, heightVal.getOrElse(Int.MaxValue)))
+        changeImageSize(widget.getSize.x, widget.getSize.y)
+        // println(widget, widget.getBounds)
+      })
+    // TODO deal with vertical
+
+    //***case 2/3 - container***
+    case Container(Container.Direction.Horizontal, children, _, _) =>
+      handleHorizontalContainer(code, parent, unevaluatedVarMap, evaluatedVarMap, children)
+
+    //***case 3/3 property scope
+    case PropertyScope(container, attributes) => {
+      //addVariablesToVarmaps(attributes ,unevaluateVarMap, evaluatedVarMap)
+      //first add the variables to the varmap:
+      for (att <- attributes) att.getName match {
+        case s: String => if (!isReservedAtrribute(s)) {
+          unevaluatedVarMap(att.getName)=att.getValue
+        }
+      }
+      //then handle the rest of the container:
+      container match {
+        case Container(Container.Direction.Horizontal, children, _, _) =>
+          handleHorizontalContainer(code, parent, unevaluatedVarMap, evaluatedVarMap, children)
+      }
+    }
+
   }
 
   def main(args: Array[String]) = {
@@ -522,7 +564,7 @@ object Main {
     val unevaluatedVarMap = mutableMap[String, Set[() => Unit]]()
     val evaluatedVarMap = mutableMap[String, Any]()
     LayoutParser parseAll (LayoutParser.Program, code) match {
-      case LayoutParser.Success(result, nextInput) => /*evalCode(result.defs.toMap.apply("main_window"), shell, mutableMap(), unevaluatedVarMap, evaluatedVarMap) */print(result) 
+      case LayoutParser.Success(result, nextInput) => /*evalCode(result.defs.toMap.apply("main_window"), shell, mutableMap(), unevaluatedVarMap, evaluatedVarMap) */ print(result)
       case LayoutParser.NoSuccess(msg, nextInput) =>
         println("Could not parse the input.");
         println(msg)
