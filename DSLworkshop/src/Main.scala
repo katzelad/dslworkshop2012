@@ -481,7 +481,8 @@ object Main {
       //first add the variables to the varmap:
       for (att <- attributes) att.getName match {
         case s: String => if (!isReservedAtrribute(s)) {
-          unevaluatedVarMap(att.getName)=att.getValue
+          // TODO unevaluatedVarMap(att.getName)=att.getValue
+          evaluatedVarMap(att.getName)=EvalExpr(att.getValue)
         }
       }
       //then, handle the rest of the container:
