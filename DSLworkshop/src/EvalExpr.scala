@@ -1,3 +1,5 @@
+import scala.reflect.ClassTag
+
 import org.tau.workshop2011.expressions.Type
 import org.tau.workshop2011.parser.AST.Attribute
 import org.tau.workshop2011.parser.AST.Comparision
@@ -25,7 +27,7 @@ package evalExpr {
 object EvalExpr {  
   //TODO delete this later when everything is replaced with evalExpr(someType)  
   //def evalExpr[T](exp: Option[Expr], expType: Type) = exp match { //TODO follow al the changes Elad did on this regard
-  def apply[T](exp: Option[Expr]) = exp match {
+  def apply[T: ClassTag](exp: Option[Expr]) = exp match {
     //TODO not sure why but this was not recognized as "some" but rather as "int",but lets deal with this some other time
     case Some(value) => value match { case Literal(value: T) => Some(value) }
     case None => None

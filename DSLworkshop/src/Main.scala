@@ -83,7 +83,7 @@ object Main {
   }
 
   def handleHorizontalContainer(code: ASTNode, parent: Composite,
-    unevaluatedVarMap: mutableMap[String, Set[()=>Unit]], evaluatedVarMap: mutableMap[String, Any],
+    unevaluatedVarMap: mutableMap[String, Set[() => Unit]], evaluatedVarMap: mutableMap[String, Any],
     children: List[org.tau.workshop2011.parser.AST.Widget]): (Int, Int, Boolean, Boolean, (Int, Int, Int, Int) => Unit) =
 
     {
@@ -482,7 +482,7 @@ object Main {
       for (att <- attributes) att.getName match {
         case s: String => if (!isReservedAtrribute(s)) {
           // TODO unevaluatedVarMap(att.getName)=att.getValue
-          evaluatedVarMap(att.getName)=EvalExpr(att.getValue)
+          evaluatedVarMap(att.getName) = EvalExpr(att.getValue)
         }
       }
       //then, handle the rest of the container:
