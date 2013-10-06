@@ -1,11 +1,13 @@
-import scala.collection.mutable.{ Buffer => mutableBuffer }
-import scala.collection.mutable.{ Map => mutableMap }
+import scala.collection.immutable.HashSet
+import scala.collection.mutable.{Buffer => mutableBuffer}
+import scala.collection.mutable.{Map => mutableMap}
+
 import org.eclipse.swt.SWT
 import org.eclipse.swt.custom.ScrolledComposite
 import org.eclipse.swt.events.ControlAdapter
 import org.eclipse.swt.events.ControlEvent
-import org.eclipse.swt.graphics.{ Color => swtColor }
-import org.eclipse.swt.graphics.{ Font => swtFont }
+import org.eclipse.swt.graphics.{Color => swtColor}
+import org.eclipse.swt.graphics.{Font => swtFont}
 import org.eclipse.swt.graphics.Image
 import org.eclipse.swt.layout.FillLayout
 import org.eclipse.swt.widgets.Button
@@ -26,10 +28,9 @@ import org.tau.workshop2011.expressions.TextStyle
 import org.tau.workshop2011.parser.AST.ASTNode
 import org.tau.workshop2011.parser.AST.AtomicWidget
 import org.tau.workshop2011.parser.AST.Container
+import org.tau.workshop2011.parser.AST.PropertyScope
 import org.tau.workshop2011.parser.AST.Widget
 import org.tau.workshop2011.parser.LayoutParser
-import evalExpr.EvalExpr
-import org.tau.workshop2011.parser.AST.PropertyScope
 
 object Main {
 
@@ -358,17 +359,17 @@ object Main {
       var changeImageSize = (width: Int, height: Int) => {}
       var (minWidth, minHeight, isWidthQM, isHeightQM) = (0, 0, true, true)
       for (att <- attributes) att.getName match {
-        case "halign" => hAlign = (EvalExpr[HAlign](att getValue).get: @unchecked) match {
+        case "halign" => hAlign = (EvalExpr[HAlign](att.getValue.get): @unchecked) match {
           case HAlign.left => SWT.LEFT
           case HAlign.center => SWT.CENTER
           case HAlign.right => SWT.RIGHT
         }
-        case "text" => text = EvalExpr(att getValue).get
-        case "checked" => checked = EvalExpr(att getValue).get
-        case "image" => image = EvalExpr(att getValue).get
-        case "value" => value = EvalExpr(att getValue)
-        case "maxvalue" => maxValue = EvalExpr(att getValue).get
-        case "minvalue" => minValue = EvalExpr(att getValue).get
+        case "text" => text = EvalExpr[String](att.getValue.get)
+        case "checked" => checked = EvalExpr[Int](att.getValue.get) == 1
+        case "image" => image = EvalExpr[String](att.getValue.get)
+        case "value" => value = Some(EvalExpr[Int](att.getValue.get))
+        case "maxvalue" => maxValue = EvalExpr[Int](att.getValue.get)
+        case "minvalue" => minValue = EvalExpr[Int](att.getValue.get)
         case _ =>
       }
       val widget = kind match {
@@ -437,15 +438,15 @@ object Main {
           scrolledComposite
       }
       for (att <- attributes) att.getName match {
-        case "enabled" => widget setEnabled EvalExpr(att getValue).get
+        case "enabled" => widget setEnabled EvalExpr(att.getValue.get)
         case "fgcolor" =>
-          val color = EvalExpr[Color](att getValue).get
+          val color = EvalExpr[Color](att.getValue.get)
           widget setForeground new swtColor(widget.getDisplay(), color.red, color.green, color.blue)
         case "bgcolor" =>
-          val color = EvalExpr[Color](att getValue).get
+          val color = EvalExpr[Color](att.getValue.get)
           widget setBackground new swtColor(widget.getDisplay(), color.red, color.green, color.blue)
         case "font" =>
-          val font = EvalExpr[Font](att getValue).get
+          val font = EvalExpr[Font](att.getValue.get)
           val style = (font.style: @unchecked) match {
             case TextStyle.bold => SWT.BOLD
             case TextStyle.italic => SWT.ITALIC
@@ -456,13 +457,13 @@ object Main {
         case "code" =>
           widget.addListener(SWT.Selection, new Listener {
             override def handleEvent(e: Event) = {
-              EvalExpr(att.getValue).get
+              EvalExpr(att.getValue.get)
             }
           })
         case _ =>
       }
-      val widthVal = EvalExpr(width)
-      val heightVal = EvalExpr(height)
+      val widthVal = width.map(EvalExpr[Int])
+      val heightVal = height.map(EvalExpr[Int])
       (widthVal getOrElse 0, heightVal getOrElse 0, widthVal.isEmpty, heightVal.isEmpty, (left: Int, top: Int, right: Int, bottom: Int) => {
         widget setBounds (left, top, math.min(right - left, widthVal.getOrElse(Int.MaxValue)),
           math.min(bottom - top, heightVal.getOrElse(Int.MaxValue)))
@@ -472,19 +473,18 @@ object Main {
     // TODO deal with vertical
 
     //***case 2/3 - container***
-    case Container(Container.Direction.Horizontal, children, _, _) =>
+    case Container(Container.Direction.Horizontal, children, _, _) => // TODO consider width and height
       handleHorizontalContainer(code, parent, unevaluatedVarMap, evaluatedVarMap, children)
 
     //***case 3/3 property scope
     case PropertyScope(container, attributes) => {
       //addVariablesToVarmaps(attributes ,unevaluateVarMap, evaluatedVarMap)
       //first add the variables to the varmap:
-      for (att <- attributes) att.getName match {
-        case s: String => if (!isReservedAtrribute(s)) {
-          // TODO unevaluatedVarMap(att.getName)=att.getValue
-          evaluatedVarMap(att.getName) = EvalExpr(att.getValue)
-        }
-      }
+      val customAtts = attributes.filter(att => !isReservedAtrribute(att.getName))
+      customAtts.map(att => {
+        unevaluatedVarMap(att.getName)= new HashSet
+        evaluatedVarMap += att.getName -> EvalExpr(att.getValue.get)
+      })
       //then, handle the rest of the container:
       container match {
         case Container(Container.Direction.Horizontal, children, _, _) =>

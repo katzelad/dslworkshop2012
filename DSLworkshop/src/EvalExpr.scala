@@ -1,56 +1,34 @@
 import scala.reflect.ClassTag
-
 import org.tau.workshop2011.expressions.Type
-import org.tau.workshop2011.parser.AST.Attribute
-import org.tau.workshop2011.parser.AST.Comparision
-import org.tau.workshop2011.parser.AST.Condition
-import org.tau.workshop2011.parser.AST.Conjuction
-import org.tau.workshop2011.parser.AST.DirectExpr
-import org.tau.workshop2011.parser.AST.Disjunction
-import org.tau.workshop2011.parser.AST.Expr
-import org.tau.workshop2011.parser.AST.Literal
-import org.tau.workshop2011.parser.AST.Negation
-import org.tau.workshop2011.parser.AST.Product
-import org.tau.workshop2011.parser.AST.Sum
-import org.tau.workshop2011.parser.AST.Variable
+import org.tau.workshop2011.parser.AST._
 
-package evalExpr {
-
-  
-      //TODO added the old evalExp back - to allow everything to work, work on this and replace existing
-  /*
+//TODO added the old evalExp back - to allow everything to work, work on this and replace existing
+/*
   def evalExpr(exp: Expr, expType: Type) = (exp: @unchecked) match {
     case Literal(value) => value
   }
   */
 
-object EvalExpr {  
+object EvalExpr {
   //TODO delete this later when everything is replaced with evalExpr(someType)  
   //def evalExpr[T](exp: Option[Expr], expType: Type) = exp match { //TODO follow al the changes Elad did on this regard
-  def apply[T: ClassTag](exp: Option[Expr]) = exp match {
-    //TODO not sure why but this was not recognized as "some" but rather as "int",but lets deal with this some other time
-    case Some(value) => value match { case Literal(value: T) => Some(value) }
-    case None => None
-  }
-  
-  
+  def apply[T: ClassTag](exp: Expr) = exp match { case Literal(value: T) => value }
+
   //TODO write evalExpr with pattern matching
- 
-  
+
   //Var (adding to Varmap) //TODO - anything else here?
   def returnStringVal(att: Attribute, unevaluatedVarMap: scala.collection.mutable.Map[String, Any], evaluatedVarMap: Map[String, Any]) = {
-     att.getValue
-  }  
-  def addAttributeToVarMap(att: Attribute, unevaluatedVarMap: scala.collection.mutable.Map[String, Any], evaluatedVarMap: Map[String, Any]) = {
-     unevaluatedVarMap(att.getName)=returnStringVal(att, unevaluatedVarMap, evaluatedVarMap)
-     //TODO - anything else here?
+    att.getValue
   }
-  def evalExprVar(att:Attribute, unevaluatedVarMap: scala.collection.mutable.Map[String, Any], evaluatedVarMap: Map[String, Any])={
+  def addAttributeToVarMap(att: Attribute, unevaluatedVarMap: scala.collection.mutable.Map[String, Any], evaluatedVarMap: Map[String, Any]) = {
+    unevaluatedVarMap(att.getName) = returnStringVal(att, unevaluatedVarMap, evaluatedVarMap)
+    //TODO - anything else here?
+  }
+  def evalExprVar(att: Attribute, unevaluatedVarMap: scala.collection.mutable.Map[String, Any], evaluatedVarMap: Map[String, Any]) = {
     addAttributeToVarMap(att, unevaluatedVarMap, evaluatedVarMap)
     //TODO - anything else here?
-  }  
-     
-     
+  }
+
   //Int
   def evalExprInt(exp: Option[Expr], unevaluatedVarMap: scala.collection.mutable.Map[String, Any], evaluatedVarMap: Map[String, Any]): Option[Int] = exp match { //the "any" is useful because it allows to use one map for all types, and later i can extract the correct type from the exp using type.fromValue (value:Any) 
     case Some(value) => value match {
@@ -74,17 +52,17 @@ object EvalExpr {
       }
       //TODO test -  basic scenario working, needs to test elaborate condition
       case Condition(conds: List[(DirectExpr, Expr)], otherwise: Expr) => {
-        var returnval=0;
-        var conditionVal=false;
-        var i=0;
+        var returnval = 0;
+        var conditionVal = false;
+        var i = 0;
         //iterate over all the "condition=>val"
-        while(!conditionVal && i<conds.length){
-          returnval=evalExprInt(Some(conds(i)._2), unevaluatedVarMap, evaluatedVarMap).get
-          conditionVal=evalExprBoolean(Some(conds(i)._1), unevaluatedVarMap, evaluatedVarMap).get
-          i+=1;
-          }
+        while (!conditionVal && i < conds.length) {
+          returnval = evalExprInt(Some(conds(i)._2), unevaluatedVarMap, evaluatedVarMap).get
+          conditionVal = evalExprBoolean(Some(conds(i)._1), unevaluatedVarMap, evaluatedVarMap).get
+          i += 1;
+        }
         //otherwise
-        if (!conditionVal)(returnval = evalExprInt(Some(otherwise), unevaluatedVarMap, evaluatedVarMap).get)
+        if (!conditionVal) (returnval = evalExprInt(Some(otherwise), unevaluatedVarMap, evaluatedVarMap).get)
         Some(returnval)
       }
       //TODO test
@@ -99,7 +77,7 @@ object EvalExpr {
     }
     case None => None
   }
-  
+
   //bool
   def evalExprBoolean(exp: Option[Expr], varmap: scala.collection.mutable.Map[String, Any], constmap: Map[String, Any]): Option[Boolean] = exp match {
     case Some(value) => value match {
@@ -133,17 +111,17 @@ object EvalExpr {
       }
       //TODO test - basic scenario works
       case Condition(conds: List[(DirectExpr, Expr)], otherwise: Expr) => {
-        var returnval=false;
-        var conditionVal=false;
-        var i=0;
+        var returnval = false;
+        var conditionVal = false;
+        var i = 0;
         //iterate over all the conditions "condition=>val"
-        while(!conditionVal && i<conds.length){
-          returnval=evalExprBoolean(Some(conds(i)._2), varmap, constmap).get
-          conditionVal=evalExprBoolean(Some(conds(i)._1), varmap, constmap).get
-          i+=1;
-          }
+        while (!conditionVal && i < conds.length) {
+          returnval = evalExprBoolean(Some(conds(i)._2), varmap, constmap).get
+          conditionVal = evalExprBoolean(Some(conds(i)._1), varmap, constmap).get
+          i += 1;
+        }
         //otherwise
-        if (!conditionVal)(returnval = evalExprBoolean(Some(otherwise), varmap, constmap).get)
+        if (!conditionVal) (returnval = evalExprBoolean(Some(otherwise), varmap, constmap).get)
         Some(returnval)
       }
       //TODO test - working
@@ -152,33 +130,31 @@ object EvalExpr {
 
     case None => None
   }
-  
-  
+
   //halign
   //TODO  
-//  def evalExprHAlign(exp: Option[Expr], varmap: Map[String, Any], constmap: Map[String, Any]): Option[Int] = exp match {
-//    case Some(value) => value match {
-//     {
-//        
-//      }
-//    }
-//    case None => None
-//  }  
-  
+  //  def evalExprHAlign(exp: Option[Expr], varmap: Map[String, Any], constmap: Map[String, Any]): Option[Int] = exp match {
+  //    case Some(value) => value match {
+  //     {
+  //        
+  //      }
+  //    }
+  //    case None => None
+  //  }  
 
   //valign
-//TODO
-//  def evalExprVAlign(exp: Option[Expr], varmap: Map[String, Any], constmap: Map[String, Any]): Option[Int] = exp match {
-//    case Some(value) => value match {
-//      //case  Left(elem: DirectExpr)=>{
-//        
-//      }
-//    }
-//    case None => None
-//  }  
+  //TODO
+  //  def evalExprVAlign(exp: Option[Expr], varmap: Map[String, Any], constmap: Map[String, Any]): Option[Int] = exp match {
+  //    case Some(value) => value match {
+  //      //case  Left(elem: DirectExpr)=>{
+  //        
+  //      }
+  //    }
+  //    case None => None
+  //  }  
 
   //fonttuple <font name, size, style>
-    //TODO  
+  //TODO  
   /*   def evalExprFontTuple(exp: Option[Expr], varmap: Map[String, Any]): Option[Int] = exp match {
     case Some(value) => value match {
       
@@ -186,10 +162,18 @@ object EvalExpr {
     }
     case None => None
   }*/
-  
-  
-  
-}
-
-
+  def getVariables(exp: Expr): Set[String] = exp match {
+    case Comparision(left, right) => getVariables(left) ++ getVariables(right)
+    case Conjuction(elems) => elems.toSet.map(getVariables).flatten
+    case Condition(conds, otherwise) => conds.map({case (left, right) => getVariables(left) ++ getVariables(right)})
+    											.reduce(_ ++ _) ++ getVariables(otherwise)
+    case Disjunction(elems) => elems.toSet.map(getVariables).flatten
+    case FunctionCall(_, args) => args.toSet.map(getVariables).flatten
+    case IterationVariable(_, index, _) => Set(index)
+    case Literal(_) => Set()
+    case Negation(expr) => getVariables(expr)
+    case Product(mul, div) => mul.toSet.map(getVariables).flatten ++ div.toSet.map(getVariables).flatten
+    case Sum(add, sub) => add.toSet.map(getVariables).flatten ++ sub.toSet.map(getVariables).flatten
+    case Variable(name, _, isFunction) => if (isFunction) Set() else Set(name)
+  }
 }
