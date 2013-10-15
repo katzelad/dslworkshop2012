@@ -1,13 +1,12 @@
-import scala.collection.immutable.HashSet
-import scala.collection.mutable.{Buffer => mutableBuffer}
-import scala.collection.mutable.{Map => mutableMap}
+import scala.collection.mutable.{ Buffer => mutableBuffer }
+import scala.collection.mutable.{ Map => mutableMap }
 
 import org.eclipse.swt.SWT
 import org.eclipse.swt.custom.ScrolledComposite
 import org.eclipse.swt.events.ControlAdapter
 import org.eclipse.swt.events.ControlEvent
-import org.eclipse.swt.graphics.{Color => swtColor}
-import org.eclipse.swt.graphics.{Font => swtFont}
+import org.eclipse.swt.graphics.{ Color => swtColor }
+import org.eclipse.swt.graphics.{ Font => swtFont }
 import org.eclipse.swt.graphics.Image
 import org.eclipse.swt.layout.FillLayout
 import org.eclipse.swt.widgets.Button
@@ -400,7 +399,7 @@ object Main {
             if (width > 0 && height > 0) {
               val prevImage = label.getImage
               label setImage new Image(label.getDisplay(), prevImage.getImageData().scaledTo(width, height))
-              prevImage dispose
+              prevImage.dispose
             }
           }
           label
@@ -482,8 +481,12 @@ object Main {
       //first add the variables to the varmap:
       val customAtts = attributes.filter(att => !isReservedAtrribute(att.getName))
       customAtts.map(att => {
-        unevaluatedVarMap(att.getName)= new HashSet
-        evaluatedVarMap += att.getName -> EvalExpr(att.getValue.get)
+        unevaluatedVarMap(att.getName) = Set()
+        if (att.getValue.isDefined)
+          EvalExpr.getVariables(att.getValue.get).map(variable =>
+            unevaluatedVarMap(variable) += (() =>
+              evaluatedVarMap(att.getName) = EvalExpr(att.getValue.get)))
+        evaluatedVarMap += att.getName -> att.getValue.map(EvalExpr(_)/*TODO .getOrElse(inputVars(att.getName))*/)
       })
       //then, handle the rest of the container:
       container match {

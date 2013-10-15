@@ -165,8 +165,8 @@ object EvalExpr {
   def getVariables(exp: Expr): Set[String] = exp match {
     case Comparision(left, right) => getVariables(left) ++ getVariables(right)
     case Conjuction(elems) => elems.toSet.map(getVariables).flatten
-    case Condition(conds, otherwise) => conds.map({case (left, right) => getVariables(left) ++ getVariables(right)})
-    											.reduce(_ ++ _) ++ getVariables(otherwise)
+    case Condition(conds, otherwise) => conds.map({ case (left, right) => getVariables(left) ++ getVariables(right) })
+      .reduce(_ ++ _) ++ getVariables(otherwise)
     case Disjunction(elems) => elems.toSet.map(getVariables).flatten
     case FunctionCall(_, args) => args.toSet.map(getVariables).flatten
     case IterationVariable(_, index, _) => Set(index)
