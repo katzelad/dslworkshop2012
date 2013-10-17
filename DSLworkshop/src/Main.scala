@@ -36,6 +36,24 @@ object Main {
   val SASH_WIDTH = 5
 
   var widgetsMap: Map[String, Widget] = null
+  
+  var varsAffectedByCurrentUpdate = Set()
+  
+  class OurMap[K, V] extends scala.collection.mutable.HashMap[K, V] {
+    override def +[extendsV >: V](elem1: (K, extendsV), elem2: (K, extendsV), elems: (K, extendsV)*) = {
+      val mapOfNew = (elems:+elem1:+elem2).toMap
+      new OurMap[K, extendsV]() {
+        override def get(key: K) = Some(mapOfNew.getOrElse(key, OurMap.this(key)))
+        override def update(key: K, value: extendsV) = {
+          if (mapOfNew.contains(key))
+            mapOfNew(key) = value
+            else if (OurMap.this.contains(key))
+              OurMap.this(key) = value
+              
+        }
+      }
+    }
+  }
 
   def evalCode(w: Widget, window: Shell, parametersList: mutableMap[String, Any], unevaluatedVarMap: mutableMap[String, Set[() => Unit]], evaluatedVarMap: mutableMap[String, Any]) = {
     window setLayout new FillLayout
@@ -482,7 +500,7 @@ object Main {
       val customAtts = attributes.filter(att => !isReservedAtrribute(att.getName))
       customAtts.map(att => {
         unevaluatedVarMap(att.getName) = Set()
-        if (att.getValue.isDefined)
+        if (att.getValue.isDefined) // TODO only ExpressionAttribute?
           EvalExpr.getVariables(att.getValue.get).map(variable =>
             unevaluatedVarMap(variable) += (() =>
               evaluatedVarMap(att.getName) = EvalExpr(att.getValue.get)))
