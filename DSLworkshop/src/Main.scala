@@ -36,24 +36,8 @@ object Main {
   val SASH_WIDTH = 5
 
   var widgetsMap: Map[String, Widget] = null
-  
+
   var varsAffectedByCurrentUpdate = Set()
-  
-  class OurMap[K, V] extends scala.collection.mutable.HashMap[K, V] {
-    override def +[extendsV >: V](elem1: (K, extendsV), elem2: (K, extendsV), elems: (K, extendsV)*) = {
-      val mapOfNew = (elems:+elem1:+elem2).toMap
-      new OurMap[K, extendsV]() {
-        override def get(key: K) = Some(mapOfNew.getOrElse(key, OurMap.this(key)))
-        override def update(key: K, value: extendsV) = {
-          if (mapOfNew.contains(key))
-            mapOfNew(key) = value
-            else if (OurMap.this.contains(key))
-              OurMap.this(key) = value
-              
-        }
-      }
-    }
-  }
 
   def evalCode(w: Widget, window: Shell, parametersList: mutableMap[String, Any], unevaluatedVarMap: mutableMap[String, Set[() => Unit]], evaluatedVarMap: mutableMap[String, Any]) = {
     window setLayout new FillLayout
@@ -504,7 +488,7 @@ object Main {
           EvalExpr.getVariables(att.getValue.get).map(variable =>
             unevaluatedVarMap(variable) += (() =>
               evaluatedVarMap(att.getName) = EvalExpr(att.getValue.get)))
-        evaluatedVarMap += att.getName -> att.getValue.map(EvalExpr(_)/*TODO .getOrElse(inputVars(att.getName))*/)
+        evaluatedVarMap += att.getName -> att.getValue.map(EvalExpr(_) /*TODO .getOrElse(inputVars(att.getName))*/ )
       })
       //then, handle the rest of the container:
       container match {
