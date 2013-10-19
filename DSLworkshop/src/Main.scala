@@ -482,18 +482,19 @@ object Main {
       //addVariablesToVarmaps(attributes ,unevaluateVarMap, evaluatedVarMap)
       //first add the variables to the varmap:
       val customAtts = attributes.filter(att => !isReservedAtrribute(att.getName))
+      val temp = new ScopingMap(evaluatedVarMap.asInstanceOf[ScopingMap[String, Any]])
       customAtts.map(att => {
         unevaluatedVarMap(att.getName) = Set()
         if (att.getValue.isDefined) // TODO only ExpressionAttribute?
           EvalExpr.getVariables(att.getValue.get).map(variable =>
             unevaluatedVarMap(variable) += (() =>
               evaluatedVarMap(att.getName) = EvalExpr(att.getValue.get)))
-        evaluatedVarMap += att.getName -> att.getValue.map(EvalExpr(_) /*TODO .getOrElse(inputVars(att.getName))*/ )
+        temp(att.getName) = att.getValue.map(EvalExpr(_) /*TODO .getOrElse(inputVars(att.getName))*/ )
       })
       //then, handle the rest of the container:
       container match {
         case Container(Container.Direction.Horizontal, children, _, _) =>
-          handleHorizontalContainer(code, parent, unevaluatedVarMap, evaluatedVarMap, children)
+          handleHorizontalContainer(code, parent, unevaluatedVarMap, temp, children)
       }
     }
 
@@ -567,8 +568,8 @@ object Main {
       m<-(label :20x20 )[ text =" typical "]""";
 
     val prog = LayoutParser iParse code;
-    val unevaluatedVarMap = mutableMap[String, Set[() => Unit]]()
-    val evaluatedVarMap = mutableMap[String, Any]()
+    val unevaluatedVarMap = new ScopingMap[String, Set[() => Unit]]()
+    val evaluatedVarMap = new ScopingMap[String, Any]()
     LayoutParser parseAll (LayoutParser.Program, code) match {
       case LayoutParser.Success(result, nextInput) => /*evalCode(result.defs.toMap.apply("main_window"), shell, mutableMap(), unevaluatedVarMap, evaluatedVarMap) */ print(result)
       case LayoutParser.NoSuccess(msg, nextInput) =>
