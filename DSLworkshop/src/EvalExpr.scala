@@ -176,4 +176,9 @@ object EvalExpr {
     case Sum(add, sub) => add.toSet.map(getVariables).flatten ++ sub.toSet.map(getVariables).flatten
     case Variable(name, _, isFunction) => if (isFunction) Set() else Set(name)
   }
+  
+  def changeVarRTL(exp: Expr, value: Boolean): (String, Boolean) = exp match {
+    case Variable(name, _, false) => (name, value)
+    case Negation(expr) => changeVarRTL(exp, !value)
+  }
 }

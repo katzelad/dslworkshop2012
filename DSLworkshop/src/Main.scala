@@ -1,6 +1,5 @@
 import scala.collection.mutable.{ Buffer => mutableBuffer }
 import scala.collection.mutable.{ Map => mutableMap }
-
 import org.eclipse.swt.SWT
 import org.eclipse.swt.custom.ScrolledComposite
 import org.eclipse.swt.events.ControlAdapter
@@ -30,6 +29,7 @@ import org.tau.workshop2011.parser.AST.Container
 import org.tau.workshop2011.parser.AST.PropertyScope
 import org.tau.workshop2011.parser.AST.Widget
 import org.tau.workshop2011.parser.LayoutParser
+import org.eclipse.swt.events.SelectionAdapter
 
 object Main {
 
@@ -37,7 +37,9 @@ object Main {
 
   var widgetsMap: Map[String, Widget] = null
 
-  var varsAffectedByCurrentUpdate = Set()
+  var varsAffectedByCurrentUpdate: Set[String] = null
+  
+  var seqNum = 0
 
   def evalCode(w: Widget, window: Shell, parametersList: mutableMap[String, Any], unevaluatedVarMap: mutableMap[String, Set[() => Unit]], evaluatedVarMap: mutableMap[String, Any]) = {
     window setLayout new FillLayout
@@ -387,8 +389,13 @@ object Main {
           button setText text
           button
         case "checkbox" =>
+          seqNum+=1
           val checkbox = new Button(parent, SWT.CHECK) //TODO see if it's 0/1 or true/false
           checkbox.setSelection(checked)
+          checkbox.addSelectionListener(new SelectionAdapter {
+            val (name, value) = EvalExpr.changeVarRTL(attributes.find(_.getName == "checked").get.getValue.get, checkbox.getSelection())
+            
+          })
           checkbox
         case "radio" =>
           val radio = new Button(parent, SWT.RADIO)
@@ -487,8 +494,13 @@ object Main {
         unevaluatedVarMap(att.getName) = Set()
         if (att.getValue.isDefined) // TODO only ExpressionAttribute?
           EvalExpr.getVariables(att.getValue.get).map(variable =>
-            unevaluatedVarMap(variable) += (() =>
-              evaluatedVarMap(att.getName) = EvalExpr(att.getValue.get)))
+            unevaluatedVarMap(variable) += (() => {
+              if (!varsAffectedByCurrentUpdate(att.getName)) {
+                evaluatedVarMap(att.getName) = EvalExpr(att.getValue.get)
+                varsAffectedByCurrentUpdate += att.getName
+                unevaluatedVarMap(att.getName).foreach(_())
+              }
+            }))
         temp(att.getName) = att.getValue.map(EvalExpr(_) /*TODO .getOrElse(inputVars(att.getName))*/ )
       })
       //then, handle the rest of the container:
