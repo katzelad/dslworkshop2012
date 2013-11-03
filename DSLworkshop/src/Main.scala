@@ -23,22 +23,20 @@ import org.tau.workshop2011.expressions.Color
 import org.tau.workshop2011.expressions.Font
 import org.tau.workshop2011.expressions.HAlign
 import org.tau.workshop2011.expressions.TextStyle
-import org.tau.workshop2011.parser.AST.ASTNode
-import org.tau.workshop2011.parser.AST.AtomicWidget
-import org.tau.workshop2011.parser.AST.Container
-import org.tau.workshop2011.parser.AST.PropertyScope
-import org.tau.workshop2011.parser.AST.Widget
+import org.tau.workshop2011.parser.AST._
 import org.tau.workshop2011.parser.LayoutParser
 import org.eclipse.swt.events.SelectionAdapter
 
 object Main {
 
   val SASH_WIDTH = 5
+  
+  val initialAttFlag = () => {}
 
   var widgetsMap: Map[String, Widget] = null
 
   var varsAffectedByCurrentUpdate: Set[String] = null
-  
+
   var seqNum = 0
 
   def evalCode(w: Widget, window: Shell, parametersList: mutableMap[String, Any], unevaluatedVarMap: mutableMap[String, Set[() => Unit]], evaluatedVarMap: mutableMap[String, Any]) = {
@@ -389,12 +387,15 @@ object Main {
           button setText text
           button
         case "checkbox" =>
-          seqNum+=1
+          seqNum += 1
           val checkbox = new Button(parent, SWT.CHECK) //TODO see if it's 0/1 or true/false
           checkbox.setSelection(checked)
           checkbox.addSelectionListener(new SelectionAdapter {
             val (name, value) = EvalExpr.changeVarRTL(attributes.find(_.getName == "checked").get.getValue.get, checkbox.getSelection())
-            
+            varsAffectedByCurrentUpdate = Set(name)
+            evaluatedVarMap(name) = value
+            unevaluatedVarMap(name).foreach(_())
+            varsAffectedByCurrentUpdate = null
           })
           checkbox
         case "radio" =>
@@ -489,25 +490,31 @@ object Main {
       //addVariablesToVarmaps(attributes ,unevaluateVarMap, evaluatedVarMap)
       //first add the variables to the varmap:
       val customAtts = attributes.filter(att => !isReservedAtrribute(att.getName))
-      val temp = new ScopingMap(evaluatedVarMap.asInstanceOf[ScopingMap[String, Any]])
-      customAtts.map(att => {
-        unevaluatedVarMap(att.getName) = Set()
-        if (att.getValue.isDefined) // TODO only ExpressionAttribute?
-          EvalExpr.getVariables(att.getValue.get).map(variable =>
+      val currentMap = new ScopingMap(evaluatedVarMap.asInstanceOf[ScopingMap[String, Any]])
+      customAtts.map({
+        
+        case ExpressionAttribute(att, expr) => // var = value
+          unevaluatedVarMap(att.id) = Set()
+          EvalExpr.getVariables(expr).map(variable =>
             unevaluatedVarMap(variable) += (() => {
-              if (!varsAffectedByCurrentUpdate(att.getName)) {
-                evaluatedVarMap(att.getName) = EvalExpr(att.getValue.get)
-                varsAffectedByCurrentUpdate += att.getName
-                unevaluatedVarMap(att.getName).foreach(_())
+              if (!varsAffectedByCurrentUpdate(att.id)) {
+                evaluatedVarMap(att.id) = EvalExpr(expr)
+                varsAffectedByCurrentUpdate += att.id
+                unevaluatedVarMap(att.id).foreach(_())
               }
             }))
-        temp(att.getName) = att.getValue.map(EvalExpr(_) /*TODO .getOrElse(inputVars(att.getName))*/ )
+          currentMap(att.id) = EvalExpr(expr)
+          
+        case InitialAttribute(att, Some(expr)) => // var = ?(value)
+          unevaluatedVarMap(att.id) = Set(initialAttFlag)
+          currentMap(att.id) = EvalExpr(expr)
+          
+        case InitialAttribute(att, None) => // var = ?
+          unevaluatedVarMap(att.id) = Set()
+          
       })
       //then, handle the rest of the container:
-      container match {
-        case Container(Container.Direction.Horizontal, children, _, _) =>
-          handleHorizontalContainer(code, parent, unevaluatedVarMap, temp, children)
-      }
+      evalNode(container, parent, unevaluatedVarMap, currentMap)
     }
 
   }

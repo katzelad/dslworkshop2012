@@ -16,9 +16,9 @@ class ScopingMap[K, V](parent: ScopingMap[K, V] = null) extends scala.collection
       ret.asInstanceOf[OurMap[K, extendsV]]
     }*/
 
-  override def +[extendsV >: V](elem: (K, extendsV)) = {
+  /*override def +[extendsV >: V](elem: (K, extendsV)) = {
     val ret = new ScopingMap[K, V](this)
     ret(elem._1) = elem._2.asInstanceOf[V]
     ret.asInstanceOf[ScopingMap[K, extendsV]]
-  }
+  }*/
 }

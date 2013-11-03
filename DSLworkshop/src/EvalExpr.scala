@@ -177,8 +177,9 @@ object EvalExpr {
     case Variable(name, _, isFunction) => if (isFunction) Set() else Set(name)
   }
   
-  def changeVarRTL(exp: Expr, value: Boolean): (String, Boolean) = exp match {
+  def changeVarRTL[T](exp: Expr, value: T): (String, T) = exp match {
     case Variable(name, _, false) => (name, value)
-    case Negation(expr) => changeVarRTL(exp, !value)
+    case Negation(expr) => changeVarRTL[T](exp, (!value.asInstanceOf[Boolean]).asInstanceOf[T])
+    case Comparision(Variable(id, _, false), value) if  => if (value.asInstanceOf[Boolean])
   }
 }
