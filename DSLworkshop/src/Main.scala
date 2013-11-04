@@ -26,12 +26,11 @@ import org.tau.workshop2011.expressions.TextStyle
 import org.tau.workshop2011.parser.AST._
 import org.tau.workshop2011.parser.LayoutParser
 import org.eclipse.swt.events.SelectionAdapter
+import org.eclipse.swt.events.SelectionEvent
 
 object Main {
 
   val SASH_WIDTH = 5
-  
-  val initialAttFlag = () => {}
 
   var widgetsMap: Map[String, Widget] = null
 
@@ -359,6 +358,10 @@ object Main {
       var value: Option[Int] = None
       var changeImageSize = (width: Int, height: Int) => {}
       var (minWidth, minHeight, isWidthQM, isHeightQM) = (0, 0, true, true)
+      val customAtts = attributes.filter(att => !isReservedAtrribute(att.getName))
+      for (att <- customAtts) {
+        
+      }
       for (att <- attributes) att.getName match {
         case "halign" => hAlign = (EvalExpr[HAlign](att.getValue.get): @unchecked) match {
           case HAlign.left => SWT.LEFT
@@ -381,6 +384,15 @@ object Main {
         case "textbox" =>
           val textbox = new Text(parent, SWT.WRAP | hAlign)
           textbox setText text
+          textbox.addSelectionListener(new SelectionAdapter {
+            override def widgetSelected(e: SelectionEvent) {
+              val (name, value) = EvalExpr.changeVarRTL(attributes.find(_.getName == "text").get.getValue.get, textbox.getText(), unevaluatedVarMap)
+              varsAffectedByCurrentUpdate = Set(name)
+              evaluatedVarMap(name) = value
+              unevaluatedVarMap(name).foreach(_())
+              varsAffectedByCurrentUpdate = null
+            }
+          })
           textbox
         case "button" =>
           val button = new Button(parent, SWT.PUSH | SWT.WRAP | hAlign)
@@ -391,16 +403,27 @@ object Main {
           val checkbox = new Button(parent, SWT.CHECK) //TODO see if it's 0/1 or true/false
           checkbox.setSelection(checked)
           checkbox.addSelectionListener(new SelectionAdapter {
-            val (name, value) = EvalExpr.changeVarRTL(attributes.find(_.getName == "checked").get.getValue.get, checkbox.getSelection())
-            varsAffectedByCurrentUpdate = Set(name)
-            evaluatedVarMap(name) = value
-            unevaluatedVarMap(name).foreach(_())
-            varsAffectedByCurrentUpdate = null
+            override def widgetSelected(e: SelectionEvent) {
+              val (name, value) = EvalExpr.changeVarRTL(attributes.find(_.getName == "checked").get.getValue.get, checkbox.getSelection(), unevaluatedVarMap)
+              varsAffectedByCurrentUpdate = Set(name)
+              evaluatedVarMap(name) = value
+              unevaluatedVarMap(name).foreach(_())
+              varsAffectedByCurrentUpdate = null
+            }
           })
           checkbox
         case "radio" =>
           val radio = new Button(parent, SWT.RADIO)
           radio.setSelection(checked)
+          radio.addSelectionListener(new SelectionAdapter {
+            override def widgetSelected(e: SelectionEvent) {
+              val (name, value) = EvalExpr.changeVarRTL(attributes.find(_.getName == "checked").get.getValue.get, true, unevaluatedVarMap)
+              varsAffectedByCurrentUpdate = Set(name)
+              evaluatedVarMap(name) = value
+              unevaluatedVarMap(name).foreach(_())
+              varsAffectedByCurrentUpdate = null
+            }
+          })
           radio
         case "image" =>
           val label = new Label(parent, SWT.NONE)
@@ -420,12 +443,30 @@ object Main {
             case Some(v) => combo select v
             case None =>
           }
+          combo.addSelectionListener(new SelectionAdapter {
+            override def widgetSelected(e: SelectionEvent) {
+              val (name, value) = EvalExpr.changeVarRTL(attributes.find(_.getName == "value").get.getValue.get, combo.getSelection(), unevaluatedVarMap)
+              varsAffectedByCurrentUpdate = Set(name)
+              evaluatedVarMap(name) = value
+              unevaluatedVarMap(name).foreach(_())
+              varsAffectedByCurrentUpdate = null
+            }
+          })
           combo
         case "slider" =>
           val slider = new Slider(parent, SWT.HORIZONTAL)
           slider setMaximum maxValue
           slider setMinimum minValue
           slider setSelection value.getOrElse(0)
+          slider.addSelectionListener(new SelectionAdapter {
+            override def widgetSelected(e: SelectionEvent) {
+              val (name, value) = EvalExpr.changeVarRTL(attributes.find(_.getName == "value").get.getValue.get, slider.getSelection(), unevaluatedVarMap)
+              varsAffectedByCurrentUpdate = Set(name)
+              evaluatedVarMap(name) = value
+              unevaluatedVarMap(name).foreach(_())
+              varsAffectedByCurrentUpdate = null
+            }
+          })
           slider
         case s =>
           val scrolledComposite = new ScrolledComposite(parent, SWT.H_SCROLL)
@@ -489,10 +530,9 @@ object Main {
     case PropertyScope(container, attributes) => {
       //addVariablesToVarmaps(attributes ,unevaluateVarMap, evaluatedVarMap)
       //first add the variables to the varmap:
-      val customAtts = attributes.filter(att => !isReservedAtrribute(att.getName))
       val currentMap = new ScopingMap(evaluatedVarMap.asInstanceOf[ScopingMap[String, Any]])
-      customAtts.map({
-        
+      attributes.map({
+
         case ExpressionAttribute(att, expr) => // var = value
           unevaluatedVarMap(att.id) = Set()
           EvalExpr.getVariables(expr).map(variable =>
@@ -504,14 +544,14 @@ object Main {
               }
             }))
           currentMap(att.id) = EvalExpr(expr)
-          
+
         case InitialAttribute(att, Some(expr)) => // var = ?(value)
-          unevaluatedVarMap(att.id) = Set(initialAttFlag)
+          unevaluatedVarMap(att.id) = Set(EvalExpr.initialAttFlag)
           currentMap(att.id) = EvalExpr(expr)
-          
+
         case InitialAttribute(att, None) => // var = ?
           unevaluatedVarMap(att.id) = Set()
-          
+
       })
       //then, handle the rest of the container:
       evalNode(container, parent, unevaluatedVarMap, currentMap)

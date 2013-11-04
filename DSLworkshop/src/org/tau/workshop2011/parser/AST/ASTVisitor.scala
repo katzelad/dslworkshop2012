@@ -11,7 +11,7 @@ package org.tau.workshop2011.parser.AST
 trait ASTVisitor {
   def visit(node: AtomicWidget): Any;
 
-  def visit(node: Comparision): Any;
+  def visit(node: Comparison): Any;
 
   def visit(node: Condition): Any;
 

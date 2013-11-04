@@ -1,6 +1,7 @@
 import scala.reflect.ClassTag
 import org.tau.workshop2011.expressions.Type
 import org.tau.workshop2011.parser.AST._
+import scala.collection.mutable.{ Map => mutableMap }
 
 //TODO added the old evalExp back - to allow everything to work, work on this and replace existing
 /*
@@ -10,6 +11,9 @@ import org.tau.workshop2011.parser.AST._
   */
 
 object EvalExpr {
+
+  val initialAttFlag = () => {}
+
   //TODO delete this later when everything is replaced with evalExpr(someType)  
   //def evalExpr[T](exp: Option[Expr], expType: Type) = exp match { //TODO follow al the changes Elad did on this regard
   def apply[T: ClassTag](exp: Expr) = exp match { case Literal(value: T) => value }
@@ -96,7 +100,7 @@ object EvalExpr {
         Some(disjuncval)
       }
       //TODO test - basic scenario ((true=true for example)) works with evalExprBool, but still needs to extend it
-      case Comparision(left: DirectExpr, right: DirectExpr) => {
+      case Comparison(left: DirectExpr, right: DirectExpr) => {
         //TODO FIX! change from evalExprBoolean to something general :(
         Some((evalExprBoolean(Some(left), varmap, constmap).get == evalExprBoolean(Some(right), varmap, constmap).get))
       }
@@ -163,7 +167,7 @@ object EvalExpr {
     case None => None
   }*/
   def getVariables(exp: Expr): Set[String] = exp match {
-    case Comparision(left, right) => getVariables(left) ++ getVariables(right)
+    case Comparison(left, right) => getVariables(left) ++ getVariables(right)
     case Conjuction(elems) => elems.toSet.map(getVariables).flatten
     case Condition(conds, otherwise) => conds.map({ case (left, right) => getVariables(left) ++ getVariables(right) })
       .reduce(_ ++ _) ++ getVariables(otherwise)
@@ -176,10 +180,13 @@ object EvalExpr {
     case Sum(add, sub) => add.toSet.map(getVariables).flatten ++ sub.toSet.map(getVariables).flatten
     case Variable(name, _, isFunction) => if (isFunction) Set() else Set(name)
   }
-  
-  def changeVarRTL[T](exp: Expr, value: T): (String, T) = exp match {
+
+  def changeVarRTL[T](exp: Expr, value: T, unevaluatedVarMap: mutableMap[String, Set[() => Unit]]): (String, T) = exp match {
     case Variable(name, _, false) => (name, value)
-    case Negation(expr) => changeVarRTL[T](exp, (!value.asInstanceOf[Boolean]).asInstanceOf[T])
-    case Comparision(Variable(id, _, false), value) if  => if (value.asInstanceOf[Boolean])
+    case Negation(expr) => changeVarRTL[T](exp, (!value.asInstanceOf[Boolean]).asInstanceOf[T], unevaluatedVarMap)
+    case Comparison(Variable(id, _, false), value) if EvalExpr(value).asInstanceOf[Boolean] && unevaluatedVarMap(id) == initialAttFlag =>
+      (id, EvalExpr(value))
+    case Comparison(value, Variable(id, _, false)) if EvalExpr(value).asInstanceOf[Boolean] && unevaluatedVarMap(id) == initialAttFlag =>
+      (id, EvalExpr(value))
   }
 }

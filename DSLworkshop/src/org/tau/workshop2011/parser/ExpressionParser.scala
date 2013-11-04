@@ -160,13 +160,13 @@ trait ExpressionParser extends JavaTokenParsers {
 
   def BoolComparision: Parser[DirectExpr] = {
     (BoolElemNoComp ~ "=" ~ BoolElemNoComp) ^^ {
-        case a ~ "=" ~ b => new AST.Comparision (a,b)
+        case a ~ "=" ~ b => new AST.Comparison (a,b)
       }
   }
 
   def NonBoolComparision: Parser[DirectExpr] = {
     (NumExpr ~ "=" ~ NumExpr) ^^ {
-      case a ~ "=" ~ b => new AST.Comparision (a,b)
+      case a ~ "=" ~ b => new AST.Comparison (a,b)
     }
   }
   

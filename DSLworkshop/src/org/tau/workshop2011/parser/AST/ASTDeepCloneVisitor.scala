@@ -37,8 +37,8 @@ trait ASTDeepCloneVisitor extends ASTVisitor {
     )
   }
 
-  override def visit(node: Comparision) : DirectExpr = {
-    new Comparision (node.left.cloneNode, node.right.cloneNode)
+  override def visit(node: Comparison) : DirectExpr = {
+    new Comparison (node.left.cloneNode, node.right.cloneNode)
   }
 
   override def visit(node: Condition) : Expr = {

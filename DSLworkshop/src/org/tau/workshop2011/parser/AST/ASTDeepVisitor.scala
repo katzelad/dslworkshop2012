@@ -16,7 +16,7 @@ trait ASTDeepVisitor extends ASTVisitor {
     null
   }
 
-  def visit(node: Comparision) : Any = {
+  def visit(node: Comparison) : Any = {
     node.left accept this
     node.right accept this
     null
