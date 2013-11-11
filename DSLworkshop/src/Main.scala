@@ -358,10 +358,6 @@ object Main {
       var value: Option[Int] = None
       var changeImageSize = (width: Int, height: Int) => {}
       var (minWidth, minHeight, isWidthQM, isHeightQM) = (0, 0, true, true)
-      val customAtts = attributes.filter(att => !isReservedAtrribute(att.getName))
-      for (att <- customAtts) {
-        //TODO
-      }
       for (att <- attributes) att.getName match {
         case "halign" => hAlign = (EvalExpr[HAlign](att.getValue.get): @unchecked) match {
           case HAlign.left => SWT.LEFT
@@ -376,6 +372,18 @@ object Main {
         case "minvalue" => minValue = EvalExpr[Int](att.getValue.get)
         case _ =>
       }
+      class WidgetSelectionAdapter[T](attName: String, attValue: T) extends SelectionAdapter {
+        override def widgetSelected(e: SelectionEvent) {
+          val temp = EvalExpr.changeVarRTL(attributes.find(_.getName == attName).get.getValue.get, attValue, unevaluatedVarMap)
+          if (temp == null)
+            return
+          val (name, value) = temp
+          varsAffectedByCurrentUpdate = Set(name)
+          evaluatedVarMap(name) = value
+          unevaluatedVarMap(name).foreach(_())
+          varsAffectedByCurrentUpdate = null
+        }
+      }
       val widget = kind match {
         case "label" | "" =>
           val label = new Label(parent, SWT.WRAP | hAlign)
@@ -384,15 +392,7 @@ object Main {
         case "textbox" =>
           val textbox = new Text(parent, SWT.WRAP | hAlign)
           textbox setText text
-          textbox.addSelectionListener(new SelectionAdapter {
-            override def widgetSelected(e: SelectionEvent) {
-              val (name, value) = EvalExpr.changeVarRTL(attributes.find(_.getName == "text").get.getValue.get, textbox.getText(), unevaluatedVarMap)
-              varsAffectedByCurrentUpdate = Set(name)
-              evaluatedVarMap(name) = value
-              unevaluatedVarMap(name).foreach(_())
-              varsAffectedByCurrentUpdate = null
-            }
-          })
+          textbox.addSelectionListener(new WidgetSelectionAdapter("text", textbox.getText()))
           textbox
         case "button" =>
           val button = new Button(parent, SWT.PUSH | SWT.WRAP | hAlign)
@@ -402,28 +402,12 @@ object Main {
           seqNum += 1
           val checkbox = new Button(parent, SWT.CHECK) //TODO see if it's 0/1 or true/false
           checkbox.setSelection(checked)
-          checkbox.addSelectionListener(new SelectionAdapter {
-            override def widgetSelected(e: SelectionEvent) {
-              val (name, value) = EvalExpr.changeVarRTL(attributes.find(_.getName == "checked").get.getValue.get, checkbox.getSelection(), unevaluatedVarMap)
-              varsAffectedByCurrentUpdate = Set(name)
-              evaluatedVarMap(name) = value
-              unevaluatedVarMap(name).foreach(_())
-              varsAffectedByCurrentUpdate = null
-            }
-          })
+          checkbox.addSelectionListener(new WidgetSelectionAdapter("checked", checkbox.getSelection()))
           checkbox
         case "radio" =>
           val radio = new Button(parent, SWT.RADIO)
           radio.setSelection(checked)
-          radio.addSelectionListener(new SelectionAdapter {
-            override def widgetSelected(e: SelectionEvent) {
-              val (name, value) = EvalExpr.changeVarRTL(attributes.find(_.getName == "checked").get.getValue.get, true, unevaluatedVarMap)
-              varsAffectedByCurrentUpdate = Set(name)
-              evaluatedVarMap(name) = value
-              unevaluatedVarMap(name).foreach(_())
-              varsAffectedByCurrentUpdate = null
-            }
-          })
+          radio.addSelectionListener(new WidgetSelectionAdapter("checked", true))
           radio
         case "image" =>
           val label = new Label(parent, SWT.NONE)
@@ -443,32 +427,19 @@ object Main {
             case Some(v) => combo select v
             case None =>
           }
-          combo.addSelectionListener(new SelectionAdapter {
-            override def widgetSelected(e: SelectionEvent) {
-              val (name, value) = EvalExpr.changeVarRTL(attributes.find(_.getName == "value").get.getValue.get, combo.getSelection(), unevaluatedVarMap)
-              varsAffectedByCurrentUpdate = Set(name)
-              evaluatedVarMap(name) = value
-              unevaluatedVarMap(name).foreach(_())
-              varsAffectedByCurrentUpdate = null
-            }
-          })
+          combo.addSelectionListener(new WidgetSelectionAdapter("value", combo.getSelectionIndex()))
           combo
         case "slider" =>
           val slider = new Slider(parent, SWT.HORIZONTAL)
           slider setMaximum maxValue
           slider setMinimum minValue
           slider setSelection value.getOrElse(0)
-          slider.addSelectionListener(new SelectionAdapter {
-            override def widgetSelected(e: SelectionEvent) {
-              val (name, value) = EvalExpr.changeVarRTL(attributes.find(_.getName == "value").get.getValue.get, slider.getSelection(), unevaluatedVarMap)
-              varsAffectedByCurrentUpdate = Set(name)
-              evaluatedVarMap(name) = value
-              unevaluatedVarMap(name).foreach(_())
-              varsAffectedByCurrentUpdate = null
-            }
-          })
+          slider.addSelectionListener(new WidgetSelectionAdapter("value", slider.getSelection()))
           slider
         case s =>
+          for (att <- attributes) {
+            
+          }
           val scrolledComposite = new ScrolledComposite(parent, SWT.H_SCROLL)
           scrolledComposite setLayout new FillLayout
           scrolledComposite setExpandHorizontal true
@@ -503,7 +474,7 @@ object Main {
             case TextStyle.regular => SWT.NORMAL
           }
           widget setFont new swtFont(widget.getDisplay(), font.face, font.size, style)
-        //attribute "code" helps handling "bind" 
+        // attribute "code" helps handling "bind" 
         case "code" =>
           widget.addListener(SWT.Selection, new Listener {
             override def handleEvent(e: Event) = {
@@ -518,7 +489,6 @@ object Main {
         widget setBounds (left, top, math.min(right - left, widthVal.getOrElse(Int.MaxValue)),
           math.min(bottom - top, heightVal.getOrElse(Int.MaxValue)))
         changeImageSize(widget.getSize.x, widget.getSize.y)
-        // println(widget, widget.getBounds)
       })
     // TODO deal with vertical
 
@@ -528,7 +498,6 @@ object Main {
 
     //***case 3/3 property scope
     case PropertyScope(container, attributes) => {
-      //addVariablesToVarmaps(attributes ,unevaluateVarMap, evaluatedVarMap)
       //first add the variables to the varmap:
       val currentMap = new ScopingMap(evaluatedVarMap.asInstanceOf[ScopingMap[String, Any]])
       attributes.map({

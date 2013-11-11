@@ -188,5 +188,6 @@ object EvalExpr {
       (id, EvalExpr(value))
     case Comparison(value, Variable(id, _, false)) if EvalExpr(value).asInstanceOf[Boolean] && unevaluatedVarMap(id) == initialAttFlag =>
       (id, EvalExpr(value))
+    case _ => null
   }
 }
