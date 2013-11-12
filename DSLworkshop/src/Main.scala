@@ -496,31 +496,32 @@ object Main {
     //***case 3/3 property scope
     case PropertyScope(container, attributes) => {
       //first add the variables to the varmap:
-      val currentMap = new ScopingMap(evaluatedVarMap.asInstanceOf[ScopingMap[String, Any]])
+      val currentEvaluatedVarMap = new ScopingMap(evaluatedVarMap.asInstanceOf[ScopingMap[String, Any]])
+      val currentUnevaluatedVarMap = new ScopingMap(unevaluatedVarMap.asInstanceOf[ScopingMap[String, Set[() => Unit]]])
       attributes.map({
 
         case ExpressionAttribute(att, expr) => // var = value
           unevaluatedVarMap(att.id) = Set()
           EvalExpr.getVariables(expr).map(variable =>
-            unevaluatedVarMap(variable) += (() => {
+            currentUnevaluatedVarMap(variable) += (() => {
               if (!varsAffectedByCurrentUpdate(att.id)) {
                 evaluatedVarMap(att.id) = EvalExpr(expr)
                 varsAffectedByCurrentUpdate += att.id
-                unevaluatedVarMap(att.id).foreach(_())
+                currentUnevaluatedVarMap(att.id).foreach(_())
               }
             }))
-          currentMap(att.id) = EvalExpr(expr)
+          currentEvaluatedVarMap(att.id) = EvalExpr(expr)
 
         case InitialAttribute(att, Some(expr)) => // var = ?(value)
-          unevaluatedVarMap(att.id) = Set(EvalExpr.initialAttFlag)
-          currentMap(att.id) = EvalExpr(expr)
+          currentUnevaluatedVarMap(att.id) = Set(EvalExpr.initialAttFlag)
+          currentEvaluatedVarMap(att.id) = EvalExpr(expr)
 
         case InitialAttribute(att, None) => // var = ?
-          unevaluatedVarMap(att.id) = Set()
+          currentUnevaluatedVarMap(att.id) = Set()
 
       })
       //then, handle the rest of the container:
-      evalNode(container, parent, unevaluatedVarMap, currentMap)
+      evalNode(container, parent, currentUnevaluatedVarMap, currentEvaluatedVarMap)
     }
 
   }

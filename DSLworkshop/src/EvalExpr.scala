@@ -14,11 +14,12 @@ object EvalExpr {
 
   val initialAttFlag = () => {}
 
-  //TODO delete this later when everything is replaced with evalExpr(someType)  
-  //def evalExpr[T](exp: Option[Expr], expType: Type) = exp match { //TODO follow al the changes Elad did on this regard
-  def apply[T: ClassTag](exp: Expr) = exp match { case Literal(value: T) => value }
-
-  //TODO write evalExpr with pattern matching
+  //def evalExpr[T](exp: Option[Expr], expType: Type) = exp match {
+  def apply[T: ClassTag](exp: Expr) = exp match {
+    
+    case Literal(value: T) => value
+    
+  }
 
   //Var (adding to Varmap) //TODO - anything else here?
   def returnStringVal(att: Attribute, unevaluatedVarMap: scala.collection.mutable.Map[String, Any], evaluatedVarMap: Map[String, Any]) = {
