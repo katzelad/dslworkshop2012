@@ -437,16 +437,13 @@ object Main {
           slider.addSelectionListener(new WidgetSelectionAdapter("value", slider.getSelection()))
           slider
         case s =>
-          for (att <- attributes) {
-            
-          }
           val scrolledComposite = new ScrolledComposite(parent, SWT.H_SCROLL)
           scrolledComposite setLayout new FillLayout
           scrolledComposite setExpandHorizontal true
           //scrolledComposite setExpandVertical true
           val composite = new Composite(scrolledComposite, SWT.NONE)
           scrolledComposite setContent composite
-          val (width, height, _, _, changeSize) = evalNode(widgetsMap(s), composite, unevaluatedVarMap, evaluatedVarMap)
+          val (width, height, _, _, changeSize) = evalNode(PropertyScope(widgetsMap(s), attributes), composite, unevaluatedVarMap, evaluatedVarMap)
           minWidth = width
           minHeight = height
           scrolledComposite setMinWidth width
