@@ -12,13 +12,48 @@ import scala.collection.mutable.{ Map => mutableMap }
 
 object EvalExpr {
 
-  val initialAttFlag = () => {}
+  final val initialAttFlag = () => {}
+
+  // def expect[T: ClassTag](value: Any) = value match { case typed: T => typed case _ => throw new Error("Syntax Error") }
 
   //def evalExpr[T](exp: Option[Expr], expType: Type) = exp match {
-  def apply[T: ClassTag](exp: Expr) = exp match {
+
+  def apply[T: ClassTag](exp: Expr): T = (exp match {
+
+    case Comparison(left, right) => EvalExpr[Int](left) == EvalExpr[Int](right)
+
+    case Condition(conds, otherwise) =>
+      conds
+        .find({ case (pred, value) => !EvalExpr[Boolean](pred) })
+        .map({ case (pred, value) => EvalExpr[T](value) })
+        .getOrElse(EvalExpr[T](otherwise))
+
+    case Conjuction(elems) => elems.map(EvalExpr[Boolean]).reduce(_ && _)
+
+    case Disjunction(elems) => elems.map(EvalExpr[Boolean]).reduce(_ || _)
+
+    case FunctionCall(func, args) => // TODO evaluate function call
+
+    case IterationVariable(_, _, _) => throw new Exception("Syntax Error")
+
+    case Literal(value) => value
+
+    case Negation(expr) => !EvalExpr[Boolean](expr)
+
+    case Product(mul, div) => mul.map(EvalExpr[Int]).product / div.map(EvalExpr[Int]).product
+
+    case Sum(add, sub) => add.map(EvalExpr[Int]).sum - sub.map(EvalExpr[Int]).sum
+
+    case Variable(id, varType, functionName) => // TODO evaluate variable
+
+  }) match {
+
+    case typed: T => typed
+
+    case other => throw new Exception("Syntax Error")
     
-    case Literal(value: T) => value
-    
+    // case other => throw new Exception("Syntax Error: Expected " + <type> + ", found " + Type.fromValue(other))
+
   }
 
   //Var (adding to Varmap) //TODO - anything else here?
@@ -174,7 +209,7 @@ object EvalExpr {
       .reduce(_ ++ _) ++ getVariables(otherwise)
     case Disjunction(elems) => elems.toSet.map(getVariables).flatten
     case FunctionCall(_, args) => args.toSet.map(getVariables).flatten
-    case IterationVariable(_, index, _) => Set(index)
+    // case IterationVariable(_, index, _) => Set(index)
     case Literal(_) => Set()
     case Negation(expr) => getVariables(expr)
     case Product(mul, div) => mul.toSet.map(getVariables).flatten ++ div.toSet.map(getVariables).flatten

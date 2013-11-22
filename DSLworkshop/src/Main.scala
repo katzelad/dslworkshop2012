@@ -523,6 +523,8 @@ object Main {
       //then, handle the rest of the container:
       evalNode(container, parent, currentUnevaluatedVarMap, currentEvaluatedVarMap)
     }
+    
+    case IterationMacro(widget, direction, props) => evalNode(IterationMacro.expand(widget, direction, props), parent, unevaluatedVarMap, evaluatedVarMap) 
 
   }
 

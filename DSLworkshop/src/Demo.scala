@@ -6,7 +6,7 @@ import org.tau.workshop2011.parser.AST.Widget
 import org.tau.workshop2011.parser.LayoutParser
 
 object Demo extends Application {
-  val kode = """l<-(( label :? x(a+b) )[ text =" typical "]|())[v=3]"""/*Subprograms()*/;
+  val kode = MainDemo();
   val prog = LayoutParser.iParse(kode);
   def evalWidget(param: Widget) = param match {
     case AtomicWidget(kind, attributes, width, height) => ""
