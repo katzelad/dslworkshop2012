@@ -1,36 +1,40 @@
+package org.tau.dslworkshop.main
+
 import scala.collection.immutable.HashSet
 import scala.collection.mutable.Map
-
 import org.eclipse.swt.widgets.Display
 import org.eclipse.swt.widgets.Shell
 import org.tau.workshop2011.parser.LayoutParser
 
 class DSLProgram(code: String) {
+  
   val display = new Display
+  
   val widgetsMap = LayoutParser parseAll (LayoutParser.Program, code) match {
-    case LayoutParser.Success(result, nextInput) => result.defs.toMap //print(result) 
-    case LayoutParser.NoSuccess(msg, nextInput) =>
-      println("Could not parse the input.");
-      println(msg)
-      null
+    case LayoutParser.Success(result, nextInput) => result.defs.toMap // print(result) 
+    case LayoutParser.NoSuccess(msg, nextInput) => throw new Exception("Could not parse the input.\n" + msg)
   }
+  
   class DSLObject protected[DSLProgram] (name: String) {
+    
     val window = new Shell(display)
-    var bindedFunctionsMap = Map[String, Any]()
-    var evaluatedVarMap = Map[String, Any]()
-    var unevaluatedVarMap = Map[String, Set[() => Unit]]()
+    
+    var evaluatedVarMap = new TEvaluatedVarMap()
+    
+    var unevaluatedVarMap = new TUnevaluatedVarMap()
+    
     val widget = widgetsMap get name match {
       case Some(widget) => widget
-      case None => print("Error: " + name + " not found.")
-      null // TODO Exception
+      case None => throw new Exception("Error: " + name + " not found.")
     }
+    
     def set(varName: String, value: Any) {
       evaluatedVarMap(varName) = value
       unevaluatedVarMap(varName) foreach (_())
     }
 
-    def bind(name: String, value: Any) { //TODO not good - functionToAdd should be able to have multiple parameters, and we don't know how many and of which type
-      bindedFunctionsMap(name) = value
+    def bind(name: String, value: Any) {
+      evaluatedVarMap(name) = value
     }
 
     def when_changed(varName: String, func: (/*Any, Any*/) => Unit) {
@@ -40,7 +44,8 @@ class DSLProgram(code: String) {
     }
 
     def apply(parametersList: Map[String, Any]) {
-      Main.evalCode(widget, window, parametersList, unevaluatedVarMap, evaluatedVarMap)
+      evalNode(widget, window, unevaluatedVarMap, parametersList ++ evaluatedVarMap)
+      window.setSize(1000, 500)
       window.open
       while (!window.isDisposed) {
         if (!display.readAndDispatch) {

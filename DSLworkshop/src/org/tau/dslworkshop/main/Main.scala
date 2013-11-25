@@ -30,15 +30,9 @@ import org.eclipse.swt.events.SelectionEvent
 
 object Main {
 
-  val SASH_WIDTH = 5
-
-  var widgetsMap: Map[String, Widget] = null
-
   var varsAffectedByCurrentUpdate: Set[String] = null
 
-  var seqNum = 0
-
-  def evalCode(w: Widget, window: Shell, parametersList: mutableMap[String, Any], unevaluatedVarMap: mutableMap[String, Set[() => Unit]], evaluatedVarMap: mutableMap[String, Any]) = {
+  /*def evalCode(w: Widget, window: Shell, unevaluatedVarMap: mutableMap[String, Set[() => Unit]], evaluatedVarMap: mutableMap[String, Any]) = {
     window setLayout new FillLayout
     val scrolledComposite = new ScrolledComposite(window, SWT.H_SCROLL)
     scrolledComposite setLayout new FillLayout
@@ -57,16 +51,7 @@ object Main {
     window.setSize(1000, 500)
     composite.setSize(1000, 500)
     changeSize(0, 0, composite.getSize.x, composite.getSize.y)
-    /*val (width, height, changeSize) = evalNode(w, window)
-        window addControlListener new ControlAdapter {
-          override def controlResized(event: ControlEvent) {
-            changeSize(0, 0, window.getSize.x, window.getSize.y)
-          }
-        }
-        window.setSize(1000, 500)
-        changeSize(0, 0, 1000, 500)*/
-
-  }
+  }*/
 
   def isReservedAtrribute(att: String) = att match {
     case "halign" => true
@@ -399,7 +384,6 @@ object Main {
           button setText text
           button
         case "checkbox" =>
-          seqNum += 1
           val checkbox = new Button(parent, SWT.CHECK) //TODO see if it's 0/1 or true/false
           checkbox.setSelection(checked)
           checkbox.addSelectionListener(new WidgetSelectionAdapter("checked", checkbox.getSelection()))
@@ -513,7 +497,7 @@ object Main {
           currentEvaluatedVarMap(att.id) = EvalExpr(expr)
 
         case InitialAttribute(att, Some(expr)) => // var = ?(value)
-          currentUnevaluatedVarMap(att.id) = Set(EvalExpr.initialAttFlag)
+          currentUnevaluatedVarMap(att.id) = Set(EvalExpr.INITIAL_ATT_FLAG)
           currentEvaluatedVarMap(att.id) = EvalExpr(expr)
 
         case InitialAttribute(att, None) => // var = ?

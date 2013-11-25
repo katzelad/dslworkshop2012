@@ -1,50 +1,44 @@
+package org.tau.dslworkshop.main
+
 import scala.reflect.ClassTag
 import org.tau.workshop2011.expressions.Type
 import org.tau.workshop2011.parser.AST._
 import scala.collection.mutable.{ Map => mutableMap }
 
-//TODO added the old evalExp back - to allow everything to work, work on this and replace existing
-/*
-  def evalExpr(exp: Expr, expType: Type) = (exp: @unchecked) match {
-    case Literal(value) => value
-  }
-  */
 
-object EvalExpr {
-
-  final val initialAttFlag = () => {}
+class Environment(evaluatedVarMap: TEvaluatedVarMap) {
 
   // def expect[T: ClassTag](value: Any) = value match { case typed: T => typed case _ => throw new Error("Syntax Error") }
 
   //def evalExpr[T](exp: Option[Expr], expType: Type) = exp match {
 
-  def apply[T: ClassTag](exp: Expr): T = (exp match {
+  def eval[T: ClassTag](exp: Expr): T = (exp match {
 
-    case Comparison(left, right) => EvalExpr[Int](left) == EvalExpr[Int](right)
+    case Comparison(left, right) => eval[Int](left) == eval[Int](right)
 
     case Condition(conds, otherwise) =>
       conds
-        .find({ case (pred, value) => !EvalExpr[Boolean](pred) })
-        .map({ case (pred, value) => EvalExpr[T](value) })
-        .getOrElse(EvalExpr[T](otherwise))
+        .find({ case (pred, value) => !eval[Boolean](pred) })
+        .map({ case (pred, value) => eval[T](value) })
+        .getOrElse(eval[T](otherwise))
 
-    case Conjuction(elems) => elems.map(EvalExpr[Boolean]).reduce(_ && _)
+    case Conjuction(elems) => elems.map(eval[Boolean]).reduce(_ && _)
 
-    case Disjunction(elems) => elems.map(EvalExpr[Boolean]).reduce(_ || _)
+    case Disjunction(elems) => elems.map(eval[Boolean]).reduce(_ || _)
 
-    case FunctionCall(func, args) => // TODO evaluate function call
+    case FunctionCall(func, args) => eval[(Seq[Any]) => T](func).apply(args) // TODO handle possible error
 
     case IterationVariable(_, _, _) => throw new Exception("Syntax Error")
 
     case Literal(value) => value
 
-    case Negation(expr) => !EvalExpr[Boolean](expr)
+    case Negation(expr) => !eval[Boolean](expr)
 
-    case Product(mul, div) => mul.map(EvalExpr[Int]).product / div.map(EvalExpr[Int]).product
+    case Product(mul, div) => mul.map(eval[Int]).product / div.map(eval[Int]).product
 
-    case Sum(add, sub) => add.map(EvalExpr[Int]).sum - sub.map(EvalExpr[Int]).sum
+    case Sum(add, sub) => add.map(eval[Int]).sum - sub.map(eval[Int]).sum
 
-    case Variable(id, varType, functionName) => // TODO evaluate variable
+    case Variable(id, varType, _) => evaluatedVarMap(id)
 
   }) match {
 
@@ -55,7 +49,9 @@ object EvalExpr {
     // case other => throw new Exception("Syntax Error: Expected " + <type> + ", found " + Type.fromValue(other))
 
   }
-
+  
+// TODO Delete
+/*
   //Var (adding to Varmap) //TODO - anything else here?
   def returnStringVal(att: Attribute, unevaluatedVarMap: scala.collection.mutable.Map[String, Any], evaluatedVarMap: Map[String, Any]) = {
     att.getValue
@@ -170,38 +166,8 @@ object EvalExpr {
 
     case None => None
   }
-
-  //halign
-  //TODO  
-  //  def evalExprHAlign(exp: Option[Expr], varmap: Map[String, Any], constmap: Map[String, Any]): Option[Int] = exp match {
-  //    case Some(value) => value match {
-  //     {
-  //        
-  //      }
-  //    }
-  //    case None => None
-  //  }  
-
-  //valign
-  //TODO
-  //  def evalExprVAlign(exp: Option[Expr], varmap: Map[String, Any], constmap: Map[String, Any]): Option[Int] = exp match {
-  //    case Some(value) => value match {
-  //      //case  Left(elem: DirectExpr)=>{
-  //        
-  //      }
-  //    }
-  //    case None => None
-  //  }  
-
-  //fonttuple <font name, size, style>
-  //TODO  
-  /*   def evalExprFontTuple(exp: Option[Expr], varmap: Map[String, Any]): Option[Int] = exp match {
-    case Some(value) => value match {
-      
-      }
-    }
-    case None => None
-  }*/
+*/
+  
   def getVariables(exp: Expr): Set[String] = exp match {
     case Comparison(left, right) => getVariables(left) ++ getVariables(right)
     case Conjuction(elems) => elems.toSet.map(getVariables).flatten
@@ -220,10 +186,10 @@ object EvalExpr {
   def changeVarRTL[T](exp: Expr, value: T, unevaluatedVarMap: mutableMap[String, Set[() => Unit]]): (String, T) = exp match {
     case Variable(name, _, false) => (name, value)
     case Negation(expr) => changeVarRTL[T](exp, (!value.asInstanceOf[Boolean]).asInstanceOf[T], unevaluatedVarMap)
-    case Comparison(Variable(id, _, false), value) if EvalExpr(value).asInstanceOf[Boolean] && unevaluatedVarMap(id) == initialAttFlag =>
-      (id, EvalExpr(value))
-    case Comparison(value, Variable(id, _, false)) if EvalExpr(value).asInstanceOf[Boolean] && unevaluatedVarMap(id) == initialAttFlag =>
-      (id, EvalExpr(value))
+    case Comparison(Variable(id, _, false), value) if eval(value).asInstanceOf[Boolean] && unevaluatedVarMap(id) == INITIAL_ATT_FLAG =>
+      (id, eval(value))
+    case Comparison(value, Variable(id, _, false)) if eval(value).asInstanceOf[Boolean] && unevaluatedVarMap(id) == INITIAL_ATT_FLAG =>
+      (id, eval(value))
     case _ => null
   }
 }
