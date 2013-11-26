@@ -1,12 +1,22 @@
 package org.tau.dslworkshop.main
 
 import scala.reflect.ClassTag
-import org.tau.workshop2011.expressions.Type
-import org.tau.workshop2011.parser.AST._
-import scala.collection.mutable.{ Map => mutableMap }
+
+import org.tau.workshop2011.parser.AST.Comparison
+import org.tau.workshop2011.parser.AST.Condition
+import org.tau.workshop2011.parser.AST.Conjuction
+import org.tau.workshop2011.parser.AST.Disjunction
+import org.tau.workshop2011.parser.AST.Expr
+import org.tau.workshop2011.parser.AST.FunctionCall
+import org.tau.workshop2011.parser.AST.IterationVariable
+import org.tau.workshop2011.parser.AST.Literal
+import org.tau.workshop2011.parser.AST.Negation
+import org.tau.workshop2011.parser.AST.Product
+import org.tau.workshop2011.parser.AST.Sum
+import org.tau.workshop2011.parser.AST.Variable
 
 
-class Environment(evaluatedVarMap: TEvaluatedVarMap) {
+class Environment(var evaluatedVarMap: TEvaluatedVarMap, var unevaluatedVarMap: TUnevaluatedVarMap) {
 
   // def expect[T: ClassTag](value: Any) = value match { case typed: T => typed case _ => throw new Error("Syntax Error") }
 
@@ -64,7 +74,6 @@ class Environment(evaluatedVarMap: TEvaluatedVarMap) {
     addAttributeToVarMap(att, unevaluatedVarMap, evaluatedVarMap)
     //TODO - anything else here?
   }
-
   //Int
   def evalExprInt(exp: Option[Expr], unevaluatedVarMap: scala.collection.mutable.Map[String, Any], evaluatedVarMap: Map[String, Any]): Option[Int] = exp match { //the "any" is useful because it allows to use one map for all types, and later i can extract the correct type from the exp using type.fromValue (value:Any) 
     case Some(value) => value match {
@@ -113,7 +122,6 @@ class Environment(evaluatedVarMap: TEvaluatedVarMap) {
     }
     case None => None
   }
-
   //bool
   def evalExprBoolean(exp: Option[Expr], varmap: scala.collection.mutable.Map[String, Any], constmap: Map[String, Any]): Option[Boolean] = exp match {
     case Some(value) => value match {
@@ -163,7 +171,6 @@ class Environment(evaluatedVarMap: TEvaluatedVarMap) {
       //TODO test - working
       case Literal(value: Boolean) => Some(value) //TODO is this ok?
     }
-
     case None => None
   }
 */
@@ -183,9 +190,9 @@ class Environment(evaluatedVarMap: TEvaluatedVarMap) {
     case Variable(name, _, isFunction) => if (isFunction) Set() else Set(name)
   }
 
-  def changeVarRTL[T](exp: Expr, value: T, unevaluatedVarMap: mutableMap[String, Set[() => Unit]]): (String, T) = exp match {
+  def changeVarRTL[T](exp: Expr, value: T): (String, T) = exp match {
     case Variable(name, _, false) => (name, value)
-    case Negation(expr) => changeVarRTL[T](exp, (!value.asInstanceOf[Boolean]).asInstanceOf[T], unevaluatedVarMap)
+    case Negation(expr) => changeVarRTL[T](exp, (!value.asInstanceOf[Boolean]).asInstanceOf[T])
     case Comparison(Variable(id, _, false), value) if eval(value).asInstanceOf[Boolean] && unevaluatedVarMap(id) == INITIAL_ATT_FLAG =>
       (id, eval(value))
     case Comparison(value, Variable(id, _, false)) if eval(value).asInstanceOf[Boolean] && unevaluatedVarMap(id) == INITIAL_ATT_FLAG =>

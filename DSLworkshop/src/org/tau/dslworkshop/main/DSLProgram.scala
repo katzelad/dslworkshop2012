@@ -1,7 +1,7 @@
 package org.tau.dslworkshop.main
 
 import scala.collection.immutable.HashSet
-import scala.collection.mutable.Map
+
 import org.eclipse.swt.widgets.Display
 import org.eclipse.swt.widgets.Shell
 import org.tau.workshop2011.parser.LayoutParser
@@ -43,8 +43,9 @@ class DSLProgram(code: String) {
       unevaluatedVarMap(varName) += func
     }
 
-    def apply(parametersList: Map[String, Any]) {
-      evalNode(widget, window, unevaluatedVarMap, parametersList ++ evaluatedVarMap)
+    def apply(parametersList: TEvaluatedVarMap) {
+      parametersList.foreach({ case (name, value) => evaluatedVarMap(name) = value })
+      new LayoutScope(widgetsMap).evalNode(widget, window, new Environment(evaluatedVarMap, unevaluatedVarMap))
       window.setSize(1000, 500)
       window.open
       while (!window.isDisposed) {
@@ -56,7 +57,7 @@ class DSLProgram(code: String) {
     }
 
   }
-  def apply(name: String) = {
-    new DSLObject(name)
-  }
+  
+  def apply(name: String) = new DSLObject(name)
+  
 }
