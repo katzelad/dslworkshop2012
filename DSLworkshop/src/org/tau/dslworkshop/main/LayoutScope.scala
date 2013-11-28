@@ -326,17 +326,17 @@ class LayoutScope(widgetsMap: Map[String, Widget]) {
       var changeImageSize = (width: Int, height: Int) => {}
       var (minWidth, minHeight, isWidthQM, isHeightQM) = (0, 0, true, true)
       for (att <- attributes) att.getName match {
-        case "halign" => hAlign = (env.eval[HAlign](att.getValue.get): @unchecked) match {
+        case "halign" => hAlign = (env.evalHAlign(att.getValue.get): @unchecked) match {
           case HAlign.left => SWT.LEFT
           case HAlign.center => SWT.CENTER
           case HAlign.right => SWT.RIGHT
         }
-        case "text" => text = env.eval[String](att.getValue.get)
-        case "checked" => checked = env.eval[Int](att.getValue.get) == 1
-        case "image" => image = env.eval[String](att.getValue.get)
-        case "value" => value = Some(env.eval[Int](att.getValue.get))
-        case "maxvalue" => maxValue = env.eval[Int](att.getValue.get)
-        case "minvalue" => minValue = env.eval[Int](att.getValue.get)
+        case "text" => text = env.evalString(att.getValue.get)
+        case "checked" => checked = env.evalBoolean(att.getValue.get)
+        case "image" => image = env.evalString(att.getValue.get)
+        case "value" => value = Some(env.evalInt(att.getValue.get))
+        case "maxvalue" => maxValue = env.evalInt(att.getValue.get)
+        case "minvalue" => minValue = env.evalInt(att.getValue.get)
         case _ =>
       }
       class WidgetSelectionAdapter[T](attName: String, attValue: T) extends SelectionAdapter {
@@ -422,15 +422,15 @@ class LayoutScope(widgetsMap: Map[String, Widget]) {
           scrolledComposite
       }
       for (att <- attributes) att.getName match {
-        case "enabled" => widget setEnabled env.eval(att.getValue.get)
+        case "enabled" => widget setEnabled env.evalBoolean(att.getValue.get)
         case "fgcolor" =>
-          val color = env.eval[Color](att.getValue.get)
+          val color = env.evalColor(att.getValue.get)
           widget setForeground new swtColor(widget.getDisplay(), color.red, color.green, color.blue)
         case "bgcolor" =>
-          val color = env.eval[Color](att.getValue.get)
+          val color = env.evalColor(att.getValue.get)
           widget setBackground new swtColor(widget.getDisplay(), color.red, color.green, color.blue)
         case "font" =>
-          val font = env.eval[Font](att.getValue.get)
+          val font = env.evalFont(att.getValue.get)
           val style = (font.style: @unchecked) match {
             case TextStyle.bold => SWT.BOLD
             case TextStyle.italic => SWT.ITALIC
@@ -446,8 +446,8 @@ class LayoutScope(widgetsMap: Map[String, Widget]) {
           })
         case _ =>
       }
-      val widthVal = width.map(env.eval[Int])
-      val heightVal = height.map(env.eval[Int])
+      val widthVal = width.map(env.evalInt)
+      val heightVal = height.map(env.evalInt)
       (widthVal getOrElse 0, heightVal getOrElse 0, widthVal.isEmpty, heightVal.isEmpty, (left: Int, top: Int, right: Int, bottom: Int) => {
         widget setBounds (left, top, math.min(right - left, widthVal.getOrElse(Int.MaxValue)),
           math.min(bottom - top, heightVal.getOrElse(Int.MaxValue)))

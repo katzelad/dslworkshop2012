@@ -1,20 +1,7 @@
 package org.tau.dslworkshop.main
 
-import scala.reflect.ClassTag
-
-import org.tau.workshop2011.parser.AST.Comparison
-import org.tau.workshop2011.parser.AST.Condition
-import org.tau.workshop2011.parser.AST.Conjuction
-import org.tau.workshop2011.parser.AST.Disjunction
-import org.tau.workshop2011.parser.AST.Expr
-import org.tau.workshop2011.parser.AST.FunctionCall
-import org.tau.workshop2011.parser.AST.IterationVariable
-import org.tau.workshop2011.parser.AST.Literal
-import org.tau.workshop2011.parser.AST.Negation
-import org.tau.workshop2011.parser.AST.Product
-import org.tau.workshop2011.parser.AST.Sum
-import org.tau.workshop2011.parser.AST.Variable
-
+import org.tau.workshop2011.parser.AST._
+import org.tau.workshop2011.expressions._
 
 class Environment(var evaluatedVarMap: TEvaluatedVarMap, var unevaluatedVarMap: TUnevaluatedVarMap) {
 
@@ -22,46 +9,100 @@ class Environment(var evaluatedVarMap: TEvaluatedVarMap, var unevaluatedVarMap: 
 
   //def evalExpr[T](exp: Option[Expr], expType: Type) = exp match {
 
-  def eval[T: ClassTag](exp: Expr): T = (exp match {
+  def evalInt(exp: Expr): Int = eval(exp, Type.tInt) match {
 
-    case Comparison(left, right) => eval[Int](left) == eval[Int](right)
+    case typed: Int => typed
+
+    case other => throw new TypeMismatch(Type.tInt, other)
+
+  }
+
+  def evalBoolean(exp: Expr): Boolean = eval(exp, Type.tBoolean) match {
+
+    case typed: Boolean => typed
+
+    case other => throw new TypeMismatch(Type.tBoolean, other)
+
+  }
+
+  def evalString(exp: Expr): String = eval(exp, Type.tString) match {
+
+    case typed: String => typed
+
+    case other => throw new TypeMismatch(Type.tString, other)
+
+  }
+
+  def evalColor(exp: Expr): Color = eval(exp, Type.tColor) match {
+
+    case typed: Color => typed
+
+    case other => throw new TypeMismatch(Type.tColor, other)
+
+  }
+
+  def evalFont(exp: Expr): Font = eval(exp, Type.tFont) match {
+
+    case typed: Font => typed
+
+    case other => throw new TypeMismatch(Type.tFont, other)
+
+  }
+
+  def evalHAlign(exp: Expr): HAlign = eval(exp, Type.tHAlign) match {
+
+    case typed: HAlign => typed
+
+    case other => throw new TypeMismatch(Type.tHAlign, other)
+
+  }
+
+  def evalTextStyle(exp: Expr): TextStyle = eval(exp, Type.tTextStyle) match {
+
+    case typed: TextStyle => typed
+
+    case other => throw new TypeMismatch(Type.tTextStyle, other)
+
+  }
+
+  def eval(exp: Expr): Any = eval(exp, Type.tUnknown)
+
+  def eval(exp: Expr, expType: Type): Any = exp match {
+
+    case Comparison(left, right) => eval(left) == eval(right)
 
     case Condition(conds, otherwise) =>
       conds
-        .find({ case (pred, value) => !eval[Boolean](pred) })
-        .map({ case (pred, value) => eval[T](value) })
-        .getOrElse(eval[T](otherwise))
+        .find({ case (pred, value) => !evalBoolean(pred) })
+        .map({ case (pred, value) => eval(value, expType) })
+        .getOrElse(eval(otherwise, expType))
 
-    case Conjuction(elems) => elems.map(eval[Boolean]).reduce(_ && _)
+    case Conjuction(elems) => elems.map(evalBoolean).reduce(_ && _)
 
-    case Disjunction(elems) => elems.map(eval[Boolean]).reduce(_ || _)
+    case Disjunction(elems) => elems.map(evalBoolean).reduce(_ || _)
 
-    case FunctionCall(func, args) => eval[(Seq[Any]) => T](func).apply(args) // TODO handle possible error
+    case FunctionCall(func, args) =>
+      val ret = eval(func, Type.result2function(expType))
+      try
+        ret.asInstanceOf[(Any*) => Any].apply(args)
+      catch { case e: ClassCastException => throw new TypeMismatch(Type.result2function(expType), ret) }
 
     case IterationVariable(_, _, _) => throw new Exception("Syntax Error")
 
     case Literal(value) => value
 
-    case Negation(expr) => !eval[Boolean](expr)
+    case Negation(expr) => !evalBoolean(expr)
 
-    case Product(mul, div) => mul.map(eval[Int]).product / div.map(eval[Int]).product
+    case Product(mul, div) => mul.map(evalInt).product / div.map(evalInt).product
 
-    case Sum(add, sub) => add.map(eval[Int]).sum - sub.map(eval[Int]).sum
+    case Sum(add, sub) => add.map(evalInt).sum - sub.map(evalInt).sum
 
-    case Variable(id, varType, _) => evaluatedVarMap(id)
-
-  }) match {
-
-    case typed: T => typed
-
-    case other => throw new Exception("Syntax Error")
-    
-    // case other => throw new Exception("Syntax Error: Expected " + <type> + ", found " + Type.fromValue(other))
+    case Variable(id, _, _) => evaluatedVarMap(id)
 
   }
-  
-// TODO Delete
-/*
+
+  // TODO Delete
+  /*
   //Var (adding to Varmap) //TODO - anything else here?
   def returnStringVal(att: Attribute, unevaluatedVarMap: scala.collection.mutable.Map[String, Any], evaluatedVarMap: Map[String, Any]) = {
     att.getValue
@@ -174,7 +215,7 @@ class Environment(var evaluatedVarMap: TEvaluatedVarMap, var unevaluatedVarMap: 
     case None => None
   }
 */
-  
+
   def getVariables(exp: Expr): Set[String] = exp match {
     case Comparison(left, right) => getVariables(left) ++ getVariables(right)
     case Conjuction(elems) => elems.toSet.map(getVariables).flatten
