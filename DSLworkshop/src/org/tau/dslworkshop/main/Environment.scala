@@ -13,7 +13,7 @@ class Environment(var evaluatedVarMap: TEvaluatedVarMap, var unevaluatedVarMap: 
 
     case typed: Int => typed
 
-    case other => throw new TypeMismatch(Type.tInt, other)
+    case other => throw new TypeMismatch(Type.tInt, other, exp)
 
   }
 
@@ -21,7 +21,7 @@ class Environment(var evaluatedVarMap: TEvaluatedVarMap, var unevaluatedVarMap: 
 
     case typed: Boolean => typed
 
-    case other => throw new TypeMismatch(Type.tBoolean, other)
+    case other => throw new TypeMismatch(Type.tBoolean, other, exp)
 
   }
 
@@ -29,7 +29,7 @@ class Environment(var evaluatedVarMap: TEvaluatedVarMap, var unevaluatedVarMap: 
 
     case typed: String => typed
 
-    case other => throw new TypeMismatch(Type.tString, other)
+    case other => throw new TypeMismatch(Type.tString, other, exp)
 
   }
 
@@ -37,7 +37,7 @@ class Environment(var evaluatedVarMap: TEvaluatedVarMap, var unevaluatedVarMap: 
 
     case typed: Color => typed
 
-    case other => throw new TypeMismatch(Type.tColor, other)
+    case other => throw new TypeMismatch(Type.tColor, other, exp)
 
   }
 
@@ -45,7 +45,7 @@ class Environment(var evaluatedVarMap: TEvaluatedVarMap, var unevaluatedVarMap: 
 
     case typed: Font => typed
 
-    case other => throw new TypeMismatch(Type.tFont, other)
+    case other => throw new TypeMismatch(Type.tFont, other, exp)
 
   }
 
@@ -53,7 +53,7 @@ class Environment(var evaluatedVarMap: TEvaluatedVarMap, var unevaluatedVarMap: 
 
     case typed: HAlign => typed
 
-    case other => throw new TypeMismatch(Type.tHAlign, other)
+    case other => throw new TypeMismatch(Type.tHAlign, other, exp)
 
   }
 
@@ -61,7 +61,7 @@ class Environment(var evaluatedVarMap: TEvaluatedVarMap, var unevaluatedVarMap: 
 
     case typed: TextStyle => typed
 
-    case other => throw new TypeMismatch(Type.tTextStyle, other)
+    case other => throw new TypeMismatch(Type.tTextStyle, other, exp)
 
   }
 
@@ -85,7 +85,7 @@ class Environment(var evaluatedVarMap: TEvaluatedVarMap, var unevaluatedVarMap: 
       val ret = eval(func, Type.result2function(expType))
       try
         ret.asInstanceOf[(Any*) => Any].apply(args)
-      catch { case e: ClassCastException => throw new TypeMismatch(Type.result2function(expType), ret) }
+      catch { case e: ClassCastException => throw new TypeMismatch(Type.result2function(expType), ret, exp) }
 
     case IterationVariable(_, _, _) => throw new Exception("Syntax Error")
 
@@ -231,13 +231,22 @@ class Environment(var evaluatedVarMap: TEvaluatedVarMap, var unevaluatedVarMap: 
     case Variable(name, _, isFunction) => if (isFunction) Set() else Set(name)
   }
 
-  def changeVarRTL[T](exp: Expr, value: T): (String, T) = exp match {
-    case Variable(name, _, false) => (name, value)
-    case Negation(expr) => changeVarRTL[T](exp, (!value.asInstanceOf[Boolean]).asInstanceOf[T])
-    case Comparison(Variable(id, _, false), value) if eval(value).asInstanceOf[Boolean] && unevaluatedVarMap(id) == INITIAL_ATT_FLAG =>
-      (id, eval(value))
-    case Comparison(value, Variable(id, _, false)) if eval(value).asInstanceOf[Boolean] && unevaluatedVarMap(id) == INITIAL_ATT_FLAG =>
-      (id, eval(value))
+  // Returns the name of the changed variable or null if nothing was changed
+  // Changes the variable, does not recurse
+  def changeVarLTR(exp: Expr, value: Boolean): String = exp match {
+    case Negation(inside) => changeVarLTR(inside, !value)
+    case Comparison(left @ Variable(id, _, false), right) if unevaluatedVarMap(id)(INITIAL_ATT_FLAG) && value  =>
+      changeVarLTR(left, evalBoolean(right))
+    case Comparison(left, right @ Variable(id, _, false)) if unevaluatedVarMap(id)(INITIAL_ATT_FLAG) && value =>
+      changeVarLTR(right, eval(left))
+    case _ => changeVarLTR(exp, value.asInstanceOf[Any])
+  }
+  
+  def changeVarLTR(exp: Expr, value: Any) = exp match {
+    case Variable(name, _, false) =>
+      evaluatedVarMap(name) = value
+      name
     case _ => null
   }
+  
 }

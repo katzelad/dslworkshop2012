@@ -1,10 +1,10 @@
 package org.tau.dslworkshop.main
 
 import scala.collection.immutable.HashSet
-
 import org.eclipse.swt.widgets.Display
 import org.eclipse.swt.widgets.Shell
 import org.tau.workshop2011.parser.LayoutParser
+import org.eclipse.swt.layout.FillLayout
 
 class DSLProgram(code: String) {
   
@@ -46,7 +46,8 @@ class DSLProgram(code: String) {
     def apply(parametersList: TEvaluatedVarMap) {
       parametersList.foreach({ case (name, value) => evaluatedVarMap(name) = value })
       new LayoutScope(widgetsMap).evalNode(widget, window, new Environment(evaluatedVarMap, unevaluatedVarMap))
-      window.setSize(1000, 500)
+      window setLayout new FillLayout
+      // window.setSize(1000, 500)
       window.open
       while (!window.isDisposed) {
         if (!display.readAndDispatch) {

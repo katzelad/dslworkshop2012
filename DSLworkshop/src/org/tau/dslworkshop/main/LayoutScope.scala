@@ -341,12 +341,10 @@ class LayoutScope(widgetsMap: Map[String, Widget]) {
       }
       class WidgetSelectionAdapter[T](attName: String, attValue: T) extends SelectionAdapter {
         override def widgetSelected(e: SelectionEvent) {
-          val temp = env.changeVarRTL(attributes.find(_.getName == attName).get.getValue.get, attValue)
-          if (temp == null)
+          val name = env.changeVarLTR(attributes.find(_.getName == attName).get.getValue.get, attValue)
+          if (name == null)
             return
-          val (name, value) = temp
           varsAffectedByCurrentUpdate = Set(name)
-          env.evaluatedVarMap(name) = value
           env.unevaluatedVarMap(name).foreach(_())
           varsAffectedByCurrentUpdate = null
         }
@@ -481,7 +479,7 @@ class LayoutScope(widgetsMap: Map[String, Widget]) {
           newEnv.evaluatedVarMap(att.id) = env.eval(expr)
 
         case InitialAttribute(att, None) => // var = ?
-          newEnv.unevaluatedVarMap(att.id) = Set()
+          newEnv.unevaluatedVarMap(att.id) = Set(INITIAL_ATT_FLAG)
 
       })
       //then, handle the rest of the container:
