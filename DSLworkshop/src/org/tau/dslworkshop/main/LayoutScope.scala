@@ -1,7 +1,7 @@
 package org.tau.dslworkshop.main
 
-import scala.collection.mutable.{Buffer => mutableBuffer}
-import scala.collection.mutable.{Map => mutableMap}
+import scala.collection.mutable.{ Buffer => mutableBuffer }
+import scala.collection.mutable.{ Map => mutableMap }
 
 import org.eclipse.swt.SWT
 import org.eclipse.swt.custom.ScrolledComposite
@@ -9,8 +9,8 @@ import org.eclipse.swt.events.ControlAdapter
 import org.eclipse.swt.events.ControlEvent
 import org.eclipse.swt.events.SelectionAdapter
 import org.eclipse.swt.events.SelectionEvent
-import org.eclipse.swt.graphics.{Color => swtColor}
-import org.eclipse.swt.graphics.{Font => swtFont}
+import org.eclipse.swt.graphics.{ Color => swtColor }
+import org.eclipse.swt.graphics.{ Font => swtFont }
 import org.eclipse.swt.graphics.Image
 import org.eclipse.swt.layout.FillLayout
 import org.eclipse.swt.widgets.Button
@@ -36,9 +36,9 @@ import org.tau.workshop2011.parser.AST.PropertyScope
 import org.tau.workshop2011.parser.AST.Widget
 
 class LayoutScope(widgetsMap: Map[String, Widget]) {
-  
+
   var varsAffectedByCurrentUpdate: Set[String] = null
-  
+
   def isReservedAtrribute(att: String) = att match {
     case "halign" => true
     case "text" => true
@@ -341,12 +341,14 @@ class LayoutScope(widgetsMap: Map[String, Widget]) {
       }
       class WidgetSelectionAdapter[T](attName: String, attValue: T) extends SelectionAdapter {
         override def widgetSelected(e: SelectionEvent) {
-          val name = env.changeVarLTR(attributes.find(_.getName == attName).get.getValue.get, attValue)
-          if (name == null)
-            return
-          varsAffectedByCurrentUpdate = Set(name)
-          env.unevaluatedVarMap(name).foreach(_())
-          varsAffectedByCurrentUpdate = null
+          if (attributes.exists(_.getName == attName)) {
+            val name = env.changeVarLTR(attributes.find(_.getName == attName).get.getValue.get, attValue)
+            if (name == null)
+              return
+            varsAffectedByCurrentUpdate = Set(name)
+            env.unevaluatedVarMap(name).foreach(_())
+            varsAffectedByCurrentUpdate = null
+          }
         }
       }
       val widget = kind match {
@@ -357,7 +359,7 @@ class LayoutScope(widgetsMap: Map[String, Widget]) {
         case "textbox" =>
           val textbox = new Text(parent, SWT.WRAP | hAlign)
           textbox setText text
-          textbox.addSelectionListener(new WidgetSelectionAdapter("text", textbox.getText()))
+          textbox.addSelectionListener(new WidgetSelectionAdapter[String]("text", textbox.getText()))
           textbox
         case "button" =>
           val button = new Button(parent, SWT.PUSH | SWT.WRAP | hAlign)
@@ -366,13 +368,15 @@ class LayoutScope(widgetsMap: Map[String, Widget]) {
         case "checkbox" =>
           val checkbox = new Button(parent, SWT.CHECK) //TODO see if it's 0/1 or true/false
           checkbox.setSelection(checked)
-          checkbox.addSelectionListener(new WidgetSelectionAdapter("checked", checkbox.getSelection()))
+          checkbox.addSelectionListener(new WidgetSelectionAdapter[Boolean]("checked", checkbox.getSelection()))
           checkbox
         case "radio" =>
-          val radio = new Button(parent, SWT.RADIO)
+          val box = new Composite(parent, SWT.NONE)
+          box.setLayout(new FillLayout)
+          val radio = new Button(box, SWT.RADIO)
           radio.setSelection(checked)
-          radio.addSelectionListener(new WidgetSelectionAdapter("checked", true))
-          radio
+          radio.addSelectionListener(new WidgetSelectionAdapter[Boolean]("checked", true))
+          box
         case "image" =>
           val label = new Label(parent, SWT.NONE)
           label setImage new Image(label.getDisplay(), image)
@@ -391,14 +395,14 @@ class LayoutScope(widgetsMap: Map[String, Widget]) {
             case Some(v) => combo select v
             case None =>
           }
-          combo.addSelectionListener(new WidgetSelectionAdapter("value", combo.getSelectionIndex()))
+          combo.addSelectionListener(new WidgetSelectionAdapter[Int]("value", combo.getSelectionIndex()))
           combo
         case "slider" =>
           val slider = new Slider(parent, SWT.HORIZONTAL)
           slider setMaximum maxValue
           slider setMinimum minValue
           slider setSelection value.getOrElse(0)
-          slider.addSelectionListener(new WidgetSelectionAdapter("value", slider.getSelection()))
+          slider.addSelectionListener(new WidgetSelectionAdapter[Int]("value", slider.getSelection()))
           slider
         case s =>
           val scrolledComposite = new ScrolledComposite(parent, SWT.H_SCROLL)
@@ -479,14 +483,14 @@ class LayoutScope(widgetsMap: Map[String, Widget]) {
           newEnv.evaluatedVarMap(att.id) = env.eval(expr)
 
         case InitialAttribute(att, None) => // var = ?
-          newEnv.unevaluatedVarMap(att.id) = Set(INITIAL_ATT_FLAG)
+          newEnv.unevaluatedVarMap(att.id) += INITIAL_ATT_FLAG
 
       })
       //then, handle the rest of the container:
       evalNode(container, parent, newEnv)
     }
-    
-    case IterationMacro(widget, direction, props) => evalNode(IterationMacro.expand(widget, direction, props), parent, env) 
+
+    case IterationMacro(widget, direction, props) => evalNode(IterationMacro.expand(widget, direction, props), parent, env)
 
   }
 

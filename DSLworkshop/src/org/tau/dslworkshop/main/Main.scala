@@ -90,19 +90,39 @@ object Main {
       l<-( label :? x(a+b))
       x<-(y)[x=?(3)]
       m<-(label :20x20 )[ text =" typical "]"""*/
+     
+      /*
       """L <- (
-      (label)[text="Do you like?"] |
-      (radio)[checked=v] | (label)[text="Yes"] | (radio)[checked=!v] | (label)[text="No"]
+      (label:?x?)[text="Do you like?"] |
+      (radio:?x?)[checked=v] | (label:30x?)[text="Yes"] | (radio:?x?)[checked=!v] | (label:?x?)[text="No"]
     )
     I <- (image:32x32)[filename={v=>"like.png", otherwise "dislike.png"}]
-    main_window <- (L)[v=?(false)]
+    main_window <- 
+      (label:?x?)[text="Do you like?"] |
+      (radio:?x?)[checked=false] | (label:30x70)[text="Yes"] | (radio:?x?)[checked=true] | (label:?x?)[text="No"]
+   
     """
-    
+   */
+      
+      //testing demo subprograms - simplified, only L
+      """L <- (
+      (label)[text="Do you like?"]
+      |
+      (radio)[checked=v] | (label)[text="Yes", checked=!v] | (radio) | (label)[text="No"]
+    )
+    I <- (image:32x32)[filename={v=>"like.png", otherwise "dislike.png"}]
+    main_window <- (L)[v=?]
+    """
+      
+      
     var params = new TEvaluatedVarMap()
     
     args.map(inputVar => params(inputVar.take(inputVar.indexOf("="))) = inputVar.drop(inputVar.indexOf("=") + 1))
 
-    new DSLProgram(code)("main_window")(params)
+    val instance = new DSLProgram(code)("main_window")
+    instance.when_changed("v", () => {print("v was changed")})
+    // params("v") = false // DEBUG ONLY
+    instance(params)
     
     // TODO receive and print output
     

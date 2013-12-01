@@ -51,7 +51,7 @@ class DSLProgram(code: String) {
       // window setLayout new FillLayout
       // window.setSize(1000, 500)
       window.addControlListener(new ControlAdapter {
-        override def controlMoved(event: ControlEvent) {
+        override def controlResized(event: ControlEvent) {
           changeWindowSize(0, 0, window.getSize().x, window.getSize().y) // left top right bottom
         }
       })
