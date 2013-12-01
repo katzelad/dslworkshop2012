@@ -74,7 +74,7 @@ object Main {
       m<-(label :20x20 )[ text =" typical "]""";
     */
 
-      """main_window <- (( label :?x? )[ text ="label-typicaltypicaltypical", enabled = true, bgcolor = 0x00FF00, fgcolor = 0xFF0000, font = ("times new roman", 14, bold), halign = left] |
+      /*"""main_window <- (( label :?x? )[ text ="label-typicaltypicaltypical", enabled = true, bgcolor = 0x00FF00, fgcolor = 0xFF0000, font = ("times new roman", 14, bold), halign = left] |
       ( textbox :?x70 )[ text ="textbox-eladeladeladeladeladeladeladelad", enabled = false, bgcolor = 0xAACC00, fgcolor = 0x00FF00, font = ("times new roman", 12, italic), halign = center] |
       ( button :?x100 )[ text ="button-shirshirshirshirshirshir", enabled = false, bgcolor = 0x0000FF, fgcolor = 0x008F8F, font = ("times new roman", 16, italic), halign = center] |
       (
@@ -89,7 +89,14 @@ object Main {
       ))
       l<-( label :? x(a+b))
       x<-(y)[x=?(3)]
-      m<-(label :20x20 )[ text =" typical "]""";
+      m<-(label :20x20 )[ text =" typical "]"""*/
+      """L <- (
+      (label)[text="Do you like?"] |
+      (radio)[checked=v] | (label)[text="Yes"] | (radio)[checked=!v] | (label)[text="No"]
+    )
+    I <- (image:32x32)[filename={v=>"like.png", otherwise "dislike.png"}]
+    main_window <- (L)[v=?(false)]
+    """
     
     var params = new TEvaluatedVarMap()
     

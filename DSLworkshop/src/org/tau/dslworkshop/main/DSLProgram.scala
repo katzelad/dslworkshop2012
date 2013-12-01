@@ -5,6 +5,8 @@ import org.eclipse.swt.widgets.Display
 import org.eclipse.swt.widgets.Shell
 import org.tau.workshop2011.parser.LayoutParser
 import org.eclipse.swt.layout.FillLayout
+import org.eclipse.swt.events.ControlAdapter
+import org.eclipse.swt.events.ControlEvent
 
 class DSLProgram(code: String) {
   
@@ -45,9 +47,14 @@ class DSLProgram(code: String) {
 
     def apply(parametersList: TEvaluatedVarMap) {
       parametersList.foreach({ case (name, value) => evaluatedVarMap(name) = value })
-      new LayoutScope(widgetsMap).evalNode(widget, window, new Environment(evaluatedVarMap, unevaluatedVarMap))
-      window setLayout new FillLayout
+      val (_, _, _, _, changeWindowSize) = new LayoutScope(widgetsMap).evalNode(widget, window, new Environment(evaluatedVarMap, unevaluatedVarMap))
+      // window setLayout new FillLayout
       // window.setSize(1000, 500)
+      window.addControlListener(new ControlAdapter {
+        override def controlMoved(event: ControlEvent) {
+          changeWindowSize(0, 0, window.getSize().x, window.getSize().y) // left top right bottom
+        }
+      })
       window.open
       while (!window.isDisposed) {
         if (!display.readAndDispatch) {
