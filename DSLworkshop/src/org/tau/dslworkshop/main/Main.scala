@@ -2,7 +2,6 @@ package org.tau.dslworkshop.main
 
 object Main {
 
-
   /*def evalCode(w: Widget, window: Shell, unevaluatedVarMap: mutableMap[String, Set[() => Unit]], evaluatedVarMap: mutableMap[String, Any]) = {
     window setLayout new FillLayout
     val scrolledComposite = new ScrolledComposite(window, SWT.H_SCROLL)
@@ -24,9 +23,8 @@ object Main {
     changeSize(0, 0, composite.getSize.x, composite.getSize.y)
   }*/
 
-
   def main(args: Array[String]) = {
-    
+
     val code = /*"""main_window<-( label :100x? )[ text ="typicaltypicaltypical", enabled = true, bgcolor = 0x0000FF, fgcolor = 0xFF0000, font = ("times new roman", 14, bold), halign = left] |
       ( textbox :?x70 )[ text ="eladeladeladeladeladeladeladelad", enabled = false, bgcolor = 0x0000FF, fgcolor = 0x00FF00, font = ("times new roman", 12, italic), halign = center] |
       ( button :?x100 )[ text ="shirshirshirshirshirshir", enabled = false, bgcolor = 0x00FFFF, fgcolor = 0x008F8F, font = ("times new roman", 16, italic), halign = center] | (
@@ -90,7 +88,7 @@ object Main {
       l<-( label :? x(a+b))
       x<-(y)[x=?(3)]
       m<-(label :20x20 )[ text =" typical "]"""*/
-     
+
       /*
       """L <- (
       (label:?x?)[text="Do you like?"] |
@@ -103,28 +101,27 @@ object Main {
    
     """
    */
-      
+
       //testing demo subprograms - simplified, only L
       """L <- (
       (label)[text="Do you like?"]
       |
-      (radio)[checked=v] | (label)[text="Yes", checked=!v] | (radio) | (label)[text="No"]
+      (radio)[checked=v] | (label)[text="Yes"] | (radio)[checked=!v] | (label)[text="No"]
     )
     I <- (image:32x32)[filename={v=>"like.png", otherwise "dislike.png"}]
     main_window <- (L)[v=?]
     """
-      
-      
+
     var params = new TEvaluatedVarMap()
-    
+
     args.map(inputVar => params(inputVar.take(inputVar.indexOf("="))) = inputVar.drop(inputVar.indexOf("=") + 1))
 
     val instance = new DSLProgram(code)("main_window")
-    instance.when_changed("v", () => {print("v was changed")})
-    // params("v") = false // DEBUG ONLY
+    instance.when_changed("v", () => { print("v was changed") })
+    params("v") = false // DEBUG ONLY
     instance(params)
-    
+
     // TODO receive and print output
-    
+
   }
 }

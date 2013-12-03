@@ -2,7 +2,6 @@ package org.tau.dslworkshop.main
 
 import scala.collection.mutable.{ Buffer => mutableBuffer }
 import scala.collection.mutable.{ Map => mutableMap }
-
 import org.eclipse.swt.SWT
 import org.eclipse.swt.custom.ScrolledComposite
 import org.eclipse.swt.events.ControlAdapter
@@ -34,6 +33,8 @@ import org.tau.workshop2011.parser.AST.InitialAttribute
 import org.tau.workshop2011.parser.AST.IterationMacro
 import org.tau.workshop2011.parser.AST.PropertyScope
 import org.tau.workshop2011.parser.AST.Widget
+import org.tau.workshop2011.parser.AST.Expr
+import org.eclipse.swt.widgets.Group
 
 class LayoutScope(widgetsMap: Map[String, Widget]) {
 
@@ -339,10 +340,10 @@ class LayoutScope(widgetsMap: Map[String, Widget]) {
         case "minvalue" => minValue = env.evalInt(att.getValue.get)
         case _ =>
       }
-      class WidgetSelectionAdapter[T](attName: String, attValue: T) extends SelectionAdapter {
+      class WidgetSelectionAdapter[T](attName: String, attValue: T, changeVarLTR: (Expr, T) => String) extends SelectionAdapter {
         override def widgetSelected(e: SelectionEvent) {
           if (attributes.exists(_.getName == attName)) {
-            val name = env.changeVarLTR(attributes.find(_.getName == attName).get.getValue.get, attValue)
+            val name = changeVarLTR(attributes.find(_.getName == attName).get.getValue.get, attValue)
             if (name == null)
               return
             varsAffectedByCurrentUpdate = Set(name)
@@ -359,7 +360,7 @@ class LayoutScope(widgetsMap: Map[String, Widget]) {
         case "textbox" =>
           val textbox = new Text(parent, SWT.WRAP | hAlign)
           textbox setText text
-          textbox.addSelectionListener(new WidgetSelectionAdapter[String]("text", textbox.getText()))
+          textbox.addSelectionListener(new WidgetSelectionAdapter[String]("text", textbox.getText(), env.changeVarLTR))
           textbox
         case "button" =>
           val button = new Button(parent, SWT.PUSH | SWT.WRAP | hAlign)
@@ -368,14 +369,22 @@ class LayoutScope(widgetsMap: Map[String, Widget]) {
         case "checkbox" =>
           val checkbox = new Button(parent, SWT.CHECK) //TODO see if it's 0/1 or true/false
           checkbox.setSelection(checked)
-          checkbox.addSelectionListener(new WidgetSelectionAdapter[Boolean]("checked", checkbox.getSelection()))
+          checkbox.addSelectionListener(new WidgetSelectionAdapter[Boolean]("checked", checkbox.getSelection(), env.changeVarLTR))
           checkbox
         case "radio" =>
-          val box = new Composite(parent, SWT.NONE)
-          box.setLayout(new FillLayout)
+          val box = new Group(parent, SWT.NONE)
+          // dummy radio button allows a default "false" state for all the other radio buttons (a workaround to an swt limitation)
+          val dummy = new Button(box, SWT.RADIO)
+          dummy.setSelection(true)
+          dummy.setBounds(-20000, -20000, 100, 100) // left top width height
           val radio = new Button(box, SWT.RADIO)
           radio.setSelection(checked)
-          radio.addSelectionListener(new WidgetSelectionAdapter[Boolean]("checked", true))
+          radio.addSelectionListener(new WidgetSelectionAdapter[Boolean]("checked", true, env.changeVarLTR))
+          box.addControlListener(new ControlAdapter {
+            override def controlResized(event: ControlEvent) {
+              radio.setSize(box.getSize)
+            }
+          })
           box
         case "image" =>
           val label = new Label(parent, SWT.NONE)
@@ -395,14 +404,14 @@ class LayoutScope(widgetsMap: Map[String, Widget]) {
             case Some(v) => combo select v
             case None =>
           }
-          combo.addSelectionListener(new WidgetSelectionAdapter[Int]("value", combo.getSelectionIndex()))
+          combo.addSelectionListener(new WidgetSelectionAdapter[Int]("value", combo.getSelectionIndex(), env.changeVarLTR))
           combo
         case "slider" =>
           val slider = new Slider(parent, SWT.HORIZONTAL)
           slider setMaximum maxValue
           slider setMinimum minValue
           slider setSelection value.getOrElse(0)
-          slider.addSelectionListener(new WidgetSelectionAdapter[Int]("value", slider.getSelection()))
+          slider.addSelectionListener(new WidgetSelectionAdapter[Int]("value", slider.getSelection(), env.changeVarLTR))
           slider
         case s =>
           val scrolledComposite = new ScrolledComposite(parent, SWT.H_SCROLL)

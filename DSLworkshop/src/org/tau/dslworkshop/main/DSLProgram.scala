@@ -7,6 +7,8 @@ import org.tau.workshop2011.parser.LayoutParser
 import org.eclipse.swt.layout.FillLayout
 import org.eclipse.swt.events.ControlAdapter
 import org.eclipse.swt.events.ControlEvent
+import org.eclipse.swt.widgets.Button
+import org.eclipse.swt.SWT
 
 class DSLProgram(code: String) {
   
