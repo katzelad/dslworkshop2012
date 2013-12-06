@@ -73,7 +73,7 @@ class Environment(var evaluatedVarMap: TEvaluatedVarMap, var unevaluatedVarMap: 
 
     case Condition(conds, otherwise) =>
       conds
-        .find({ case (pred, value) => !evalBoolean(pred) })
+        .find({ case (pred, value) => evalBoolean(pred) })
         .map({ case (pred, value) => eval(value, expType) })
         .getOrElse(eval(otherwise, expType))
 

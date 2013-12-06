@@ -102,14 +102,16 @@ object Main {
     """
    */
 
-      //testing demo subprograms - simplified, only L
+      //testing demo subprograms - simplified, no vertical
       """L <- (
       (label)[text="Do you like?"]
       |
+      (label)[text={v=>"true", otherwise "false"}]
+      |
       (radio)[checked=v] | (label)[text="Yes"] | (radio)[checked=!v] | (label)[text="No"]
     )
-    I <- (image:32x32)[filename={v=>"like.png", otherwise "dislike.png"}]
-    main_window <- (L)[v=?]
+    I <- (image:?x?)[filename={v=>"D:\\like.jpg", otherwise "D:\\dislike.jpg"}]
+    main_window <- ((L) | (I))[v=?(1)]
     """
 
     var params = new TEvaluatedVarMap()
@@ -117,8 +119,7 @@ object Main {
     args.map(inputVar => params(inputVar.take(inputVar.indexOf("="))) = inputVar.drop(inputVar.indexOf("=") + 1))
 
     val instance = new DSLProgram(code)("main_window")
-    instance.when_changed("v", () => { print("v was changed") })
-    params("v") = false // DEBUG ONLY
+    
     instance(params)
 
     // TODO receive and print output

@@ -35,6 +35,7 @@ import org.tau.workshop2011.parser.AST.PropertyScope
 import org.tau.workshop2011.parser.AST.Widget
 import org.tau.workshop2011.parser.AST.Expr
 import org.eclipse.swt.widgets.Group
+import org.eclipse.swt.graphics.ImageData
 
 class LayoutScope(widgetsMap: Map[String, Widget]) {
 
@@ -44,7 +45,7 @@ class LayoutScope(widgetsMap: Map[String, Widget]) {
     case "halign" => true
     case "text" => true
     case "checked" => true
-    case "image" => true
+    case "filename" => true
     case "value" => true
     case "maxvalue" => true
     case "minvalue" => true
@@ -331,16 +332,16 @@ class LayoutScope(widgetsMap: Map[String, Widget]) {
         // valign not included due to lack of SWT support
         case "text" => text = env.evalString(att.getValue.get)
         case "checked" => checked = env.evalBoolean(att.getValue.get)
-        case "image" => image = env.evalString(att.getValue.get)
+        case "filename" => image = env.evalString(att.getValue.get)
         case "value" => value = Some(env.evalInt(att.getValue.get))
         case "maxvalue" => maxValue = env.evalInt(att.getValue.get)
         case "minvalue" => minValue = env.evalInt(att.getValue.get)
         case _ =>
       }
-      class WidgetSelectionAdapter[T](attName: String, attValue: T, changeVarLTR: (Expr, T) => String) extends SelectionAdapter {
+      class WidgetSelectionAdapter[T](attName: String, attValue: () => T, changeVarLTR: (Expr, T) => String) extends SelectionAdapter {
         override def widgetSelected(e: SelectionEvent) {
           if (attributes.exists(_.getName == attName)) {
-            val name = changeVarLTR(attributes.find(_.getName == attName).get.getValue.get, attValue)
+            val name = changeVarLTR(attributes.find(_.getName == attName).get.getValue.get, attValue())
             if (name == null)
               return
             varsAffectedByCurrentUpdate = Set(name)
@@ -351,32 +352,32 @@ class LayoutScope(widgetsMap: Map[String, Widget]) {
       }
       //handling RTL
       def changeAttRTL(attName: String, changeAtt: Expr => Unit) = attributes.foreach(att =>
-            if (att.getName == attName)
-              env.getVariables(att.getValue.get).foreach(name =>
-                env.unevaluatedVarMap(name) += (() => changeAtt(att.getValue.get))))
+        if (att.getName == attName)
+          env.getVariables(att.getValue.get).foreach(name =>
+          env.unevaluatedVarMap(name) += (() => changeAtt(att.getValue.get))))
       val widget = kind match {
         case "label" | "" =>
           val label = new Label(parent, SWT.WRAP | hAlign)
           label setText text
-          changeAttRTL("value", expr => label.setAlignment(hAlignASTToSWT(env.evalHAlign(expr))))
-          changeAttRTL("value", expr => label.setText(env.evalString(expr)))
+          changeAttRTL("halign", expr => label.setAlignment(hAlignASTToSWT(env.evalHAlign(expr))))
+          changeAttRTL("text", expr => label.setText(env.evalString(expr)))
           label
         case "textbox" => // dynamic change of checkbox alignment not included due to lack of SWT support
           val textbox = new Text(parent, SWT.WRAP | hAlign)
           textbox setText text
-          textbox.addSelectionListener(new WidgetSelectionAdapter[String]("text", textbox.getText(), env.changeVarLTR))
-          changeAttRTL("value", expr => textbox.setText(env.evalString(expr)))
+          textbox.addSelectionListener(new WidgetSelectionAdapter[String]("text", () => textbox.getText(), env.changeVarLTR))
+          changeAttRTL("text", expr => textbox.setText(env.evalString(expr)))
           textbox
         case "button" =>
           val button = new Button(parent, SWT.PUSH | SWT.WRAP | hAlign)
           button setText text
-          changeAttRTL("value", expr => button.setAlignment(hAlignASTToSWT(env.evalHAlign(expr))))
-          changeAttRTL("value", expr => button.setText(env.evalString(expr)))
+          changeAttRTL("halign", expr => button.setAlignment(hAlignASTToSWT(env.evalHAlign(expr))))
+          changeAttRTL("text", expr => button.setText(env.evalString(expr)))
           button
         case "checkbox" =>
           val checkbox = new Button(parent, SWT.CHECK) //TODO see if it's 0/1 or true/false
           checkbox.setSelection(checked)
-          checkbox.addSelectionListener(new WidgetSelectionAdapter[Boolean]("checked", checkbox.getSelection(), env.changeVarLTR))
+          checkbox.addSelectionListener(new WidgetSelectionAdapter[Boolean]("checked", () => checkbox.getSelection(), env.changeVarLTR))
           changeAttRTL("checked", expr => checkbox.setSelection(env.evalBoolean(expr)))
           checkbox
         case "radio" =>
@@ -387,7 +388,7 @@ class LayoutScope(widgetsMap: Map[String, Widget]) {
           dummy.setBounds(-20000, -20000, 100, 100) // left top width height
           val radio = new Button(box, SWT.RADIO)
           radio.setSelection(checked)
-          radio.addSelectionListener(new WidgetSelectionAdapter[Boolean]("checked", true, env.changeVarLTR))
+          radio.addSelectionListener(new WidgetSelectionAdapter[Boolean]("checked", () => radio.getSelection(), env.changeVarLTR))
           box.addControlListener(new ControlAdapter {
             override def controlResized(event: ControlEvent) {
               radio.setSize(box.getSize)
@@ -398,13 +399,17 @@ class LayoutScope(widgetsMap: Map[String, Widget]) {
         case "image" =>
           val label = new Label(parent, SWT.NONE)
           label setImage new Image(label.getDisplay(), image)
-          changeImageSize = (width, height) => { // TODO fix change image size and add RTL change
+          changeImageSize = (width, height) => { // TODO fix change image size
             if (width > 0 && height > 0) {
-              val prevImage = label.getImage
-              label setImage new Image(label.getDisplay(), prevImage.getImageData().scaledTo(width, height))
-              prevImage.dispose
+              label.getImage.dispose
+              label.setImage(new Image(label.getDisplay, new ImageData(image).scaledTo(label.getSize.x, label.getSize.y)))
             }
           }
+          changeAttRTL("filename", expr => {
+            image = env.evalString(expr)
+            label.getImage.dispose
+            label.setImage(new Image(label.getDisplay, new ImageData(image).scaledTo(label.getSize.x, label.getSize.y)))
+          })
           label
         case "combo" =>
           val combo = new Combo(parent, SWT.DROP_DOWN | SWT.READ_ONLY)
@@ -413,7 +418,7 @@ class LayoutScope(widgetsMap: Map[String, Widget]) {
             case Some(v) => combo select v
             case None =>
           }
-          combo.addSelectionListener(new WidgetSelectionAdapter[Int]("value", combo.getSelectionIndex(), env.changeVarLTR))
+          combo.addSelectionListener(new WidgetSelectionAdapter[Int]("value", () => combo.getSelectionIndex(), env.changeVarLTR))
           changeAttRTL("text", expr => combo.setItems(env.evalString(expr).split(",")))
           changeAttRTL("value", expr => combo.select(env.evalInt(expr)))
           combo
@@ -422,7 +427,7 @@ class LayoutScope(widgetsMap: Map[String, Widget]) {
           slider setMaximum maxValue
           slider setMinimum minValue
           slider setSelection value.getOrElse(0)
-          slider.addSelectionListener(new WidgetSelectionAdapter[Int]("value", slider.getSelection(), env.changeVarLTR))
+          slider.addSelectionListener(new WidgetSelectionAdapter[Int]("value", () => slider.getSelection(), env.changeVarLTR))
           changeAttRTL("maxvalue", expr => slider.setMaximum(env.evalInt(expr)))
           changeAttRTL("minvalue", expr => slider.setMinimum(env.evalInt(expr)))
           changeAttRTL("value", expr => slider.setSelection(env.evalInt(expr)))
