@@ -327,11 +327,8 @@ class LayoutScope(widgetsMap: Map[String, Widget]) {
       var changeImageSize = (width: Int, height: Int) => {}
       var (minWidth, minHeight, isWidthQM, isHeightQM) = (0, 0, true, true)
       for (att <- attributes) att.getName match {
-        case "halign" => hAlign = (env.evalHAlign(att.getValue.get): @unchecked) match {
-          case HAlign.left => SWT.LEFT
-          case HAlign.center => SWT.CENTER
-          case HAlign.right => SWT.RIGHT
-        }
+        case "halign" => hAlign = hAlignASTToSWT(env.evalHAlign(att.getValue.get))
+        // valign not included due to lack of SWT support
         case "text" => text = env.evalString(att.getValue.get)
         case "checked" => checked = env.evalBoolean(att.getValue.get)
         case "image" => image = env.evalString(att.getValue.get)
@@ -352,24 +349,35 @@ class LayoutScope(widgetsMap: Map[String, Widget]) {
           }
         }
       }
+      //handling RTL
+      def changeAttRTL(attName: String, changeAtt: Expr => Unit) = attributes.foreach(att =>
+            if (att.getName == attName)
+              env.getVariables(att.getValue.get).foreach(name =>
+                env.unevaluatedVarMap(name) += (() => changeAtt(att.getValue.get))))
       val widget = kind match {
         case "label" | "" =>
           val label = new Label(parent, SWT.WRAP | hAlign)
           label setText text
+          changeAttRTL("value", expr => label.setAlignment(hAlignASTToSWT(env.evalHAlign(expr))))
+          changeAttRTL("value", expr => label.setText(env.evalString(expr)))
           label
-        case "textbox" =>
+        case "textbox" => // dynamic change of checkbox alignment not included due to lack of SWT support
           val textbox = new Text(parent, SWT.WRAP | hAlign)
           textbox setText text
           textbox.addSelectionListener(new WidgetSelectionAdapter[String]("text", textbox.getText(), env.changeVarLTR))
+          changeAttRTL("value", expr => textbox.setText(env.evalString(expr)))
           textbox
         case "button" =>
           val button = new Button(parent, SWT.PUSH | SWT.WRAP | hAlign)
           button setText text
+          changeAttRTL("value", expr => button.setAlignment(hAlignASTToSWT(env.evalHAlign(expr))))
+          changeAttRTL("value", expr => button.setText(env.evalString(expr)))
           button
         case "checkbox" =>
           val checkbox = new Button(parent, SWT.CHECK) //TODO see if it's 0/1 or true/false
           checkbox.setSelection(checked)
           checkbox.addSelectionListener(new WidgetSelectionAdapter[Boolean]("checked", checkbox.getSelection(), env.changeVarLTR))
+          changeAttRTL("checked", expr => checkbox.setSelection(env.evalBoolean(expr)))
           checkbox
         case "radio" =>
           val box = new Group(parent, SWT.NONE)
@@ -385,11 +393,12 @@ class LayoutScope(widgetsMap: Map[String, Widget]) {
               radio.setSize(box.getSize)
             }
           })
+          changeAttRTL("checked", expr => radio.setSelection(env.evalBoolean(expr)))
           box
         case "image" =>
           val label = new Label(parent, SWT.NONE)
           label setImage new Image(label.getDisplay(), image)
-          changeImageSize = (width, height) => { // TODO fix change image size
+          changeImageSize = (width, height) => { // TODO fix change image size and add RTL change
             if (width > 0 && height > 0) {
               val prevImage = label.getImage
               label setImage new Image(label.getDisplay(), prevImage.getImageData().scaledTo(width, height))
@@ -405,6 +414,8 @@ class LayoutScope(widgetsMap: Map[String, Widget]) {
             case None =>
           }
           combo.addSelectionListener(new WidgetSelectionAdapter[Int]("value", combo.getSelectionIndex(), env.changeVarLTR))
+          changeAttRTL("text", expr => combo.setItems(env.evalString(expr).split(",")))
+          changeAttRTL("value", expr => combo.select(env.evalInt(expr)))
           combo
         case "slider" =>
           val slider = new Slider(parent, SWT.HORIZONTAL)
@@ -412,6 +423,9 @@ class LayoutScope(widgetsMap: Map[String, Widget]) {
           slider setMinimum minValue
           slider setSelection value.getOrElse(0)
           slider.addSelectionListener(new WidgetSelectionAdapter[Int]("value", slider.getSelection(), env.changeVarLTR))
+          changeAttRTL("maxvalue", expr => slider.setMaximum(env.evalInt(expr)))
+          changeAttRTL("minvalue", expr => slider.setMinimum(env.evalInt(expr)))
+          changeAttRTL("value", expr => slider.setSelection(env.evalInt(expr)))
           slider
         case s =>
           val scrolledComposite = new ScrolledComposite(parent, SWT.H_SCROLL)
@@ -433,21 +447,18 @@ class LayoutScope(widgetsMap: Map[String, Widget]) {
           scrolledComposite
       }
       for (att <- attributes) att.getName match {
-        case "enabled" => widget setEnabled env.evalBoolean(att.getValue.get)
+        case "enabled" =>
+          widget setEnabled env.evalBoolean(att.getValue.get)
+          changeAttRTL("enabled", expr => widget.setEnabled(env.evalBoolean(expr)))
         case "fgcolor" =>
-          val color = env.evalColor(att.getValue.get)
-          widget setForeground new swtColor(widget.getDisplay(), color.red, color.green, color.blue)
+          widget setForeground colorASTToSWT(env.evalColor(att.getValue.get), widget.getDisplay())
+          changeAttRTL("fgcolor", expr => widget.setForeground(colorASTToSWT(env.evalColor(expr), widget.getDisplay())))
         case "bgcolor" =>
-          val color = env.evalColor(att.getValue.get)
-          widget setBackground new swtColor(widget.getDisplay(), color.red, color.green, color.blue)
+          widget setBackground colorASTToSWT(env.evalColor(att.getValue.get), widget.getDisplay())
+          changeAttRTL("bgcolor", expr => widget.setBackground(colorASTToSWT(env.evalColor(expr), widget.getDisplay())))
         case "font" =>
-          val font = env.evalFont(att.getValue.get)
-          val style = (font.style: @unchecked) match {
-            case TextStyle.bold => SWT.BOLD
-            case TextStyle.italic => SWT.ITALIC
-            case TextStyle.regular => SWT.NORMAL
-          }
-          widget setFont new swtFont(widget.getDisplay(), font.face, font.size, style)
+          widget setFont fontASTToSWT(env.evalFont(att.getValue.get), widget.getDisplay())
+          changeAttRTL("font", expr => widget.setFont(fontASTToSWT(env.evalFont(expr), widget.getDisplay())))
         // attribute "code" helps handling "bind" 
         case "code" =>
           widget.addListener(SWT.Selection, new Listener {
