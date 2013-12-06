@@ -102,6 +102,8 @@ object Main {
     """
    */
 
+      
+      /*
       //testing demo subprograms - simplified, no vertical
       """L <- (
       (label)[text="Do you like?"]
@@ -113,6 +115,15 @@ object Main {
     I <- (image:?x?)[filename={v=>"D:\\like.jpg", otherwise "D:\\dislike.jpg"}]
     main_window <- ((L) | (I))[v=?(1)]
     """
+    */
+      
+     //testing
+      """ main_window <- (label)[text="true"] |
+    (((radio:30x30)[checked = v = i] | (label)[text = Animals[i]])
+                           *|*
+     [i=0...6,Animals={"Alpaca","Bunny","Cat","Dog","Elephant","Fox","Goose"}])[v=?(3)]
+    """
+ 
 
     var params = new TEvaluatedVarMap()
 

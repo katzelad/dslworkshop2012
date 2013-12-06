@@ -15,7 +15,7 @@ class DSLProgram(code: String) {
   val display = new Display
   
   val widgetsMap = LayoutParser parseAll (LayoutParser.Program, code) match {
-    case LayoutParser.Success(result, nextInput) => result.defs.toMap // print(result) 
+    case LayoutParser.Success(result, nextInput) => print(result);  result.defs.toMap
     case LayoutParser.NoSuccess(msg, nextInput) => throw new Exception("Could not parse the input.\n" + msg)
   }
   
