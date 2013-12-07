@@ -121,7 +121,7 @@ class Environment(var evaluatedVarMap: TEvaluatedVarMap, var unevaluatedVarMap: 
   def changeVarLTR(exp: Expr, value: Boolean): String = exp match {
     case Negation(inside) => changeVarLTR(inside, !value)
     case Comparison(left @ Variable(id, _, false), right) if unevaluatedVarMap(id)(INITIAL_ATT_FLAG) && value  =>
-      changeVarLTR(left, evalBoolean(right))
+      changeVarLTR(left, eval(right))
     case Comparison(left, right @ Variable(id, _, false)) if unevaluatedVarMap(id)(INITIAL_ATT_FLAG) && value =>
       changeVarLTR(right, eval(left))
     case _ => changeVarLTR(exp, value.asInstanceOf[Any])
