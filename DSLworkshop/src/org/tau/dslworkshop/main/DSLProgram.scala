@@ -52,8 +52,7 @@ class DSLProgram(code: String) {
       unevaluatedVarMap(varName) += func
     }
 
-    def apply(args: Array[String]) {
-      //      parametersList.foreach({ case (name, value) => evaluatedVarMap(name) = value })
+    def apply(args: Array[String]) = {
       val mainWidget = AtomicWidget(name, args.toList.map(arg => {
         val argName = Variable(arg.take(arg.indexOf("=")))
         val argValueString = arg.drop(arg.indexOf("=") + 1)
@@ -61,7 +60,7 @@ class DSLProgram(code: String) {
           if (argValueString.startsWith("\"") && argValueString.endsWith("\""))
             argValueString.replace("\"", "")
           else
-            argValueString.asInstanceOf[Int]))
+            argValueString.toInt))
         InitialAttribute(argName, argValue)
       }), None, None)
       val (_, _, _, _, changeWindowSize) = new LayoutScope(widgetsMap).evalNode(mainWidget, window, new Environment(evaluatedVarMap, unevaluatedVarMap))
@@ -74,8 +73,9 @@ class DSLProgram(code: String) {
         }
       }
       display.dispose
+      evaluatedVarMap
     }
-
+    
   }
 
   def apply(name: String) = new DSLObject(name)

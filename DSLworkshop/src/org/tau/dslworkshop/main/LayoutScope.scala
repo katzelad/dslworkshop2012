@@ -87,7 +87,7 @@ class LayoutScope(widgetsMap: Map[String, Widget]) {
             prevSashMap += leftSash -> (if (sashes.isEmpty) None else Some(sashes.last),
               if (sashes.isEmpty)
                 childInfo takeWhile { case (_, _, b, _, _) => !b } map { case (w, _, false, _, _) => w; case _ => print("Error: 143"); 0 } sum
-              else 0)
+              else 0) // MARK 8.12, originally without adding the childInfo(j)._1
             sashMap(leftSash) = 1.0 / qms
             sashes += leftSash
             if (i > j + 1) { // ... ? 20 20 20 ? ...
@@ -112,16 +112,16 @@ class LayoutScope(widgetsMap: Map[String, Widget]) {
                       case (Some(prevSash), leftMargin) => prevSash.getBounds.x + SASH_WIDTH + leftMargin
                       case (None, leftMargin) => sashLeftBounds(leftSash) + leftMargin
                     }
-                    if (leftSash.getBounds.x < leftBound)
-                      leftSash.setLocation(leftBound, leftSash.getBounds.y)
+                    if (leftSash.getBounds.x < leftBound + childInfo(k)._1)
+                      leftSash.setLocation(leftBound + childInfo(k)._1, leftSash.getBounds.y)
                     val rightBound = nextSashMap(rightSash) match {
                       case (Some(nextSash), rightMargin) => nextSash.getBounds.x - rightMargin - sashDist - SASH_WIDTH
                       case (None, rightMargin) => sashRightBounds(rightSash) - rightMargin - sashDist - SASH_WIDTH
                     }
-                    if (leftSash.getBounds.x + SASH_WIDTH > rightBound)
-                      leftSash.setLocation(rightBound - SASH_WIDTH, leftSash.getBounds.y)
+                    if (leftSash.getBounds.x + SASH_WIDTH > rightBound - childInfo(i)._1)
+                      leftSash.setLocation(rightBound - SASH_WIDTH - childInfo(i)._1, leftSash.getBounds.y)
                     (childInfo(k): @unchecked) match {
-                      case (_, _, true, _, changeSize) => changeSize(leftBound, leftSash.getBounds.y, leftSash.getBounds.x, leftSash.getBounds.y + leftSash.getBounds.height)
+                      case (_, _, true, _, changeSize) => changeSize(leftBound /*BEGIN CHANGE 8.12 - prevSashMap(leftSash)._2 END CHANGE 8.12 */ , leftSash.getBounds.y, leftSash.getBounds.x, leftSash.getBounds.y + leftSash.getBounds.height)
                     }
                     var accWidth = 0
                     for (j <- k + 1 to i - 1) childInfo(j) match {
@@ -149,14 +149,14 @@ class LayoutScope(widgetsMap: Map[String, Widget]) {
                       case (Some(prevSash), leftMargin) => prevSash.getBounds.x + 2 * SASH_WIDTH + leftMargin + sashDist
                       case (None, leftMargin) => sashLeftBounds(rightSash) + leftMargin + SASH_WIDTH + sashDist
                     }
-                    if (rightSash.getBounds.x < leftBound)
-                      rightSash.setLocation(leftBound, rightSash.getBounds.y)
+                    if (rightSash.getBounds.x < leftBound + childInfo(k)._1)
+                      rightSash.setLocation(leftBound + childInfo(k)._1, rightSash.getBounds.y)
                     val rightBound = nextSashMap(rightSash) match {
                       case (Some(nextSash), rightMargin) => nextSash.getBounds.x - rightMargin
                       case (None, rightMargin) => sashRightBounds(rightSash) - rightMargin
                     }
-                    if (rightSash.getBounds.x + SASH_WIDTH > rightBound)
-                      rightSash.setLocation(rightBound - SASH_WIDTH, rightSash.getBounds.y)
+                    if (rightSash.getBounds.x + SASH_WIDTH > rightBound - childInfo(i)._1)
+                      rightSash.setLocation(rightBound - SASH_WIDTH - childInfo(i)._1, rightSash.getBounds.y)
                     (childInfo(i): @unchecked) match {
                       case (_, _, true, _, changeSize) => changeSize(rightSash.getBounds.x + SASH_WIDTH, rightSash.getBounds.y, rightBound, rightSash.getBounds.y + rightSash.getBounds.height)
                     }
@@ -197,14 +197,14 @@ class LayoutScope(widgetsMap: Map[String, Widget]) {
                       case (Some(prevSash), leftMargin) => prevSash.getBounds.x + SASH_WIDTH + leftMargin
                       case (None, leftMargin) => sashLeftBounds(leftSash) + leftMargin
                     }
-                    if (leftSash.getBounds.x < leftBound)
-                      leftSash.setLocation(leftBound, leftSash.getBounds.y)
+                    if (leftSash.getBounds.x < leftBound + childInfo(i - 1)._1) // MARK 9.12 - added 'childInfo(i-1)._1'
+                      leftSash.setLocation(leftBound + childInfo(i - 1)._1, leftSash.getBounds.y) // MARK 9.12 - added 'childInfo(i-1)._1'
                     val rightBound = nextSashMap(leftSash) match {
                       case (Some(nextSash), rightMargin) => nextSash.getBounds.x - rightMargin
                       case (None, rightMargin) => sashRightBounds(leftSash) - rightMargin
                     }
-                    if (leftSash.getBounds.x + SASH_WIDTH > rightBound)
-                      leftSash.setLocation(rightBound - SASH_WIDTH, leftSash.getBounds.y)
+                    if (leftSash.getBounds.x + SASH_WIDTH > rightBound - childInfo(i)._1)
+                      leftSash.setLocation(rightBound - SASH_WIDTH - childInfo(i)._1, leftSash.getBounds.y)
                     (childInfo(i - 1): @unchecked) match {
                       case (_, _, true, _, changeSize) => changeSize(leftBound, leftSash.getBounds.y, leftSash.getBounds.x, leftSash.getBounds.y + leftSash.getBounds.height)
                     }
@@ -316,6 +316,7 @@ class LayoutScope(widgetsMap: Map[String, Widget]) {
   def evalNode(code: ASTNode, parent: Composite, env: Environment): TEvalNodeReturn = code match {
     //***case 1/3 atomic widget***
     case AtomicWidget(kind, attributes, width, height) =>
+      val changeAtt = mutableMap[String, () => Unit]()
       var hAlign = 0
       var text = ""
       var checked = false
@@ -401,7 +402,7 @@ class LayoutScope(widgetsMap: Map[String, Widget]) {
             }
           })
           changeAttRTL("checked", expr => radio.setSelection(env.evalBoolean(expr)))
-          box
+          radio
         case "image" =>
           val label = new Label(parent, SWT.NONE)
           label setImage new Image(label.getDisplay(), image)
@@ -483,10 +484,11 @@ class LayoutScope(widgetsMap: Map[String, Widget]) {
           })
         case _ =>
       }
+      val widgetForResize = widget match {case w: Button if (w.getStyle & SWT.RADIO) == SWT.RADIO =>  widget.getParent; case _ => widget}
       (widthVal getOrElse 0, heightVal getOrElse 0, widthVal.isEmpty, heightVal.isEmpty, (left: Int, top: Int, right: Int, bottom: Int) => {
-        widget setBounds (left, top, math.min(right - left, widthVal.getOrElse(Int.MaxValue)),
+        widgetForResize setBounds (left, top, math.min(right - left, widthVal.getOrElse(Int.MaxValue)),
           math.min(bottom - top, heightVal.getOrElse(Int.MaxValue)))
-        changeImageSize(widget.getSize.x, widget.getSize.y)
+        changeImageSize(widgetForResize.getSize.x, widgetForResize.getSize.y)
       })
     // TODO deal with vertical
 
