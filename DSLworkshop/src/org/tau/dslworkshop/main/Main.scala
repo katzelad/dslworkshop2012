@@ -139,15 +139,17 @@ object Main {
       """ main_window <-
     (((radio:30x30)[checked = v = i, bgcolor = Colors[i]] | (label)[text = Animals[i], fgcolor = Colors[i]])
                            *|*
-     [i=0...3,Animals={"Alpaca","Bunny","Cat","Dog","Elephant","Fox","Goose"}, Colors = {0x00FF00, 0x808080, 0xFF0000, 0xFFFF00, 0x008000, 0x008080, 0x000080}])[v=?(3)]
+     [i=0...3,Animals={"Alpaca","Bunny","Cat","Dog","Elephant","Fox","Goose"},
+      Colors = {0x00FF00, 0x808080, 0xFF0000, 0xFFFF00, 0x008000, 0x008080, 0x000080}])
     
       """
 
     val instance = new DSLProgram(code)("main_window")
+    println(args.mkString("{", " ", "}"))
+    
+    val output = instance(/*args*/ ("v=3" :: Nil).toArray)
 
-    val output = instance(args/* ("v=3" :: Nil).toArray*/)
-
-    print(output.map({ case (name, value) => name + "=" + value }).mkString(" "))
+    println(output)
 
   }
 }

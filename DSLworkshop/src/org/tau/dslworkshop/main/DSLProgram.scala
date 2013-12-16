@@ -20,7 +20,7 @@ class DSLProgram(code: String) {
 
   val widgetsMap = LayoutParser parseAll (LayoutParser.Program, code) match {
     case LayoutParser.Success(result, nextInput) =>
-      print(result); result.defs.toMap
+      /*print(result);*/ result.defs.toMap
     case LayoutParser.NoSuccess(msg, nextInput) => throw new Exception("Could not parse the input.\n" + msg)
   }
 
@@ -63,8 +63,8 @@ class DSLProgram(code: String) {
             argValueString.toInt))
         InitialAttribute(argName, argValue)
       }), None, None)
-      val (_, _, _, _, changeWindowSize) = new LayoutScope(widgetsMap).evalNode(mainWidget, window, new Environment(evaluatedVarMap, unevaluatedVarMap))
-      //      changeWindowSize(0, 0, window.getSize.x, window.getSize.y)
+      val scope = new LayoutScope(widgetsMap)
+      val (_, _, _, _, changeWindowSize) = scope.evalNode(mainWidget, window, new Environment(evaluatedVarMap, unevaluatedVarMap))
       window setLayout new FillLayout
       window.open
       while (!window.isDisposed) {
@@ -73,7 +73,7 @@ class DSLProgram(code: String) {
         }
       }
       display.dispose
-      evaluatedVarMap
+      mainWidget.attributes.map(att => att.getName + "=" + scope.params(att.getName)).mkString(" ")
     }
     
   }

@@ -39,7 +39,11 @@ import org.eclipse.swt.graphics.ImageData
 
 class LayoutScope(widgetsMap: Map[String, Widget]) {
 
+  var params: TEvaluatedVarMap = null
+  
   var varsAffectedByCurrentUpdate: Set[String] = null
+  
+  def getParams = params
 
   def isReservedAtrribute(att: String) = att match {
     case "halign" => true
@@ -524,11 +528,13 @@ class LayoutScope(widgetsMap: Map[String, Widget]) {
           newEnv.unevaluatedVarMap(att.id) += INITIAL_ATT_FLAG
 
       })
+      if (params == null)
+        params = newEnv.evaluatedVarMap
       //then, handle the rest of the container:
       evalNode(container, parent, newEnv)
     }
 
-    case IterationMacro(widget, direction, props) => print(IterationMacro.expand(widget, direction, props)); evalNode(IterationMacro.expand(widget, direction, props), parent, env)
+    case IterationMacro(widget, direction, props) => evalNode(IterationMacro.expand(widget, direction, props), parent, env)
 
   }
 

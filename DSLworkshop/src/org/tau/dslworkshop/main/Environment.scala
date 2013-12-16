@@ -98,6 +98,9 @@ class Environment(var evaluatedVarMap: TEvaluatedVarMap, var unevaluatedVarMap: 
     case Sum(add, sub) => add.map(evalInt).sum - sub.map(evalInt).sum
 
     case Variable(id, _, _) => evaluatedVarMap(id)
+//      val ret = evaluatedVarMap(id)
+//      println(s"$id = $ret")
+//      ret
 
   }
 
