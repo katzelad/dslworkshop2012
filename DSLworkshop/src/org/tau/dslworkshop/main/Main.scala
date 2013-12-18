@@ -136,13 +136,28 @@ object Main {
       //    """
 
       //testing IterationMacro
-      """ main_window <-
-    (((radio:30x30)[checked = v = i, bgcolor = Colors[i]] | (label)[text = Animals[i], fgcolor = Colors[i]])
-                           *|*
-     [i=0...3,Animals={"Alpaca","Bunny","Cat","Dog","Elephant","Fox","Goose"},
-      Colors = {0x00FF00, 0x808080, 0xFF0000, 0xFFFF00, 0x008000, 0x008080, 0x000080}])
-    
-      """
+//      """ main_window <-
+//    (((radio:30x30)[checked = v = i, bgcolor = Colors[i]] | (label)[text = Animals[i], fgcolor = Colors[i]])
+//                           *|*
+//     [i=0...3,Animals={"Alpaca","Bunny","Cat","Dog","Elephant","Fox","Goose"},
+//      Colors = {0x00FF00, 0x808080, 0xFF0000, 0xFFFF00, 0x008000, 0x008080, 0x000080}])
+//    
+//      """
+      
+      
+    //testing width/height expressions SUPER BASIC CASE    //fails due to with 0
+//          """ main_window <- (
+//    		(button:(width/2)x?)
+//    		)
+//    		"""
+      
+//      //testing width/height expressions
+    """ main_window <- (
+    (button:(width/2)x?)|
+    (button:(width/2)x?)|
+    (button:(width/2)x?)
+  )
+    """
 
     val instance = new DSLProgram(code)("main_window")
     println(args.mkString("{", " ", "}"))

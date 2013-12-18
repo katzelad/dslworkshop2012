@@ -36,6 +36,7 @@ import org.tau.workshop2011.parser.AST.Widget
 import org.tau.workshop2011.parser.AST.Expr
 import org.eclipse.swt.widgets.Group
 import org.eclipse.swt.graphics.ImageData
+import org.tau.workshop2011.parser.AST.Literal
 
 class LayoutScope(widgetsMap: Map[String, Widget]) {
 
@@ -60,6 +61,8 @@ class LayoutScope(widgetsMap: Map[String, Widget]) {
     case _ => false
   }
 
+  
+  
   def handleHorizontalContainer(code: ASTNode, parent: Composite, env: Environment, children: List[Widget]): TEvalNodeReturn = {
     var seenQM = 0
     var sashes = mutableBuffer[Sash]()
@@ -317,6 +320,8 @@ class LayoutScope(widgetsMap: Map[String, Widget]) {
     })
   }
 
+  
+  
   def evalNode(code: ASTNode, parent: Composite, env: Environment): TEvalNodeReturn = code match {
     //***case 1/3 atomic widget***
     case AtomicWidget(kind, attributes, width, height) =>
@@ -329,8 +334,8 @@ class LayoutScope(widgetsMap: Map[String, Widget]) {
       var minValue, maxValue = 0
       var value: Option[Int] = None
       var changeImageSize = (width: Int, height: Int) => {}
-      var (minWidth, minHeight, isWidthQM, isHeightQM) = (0, 0, true, true)
-      val widthVal = width.map(env.evalInt)
+      //Delete this line var (minWidth, minHeight, isWidthQM, isHeightQM) = (0, 0, true, true)
+      val widthVal = (width match { case Some(w: Literal[_]) => width; case _ => None }).map(env.evalInt)
       // NOTE: a known issue: the parser does not distinguish between (label) and (label:?x?)
       // which causes handling that does not support native label and image size (3.2.2 in the project specs)
       val heightVal = height.map(env.evalInt)
@@ -454,12 +459,17 @@ class LayoutScope(widgetsMap: Map[String, Widget]) {
           //scrolledComposite setExpandVertical true
           val composite = new Composite(scrolledComposite, SWT.NONE)
           scrolledComposite setContent composite
+          env.evaluatedVarMap("width") = 10000
+          env.evaluatedVarMap("height") = 10000
           val (width, height, _, _, changeSize) = evalNode(PropertyScope(widgetsMap(s), attributes), composite, env)
-          minWidth = width
-          minHeight = height
+          //delete minWidth = width
+          //delete minHeight = height
           scrolledComposite setMinWidth width
           scrolledComposite addControlListener new ControlAdapter {
             override def controlResized(event: ControlEvent) {
+              env.evaluatedVarMap("width") = scrolledComposite.getSize.x
+              println(env.evaluatedVarMap("width"))
+              env.evaluatedVarMap("height") = scrolledComposite.getSize.y
               composite.setSize(scrolledComposite.getSize)
               changeSize(0, 0, composite.getSize.x, composite.getSize.y)
             }
@@ -490,8 +500,9 @@ class LayoutScope(widgetsMap: Map[String, Widget]) {
       }
       val widgetForResize = widget match {case w: Button if (w.getStyle & SWT.RADIO) == SWT.RADIO =>  widget.getParent; case _ => widget}
       (widthVal getOrElse 0, heightVal getOrElse 0, widthVal.isEmpty, heightVal.isEmpty, (left: Int, top: Int, right: Int, bottom: Int) => {
-        widgetForResize setBounds (left, top, math.min(right - left, widthVal.getOrElse(Int.MaxValue)),
-          math.min(bottom - top, heightVal.getOrElse(Int.MaxValue)))
+        widgetForResize setBounds (left, top, math.min(right - left, width.map(env.evalInt).getOrElse(Int.MaxValue)),
+          math.min(bottom - top, height.map(env.evalInt).getOrElse(Int.MaxValue)))
+        println(math.min(right - left, width.map(env.evalInt).getOrElse(Int.MaxValue)))
         changeImageSize(widgetForResize.getSize.x, widgetForResize.getSize.y)
       })
     // TODO deal with vertical
