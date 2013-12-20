@@ -10,8 +10,8 @@ class ScopingMap[K, V](parent: ScopingMap[K, V] = null) extends scala.collection
         case None => parent(key)
       }
   override def update(key: K, value: V) =
-    if (parent != null && parent.contains(key))
-      parent(key) = value
-    else
+    if (contains(key))
       super.update(key, value)
+    else
+      parent(key) = value
 }

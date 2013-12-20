@@ -112,28 +112,28 @@ object Main {
       //      x<-(y)[x=?(3)]
       //      m<-(label :20x20 )[ text =" typical "]"""
 
-      //      """L <- (
-      //      (label:?x?)[text="Do you like?"] |
-      //      (radio:?x?)[checked=v] | (label:30x?)[text="Yes"] | (radio:?x?)[checked=!v] | (label:?x?)[text="No"]
-      //    )
-      //    I <- (image:32x32)[filename={v=>"like.png", otherwise "dislike.png"}]
-      //    main_window <- 
-      //      (label:?x?)[text="Do you like?"] |
-      //      (radio:?x?)[checked=false] | (label:30x70)[text="Yes"] | (radio:?x?)[checked=true] | (label:?x?)[text="No"]
-      //   
-      //    """
+//            """L <- (
+//            (label:?x?)[text="Do you like?"] |
+//            (radio:?x?)[checked=v] | (label:30x?)[text="Yes"] | (radio:?x?)[checked=!v] | (label:?x?)[text="No"]
+//          )
+//          I <- (image:32x32)[filename={v=>"like.png", otherwise "dislike.png"}]
+//          main_window <- 
+//            (label:?x?)[text="Do you like?"] |
+//            (radio:?x?)[checked=false] | (label:30x70)[text="Yes"] | (radio:?x?)[checked=true] | (label:?x?)[text="No"]
+//         
+//          """
 
       //testing demo subprograms - simplified, no vertical
-      //      """L <- (
-      //      (label)[text="Do you like?"]
-      //      |
-      //      (label)[text={v=>"true", otherwise "false"}]
-      //      |
-      //      (radio)[checked=v] | (label)[text="Yes"] | (radio)[checked=!v] | (label)[text="No"]
-      //    )
-      //    I <- (image)[filename={v=>"D:\\like.jpg", otherwise "D:\\dislike.jpg"}]
-      //    main_window <- ((L) | (I:80x80))[v=?(1)]
-      //    """
+//            """L <- (
+//            (label)[text="Do you like?"]
+//            |
+//            (label)[text={v=>"true", otherwise "false"}]
+//            |
+//            (radio)[checked=v] | (label)[text="Yes"] | (radio)[checked=!v] | (label)[text="No"]
+//          )
+//          I <- (image)[filename={v=>"D:\\like.jpg", otherwise "D:\\dislike.jpg"}]
+//          main_window <- ((L) | (I:80x80))[v=?(1)]
+//          """
 
       //testing IterationMacro
 //      """ main_window <-
@@ -147,18 +147,56 @@ object Main {
       
     //testing width/height expressions SUPER BASIC CASE    //fails due to with 0
 //          """ main_window <- (
-//    		(button:(width/2)x?)
+//    		(button:(200)x?) | (button) 
 //    		)
 //    		"""
       
-//      //testing width/height expressions
+      //testing width/height expressions
     """ main_window <- (
     (button:(width/2)x?)|
     (button:(width/2)x?)|
     (button:(width/2)x?)
   )
     """
+      
+      
+// test "maindemo" simplified
+//
+//          """Emailtextbox <- (label:(SenderW)x(EEHeight))[text = EmailSender(i), fgcolor = EEfgcol(i), bgcolor = EEbgcol(i)] | (button)[text = EmailSubject(i), fgcolor = EEfgcol(i), bgcolor = EEbgcol(i), checked = ?(false), active = Activate(i,checked) + 5]
+//
+//EmailList  <- (((Emailtextbox)
+//                   *---*
+//                 [i=0...15]):?x(ListHeight))
+//
+//EmailView <-
+//
+//  (label:(descW)x(descH))[text = AdressLabel]    | (textbox:?x?) [text = readSender]
+//                                            |
+//  (label:(descW)x(descH))[text = "Subject:"] | (textbox:?x?) [text = readSubject]
+//                                            |
+//                                (textbox)[text = readContent]
+//
+//
+//main_window <- (
+//
+//        (button:100x30)[text = "New", checked = NewC] | (button:100x?)[text = "Reply", checked = ReplyC] | (button:100x?)[text = "Refresh", checked = RefreshC] | ()
+//                                      |
+//  (EmailList) | (EmailView)[readContent = EmailContent(Active), readSender = EmailSender(Active), readSubject = EmailSubject(Active), AdressLabel = "From: "]
+//
+//)[SenderW = ?(150), ListHeight = height - 30, EEHeight = ?(30), descW = ?(150), descH = ?(30), NewC = ?(false), ReplyC = ?(false), RefreshC = ?(false), Active = ?(0)]
+//
+//
+//reply_window <- (
+//
+//    (EmailView:?x(height-30))[descW = ?(150), descH = ?(30), AdressLabel = "To: "]
+//                    |
+//  (button:100x?)[text = "Submit", checked = SubmitC] | ()
+//
+//)[readContent = ?, readSender = ?, readSubject = ?, SubmitC = ?(false)]"""
 
+      
+      
+      
     val instance = new DSLProgram(code)("main_window")
     println(args.mkString("{", " ", "}"))
     

@@ -37,6 +37,7 @@ import org.tau.workshop2011.parser.AST.Expr
 import org.eclipse.swt.widgets.Group
 import org.eclipse.swt.graphics.ImageData
 import org.tau.workshop2011.parser.AST.Literal
+import org.tau.workshop2011.parser.AST.Variable
 
 class LayoutScope(widgetsMap: Map[String, Widget]) {
 
@@ -320,21 +321,27 @@ class LayoutScope(widgetsMap: Map[String, Widget]) {
 
   def handleDynamicHorizontalContainer(parent: Composite, env: Environment, children: List[Widget]): TEvalNodeReturn = {
     val scrolledComposite = new ScrolledComposite(parent, SWT.H_SCROLL)
-          scrolledComposite setLayout new FillLayout
-          scrolledComposite setExpandHorizontal true
-          val composite = new Composite(scrolledComposite, SWT.NONE)
-          scrolledComposite setContent composite
-    val childInfo = children.map(evalNode(_, composite, env))
-    val width = children.map({ case AtomicWidget(_, _, Some(Literal(w: Int)), _) => w; case _ => 0}).sum
-    val height = children.map({ case AtomicWidget(_, _, _, Some(Literal(w: Int))) => w; case _ => 0}).max
+    scrolledComposite setLayout new FillLayout
+    scrolledComposite setExpandHorizontal true
+    val composite = new Composite(scrolledComposite, SWT.NONE)
+    scrolledComposite setContent composite
+    val childInfo = children.map(child => (child, evalNode(child, composite, env)))
+    val width = children.map({ case AtomicWidget(_, _, Some(Literal(w: Int)), _) => w; case _ => 0 }).sum
+    val height = children.map({ case AtomicWidget(_, _, _, Some(Literal(w: Int))) => w; case _ => 0 }).max
     scrolledComposite addControlListener new ControlAdapter {
-            override def controlResized(event: ControlEvent) {
-              composite.setSize(scrolledComposite.getSize)
-              changeSize(0, 0, composite.getSize.x, composite.getSize.y) //TODO stopped here
-            }
-          }
-    (width, height, false, children.forall({case AtomicWidget(_, _, _, None) => true; case _ => false}), (left, top, right, bottom) => {
-      scrolledComposite setMinWidth right - left
+      override def controlResized(event: ControlEvent) {
+        composite.setSize(scrolledComposite.getSize)
+        var accWidth = 0
+        for ((child, (_, _, _, _, changeSize)) <- childInfo) {
+          val childWidth = env.evalInt(child.getWidth.get)
+          changeSize(accWidth, 0, accWidth + childWidth, child.getHeight.map(w => env.evalInt(w)).getOrElse(composite.getSize.y))
+          accWidth += childWidth
+        }
+        scrolledComposite setMinWidth accWidth
+      }
+    }
+    (width, height, false, children.forall({ case AtomicWidget(_, _, _, None) => true; case _ => false }), (left, top, right, bottom) => {
+      scrolledComposite.setMinWidth(right - left)
       scrolledComposite.setBounds(left, top, right - left, bottom - top)
     })
   }
@@ -476,17 +483,17 @@ class LayoutScope(widgetsMap: Map[String, Widget]) {
           //scrolledComposite setExpandVertical true
           val composite = new Composite(scrolledComposite, SWT.NONE)
           scrolledComposite setContent composite
-          env.evaluatedVarMap("width") = 10000
-          env.evaluatedVarMap("height") = 10000
-          val (width, height, _, _, changeSize) = evalNode(PropertyScope(widgetsMap(s), attributes), composite, env)
-          //delete minWidth = width
-          //delete minHeight = height
+          val newEnv = new Environment(new ScopingMap(env.evaluatedVarMap), new ScopingMap(env.unevaluatedVarMap))
+          newEnv.evaluatedVarMap.put("width", 0)
+          newEnv.evaluatedVarMap.put("height", 0)
+          newEnv.unevaluatedVarMap.put("width", Set())
+          newEnv.unevaluatedVarMap.put("height", Set())
+          val (width, height, _, _, changeSize) = evalNode(PropertyScope(widgetsMap(s), attributes), composite, newEnv)
           scrolledComposite setMinWidth width
           scrolledComposite addControlListener new ControlAdapter {
             override def controlResized(event: ControlEvent) {
-              env.evaluatedVarMap("width") = scrolledComposite.getSize.x
-              println(env.evaluatedVarMap("width"))
-              env.evaluatedVarMap("height") = scrolledComposite.getSize.y
+              newEnv.evaluatedVarMap("width") = scrolledComposite.getSize.x
+              newEnv.evaluatedVarMap("height") = scrolledComposite.getSize.y
               composite.setSize(scrolledComposite.getSize)
               changeSize(0, 0, composite.getSize.x, composite.getSize.y)
             }
@@ -519,7 +526,6 @@ class LayoutScope(widgetsMap: Map[String, Widget]) {
       (widthVal getOrElse 0, heightVal getOrElse 0, widthVal.isEmpty, heightVal.isEmpty, (left: Int, top: Int, right: Int, bottom: Int) => {
         widgetForResize setBounds (left, top, math.min(right - left, width.map(env.evalInt).getOrElse(Int.MaxValue)),
           math.min(bottom - top, height.map(env.evalInt).getOrElse(Int.MaxValue)))
-        println(math.min(right - left, width.map(env.evalInt).getOrElse(Int.MaxValue)))
         changeImageSize(widgetForResize.getSize.x, widgetForResize.getSize.y)
       })
     // TODO deal with vertical
@@ -540,7 +546,7 @@ class LayoutScope(widgetsMap: Map[String, Widget]) {
       val newEnv = new Environment(new ScopingMap(env.evaluatedVarMap), new ScopingMap(env.unevaluatedVarMap))
       attributes.map({
         case ExpressionAttribute(att, expr) => // var = value
-          newEnv.unevaluatedVarMap(att.id) = Set()
+          newEnv.unevaluatedVarMap.put(att.id, Set())
           newEnv.getVariables(expr).map(variable =>
             env.unevaluatedVarMap(variable) += (() => {
               if (!varsAffectedByCurrentUpdate(att.id)) {
@@ -549,14 +555,13 @@ class LayoutScope(widgetsMap: Map[String, Widget]) {
                 newEnv.unevaluatedVarMap(att.id).foreach(_())
               }
             }))
-          newEnv.evaluatedVarMap(att.id) = env.eval(expr)
+          newEnv.evaluatedVarMap.put(att.id, env.eval(expr))
 
         case InitialAttribute(att, Some(expr)) => // var = ?(value)
-          newEnv.unevaluatedVarMap(att.id) = Set(INITIAL_ATT_FLAG)
-          newEnv.evaluatedVarMap(att.id) = env.eval(expr)
+          newEnv.unevaluatedVarMap.put(att.id, Set(INITIAL_ATT_FLAG))
+          newEnv.evaluatedVarMap.put(att.id, env.eval(expr))
 
         case InitialAttribute(att, None) => // var = ?
-          newEnv.unevaluatedVarMap(att.id) += INITIAL_ATT_FLAG
 
       })
       if (params == null)
