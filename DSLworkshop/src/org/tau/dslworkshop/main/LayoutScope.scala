@@ -320,9 +320,10 @@ class LayoutScope(widgetsMap: Map[String, Widget]) {
   }
 
   def handleDynamicHorizontalContainer(parent: Composite, env: Environment, children: List[Widget]): TEvalNodeReturn = {
-    val scrolledComposite = new ScrolledComposite(parent, SWT.H_SCROLL)
+    val scrolledComposite = new ScrolledComposite(parent, SWT.H_SCROLL | SWT.V_SCROLL)
     scrolledComposite setLayout new FillLayout
     scrolledComposite setExpandHorizontal true
+    scrolledComposite setExpandVertical true
     val composite = new Composite(scrolledComposite, SWT.NONE)
     scrolledComposite setContent composite
     val childInfo = children.map(child => (child, evalNode(child, composite, env)))
@@ -338,6 +339,7 @@ class LayoutScope(widgetsMap: Map[String, Widget]) {
           accWidth += childWidth
         }
         scrolledComposite setMinWidth accWidth
+        scrolledComposite setMinHeight children.map({ case AtomicWidget(_, _, _, Some(w)) => env.evalInt(w); case _ => 0 }).max
       }
     }
     (width, height, false, children.forall({ case AtomicWidget(_, _, _, None) => true; case _ => false }), (left, top, right, bottom) => {
@@ -345,6 +347,35 @@ class LayoutScope(widgetsMap: Map[String, Widget]) {
       scrolledComposite.setBounds(left, top, right - left, bottom - top)
     })
   }
+  
+//  def handleDynamicHorizontalContainer(parent: Composite, env: Environment, children: List[Widget]): TEvalNodeReturn = {
+//    val scrolledComposite = new ScrolledComposite(parent, SWT.H_SCROLL | SWT.V_SCROLL)
+//    scrolledComposite setLayout new FillLayout
+//    scrolledComposite setExpandHorizontal true
+//    scrolledComposite setExpandVertical true
+//    val composite = new Composite(scrolledComposite, SWT.NONE)
+//    scrolledComposite setContent composite
+//    val childInfo = children.map(child => (child, evalNode(child, composite, env)))
+//    val width = children.map({ case AtomicWidget(_, _, Some(Literal(w: Int)), _) => w; case _ => 0 }).sum
+//    val height = children.map({ case AtomicWidget(_, _, _, Some(Literal(w: Int))) => w; case _ => 0 }).max
+//    scrolledComposite addControlListener new ControlAdapter {
+//      override def controlResized(event: ControlEvent) {
+//        composite.setSize(scrolledComposite.getSize)
+//        var accWidth = 0
+//        for ((child, (_, _, _, _, changeSize)) <- childInfo) {
+//          val childWidth = env.evalInt(child.getWidth.get)
+//          changeSize(accWidth, 0, accWidth + childWidth, child.getHeight.map(w => env.evalInt(w)).getOrElse(composite.getSize.y))
+//          accWidth += childWidth
+//        }
+//        scrolledComposite setMinWidth accWidth
+//        scrolledComposite setMinHeight children.map({ case AtomicWidget(_, _, _, Some(w)) => env.evalInt(w); case _ => 0 }).max
+//      }
+//    }
+//    (width, height, false, children.forall({ case AtomicWidget(_, _, _, None) => true; case _ => false }), (left, top, right, bottom) => {
+//      scrolledComposite.setMinWidth(right - left)
+//      scrolledComposite.setBounds(left, top, right - left, bottom - top)
+//    })
+//  }
 
   def evalNode(code: ASTNode, parent: Composite, env: Environment): TEvalNodeReturn = code match {
     //***case 1/3 atomic widget***
@@ -477,10 +508,10 @@ class LayoutScope(widgetsMap: Map[String, Widget]) {
           changeAttRTL("value", expr => slider.setSelection(env.evalInt(expr)))
           slider
         case s =>
-          val scrolledComposite = new ScrolledComposite(parent, SWT.H_SCROLL)
+          val scrolledComposite = new ScrolledComposite(parent, SWT.H_SCROLL | SWT.V_SCROLL)
           scrolledComposite setLayout new FillLayout
           scrolledComposite setExpandHorizontal true
-          //scrolledComposite setExpandVertical true
+          scrolledComposite setExpandVertical true
           val composite = new Composite(scrolledComposite, SWT.NONE)
           scrolledComposite setContent composite
           val newEnv = new Environment(new ScopingMap(env.evaluatedVarMap), new ScopingMap(env.unevaluatedVarMap))
@@ -490,6 +521,7 @@ class LayoutScope(widgetsMap: Map[String, Widget]) {
           newEnv.unevaluatedVarMap.put("height", Set())
           val (width, height, _, _, changeSize) = evalNode(PropertyScope(widgetsMap(s), attributes), composite, newEnv)
           scrolledComposite setMinWidth width
+          scrolledComposite setMinHeight height
           scrolledComposite addControlListener new ControlAdapter {
             override def controlResized(event: ControlEvent) {
               newEnv.evaluatedVarMap("width") = scrolledComposite.getSize.x

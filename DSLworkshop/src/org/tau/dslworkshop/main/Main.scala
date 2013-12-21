@@ -1,5 +1,7 @@
 package org.tau.dslworkshop.main
 
+import org.tau.workshop2011.expressions.Color
+
 object Main {
 
   //note - internal terminology:
@@ -152,47 +154,48 @@ object Main {
 //    		"""
       
       //testing width/height expressions
-    """ main_window <- (
-    (button:(width/2)x?)|
-    (button:(width/2)x?)|
-    (button:(width/2)x?)
-  )
-    """
+//    """ main_window <- (
+//    (button:200x?)|
+//    (button:?x500)|
+//    (button:?x?)|
+//    (button:200x?)
+//  )
+//    """
       
       
 // test "maindemo" simplified
-//
-//          """Emailtextbox <- (label:(SenderW)x(EEHeight))[text = EmailSender(i), fgcolor = EEfgcol(i), bgcolor = EEbgcol(i)] | (button)[text = EmailSubject(i), fgcolor = EEfgcol(i), bgcolor = EEbgcol(i), checked = ?(false), active = Activate(i,checked) + 5]
-//
-//EmailList  <- (((Emailtextbox)
-//                   *---*
-//                 [i=0...15]):?x(ListHeight))
-//
-//EmailView <-
-//
-//  (label:(descW)x(descH))[text = AdressLabel]    | (textbox:?x?) [text = readSender]
-//                                            |
-//  (label:(descW)x(descH))[text = "Subject:"] | (textbox:?x?) [text = readSubject]
-//                                            |
-//                                (textbox)[text = readContent]
-//
-//
-//main_window <- (
-//
-//        (button:100x30)[text = "New", checked = NewC] | (button:100x?)[text = "Reply", checked = ReplyC] | (button:100x?)[text = "Refresh", checked = RefreshC] | ()
-//                                      |
-//  (EmailList) | (EmailView)[readContent = EmailContent(Active), readSender = EmailSender(Active), readSubject = EmailSubject(Active), AdressLabel = "From: "]
-//
-//)[SenderW = ?(150), ListHeight = height - 30, EEHeight = ?(30), descW = ?(150), descH = ?(30), NewC = ?(false), ReplyC = ?(false), RefreshC = ?(false), Active = ?(0)]
-//
-//
-//reply_window <- (
-//
-//    (EmailView:?x(height-30))[descW = ?(150), descH = ?(30), AdressLabel = "To: "]
-//                    |
-//  (button:100x?)[text = "Submit", checked = SubmitC] | ()
-//
-//)[readContent = ?, readSender = ?, readSubject = ?, SubmitC = ?(false)]"""
+
+          """Emailtextbox <- (label:(SenderW)x(EEHeight))[text = EmailSender(i), fgcolor = EEfgcol(i), bgcolor = EEbgcol(i)] | (button)[text = EmailSubject(i), fgcolor = EEfgcol(i), bgcolor = EEbgcol(i), checked = ?(false), active = Activate(i,checked) + 5]
+
+EmailList  <- (((Emailtextbox)
+                   *---*
+                 [i=0...15]):?x(ListHeight))
+
+EmailView <-
+
+  (label:(descW)x(descH))[text = AdressLabel]    | (textbox:?x?) [text = readSender]
+                                            |
+  (label:(descW)x(descH))[text = "Subject:"] | (textbox:?x?) [text = readSubject]
+                                            |
+                                (textbox)[text = readContent]
+
+
+main_window <- (
+
+        (button:100x30)[text = "New", checked = NewC] | (button:100x?)[text = "Reply", checked = ReplyC] | (button:100x?)[text = "Refresh", checked = RefreshC] | ()
+                                      |
+  (EmailList) | (EmailView)[readContent = EmailContent(Active), readSender = EmailSender(Active), readSubject = EmailSubject(Active), AdressLabel = "From: "]
+
+)[SenderW = ?(150), ListHeight = height - 30, EEHeight = ?(30), descW = ?(150), descH = ?(30), NewC = ?(false), ReplyC = ?(false), RefreshC = ?(false), Active = ?(0)]
+
+
+reply_window <- (
+
+    (EmailView:?x(height-30))[descW = ?(150), descH = ?(30), AdressLabel = "To: "]
+                    |
+  (button:100x?)[text = "Submit", checked = SubmitC] | ()
+
+)[readContent = ?, readSender = ?, readSubject = ?, SubmitC = ?(false)]"""
 
       
       
@@ -200,6 +203,11 @@ object Main {
     val instance = new DSLProgram(code)("main_window")
     println(args.mkString("{", " ", "}"))
     
+    instance.bind("EmailSender", (_: Seq[Any]) => "Neta Katz")
+    instance.bind("EEfgcol", (_: Seq[Any]) => new Color("0xFF0000"))
+    instance.bind("EEbgcol", (_: Seq[Any]) => new Color("0x00FF00"))
+    instance.bind("EmailSubject", (_: Seq[Any]) => "Piggish slippers")
+    instance.bind("EmailContent", (_: Seq[Any]) => "I WANT MY PIGGISH SLIPPERS")
     val output = instance(/*args*/ ("v=3" :: Nil).toArray)
 
     println(output)

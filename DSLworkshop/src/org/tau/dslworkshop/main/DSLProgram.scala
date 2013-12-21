@@ -43,12 +43,12 @@ class DSLProgram(code: String) {
     }
 
     def bind(name: String, value: Any) {
-      evaluatedVarMap(name) = value
+      evaluatedVarMap.put(name, value)
     }
 
     def when_changed(varName: String, func: ( /*Any, Any*/ ) => Unit) {
       if (!unevaluatedVarMap.contains(varName))
-        unevaluatedVarMap(varName) = new HashSet[() => Unit]
+        unevaluatedVarMap.put(varName, new HashSet[() => Unit])
       unevaluatedVarMap(varName) += func
     }
 
