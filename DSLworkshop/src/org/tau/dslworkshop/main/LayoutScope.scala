@@ -328,7 +328,7 @@ class LayoutScope(widgetsMap: Map[String, Widget]) {
     scrolledComposite setContent composite
     val childInfo = children.map(child => (child, evalNode(child, composite, env)))
     val width = children.map({ case AtomicWidget(_, _, Some(Literal(w: Int)), _) => w; case _ => 0 }).sum
-    val height = children.map({ case AtomicWidget(_, _, _, Some(Literal(w: Int))) => w; case _ => 0 }).max
+    val height = children.map({ case AtomicWidget(_, _, _, Some(Literal(h: Int))) => h; case _ => 0 }).max
     scrolledComposite addControlListener new ControlAdapter {
       override def controlResized(event: ControlEvent) {
         composite.setSize(scrolledComposite.getSize)
@@ -348,34 +348,34 @@ class LayoutScope(widgetsMap: Map[String, Widget]) {
     })
   }
   
-//  def handleDynamicHorizontalContainer(parent: Composite, env: Environment, children: List[Widget]): TEvalNodeReturn = {
-//    val scrolledComposite = new ScrolledComposite(parent, SWT.H_SCROLL | SWT.V_SCROLL)
-//    scrolledComposite setLayout new FillLayout
-//    scrolledComposite setExpandHorizontal true
-//    scrolledComposite setExpandVertical true
-//    val composite = new Composite(scrolledComposite, SWT.NONE)
-//    scrolledComposite setContent composite
-//    val childInfo = children.map(child => (child, evalNode(child, composite, env)))
-//    val width = children.map({ case AtomicWidget(_, _, Some(Literal(w: Int)), _) => w; case _ => 0 }).sum
-//    val height = children.map({ case AtomicWidget(_, _, _, Some(Literal(w: Int))) => w; case _ => 0 }).max
-//    scrolledComposite addControlListener new ControlAdapter {
-//      override def controlResized(event: ControlEvent) {
-//        composite.setSize(scrolledComposite.getSize)
-//        var accWidth = 0
-//        for ((child, (_, _, _, _, changeSize)) <- childInfo) {
-//          val childWidth = env.evalInt(child.getWidth.get)
-//          changeSize(accWidth, 0, accWidth + childWidth, child.getHeight.map(w => env.evalInt(w)).getOrElse(composite.getSize.y))
-//          accWidth += childWidth
-//        }
-//        scrolledComposite setMinWidth accWidth
-//        scrolledComposite setMinHeight children.map({ case AtomicWidget(_, _, _, Some(w)) => env.evalInt(w); case _ => 0 }).max
-//      }
-//    }
-//    (width, height, false, children.forall({ case AtomicWidget(_, _, _, None) => true; case _ => false }), (left, top, right, bottom) => {
-//      scrolledComposite.setMinWidth(right - left)
-//      scrolledComposite.setBounds(left, top, right - left, bottom - top)
-//    })
-//  }
+  def handleDynamicVerticalContainer(parent: Composite, env: Environment, children: List[Widget]): TEvalNodeReturn = {
+    val scrolledComposite = new ScrolledComposite(parent, SWT.H_SCROLL | SWT.V_SCROLL)
+    scrolledComposite setLayout new FillLayout
+    scrolledComposite setExpandHorizontal true
+    scrolledComposite setExpandVertical true
+    val composite = new Composite(scrolledComposite, SWT.NONE)
+    scrolledComposite setContent composite
+    val childInfo = children.map(child => (child, evalNode(child, composite, env)))
+    val height = children.map({ case AtomicWidget(_, _, _, Some(Literal(h: Int))) => h; case _ => 0 }).sum
+    val width = children.map({ case AtomicWidget(_, _, Some(Literal(w: Int)), _) => w; case _ => 0 }).max
+    scrolledComposite addControlListener new ControlAdapter {
+      override def controlResized(event: ControlEvent) {
+        composite.setSize(scrolledComposite.getSize)
+        var accHeight = 0
+        for ((child, (_, _, _, _, changeSize)) <- childInfo) {
+          val childHeight = env.evalInt(child.getHeight.get)
+          changeSize(0, accHeight, child.getWidth.map(w => env.evalInt(w)).getOrElse(composite.getSize.x), accHeight + childHeight)
+          accHeight += childHeight
+        }
+        scrolledComposite setMinHeight accHeight
+        scrolledComposite setMinWidth children.map({ case AtomicWidget(_, _, Some(w), _) => env.evalInt(w); case _ => 0 }).max
+      }
+    }
+    (width, height, children.forall({ case AtomicWidget(_, _, None, _) => true; case _ => false }), false, (left, top, right, bottom) => {
+      scrolledComposite.setMinHeight(bottom - top)
+      scrolledComposite.setBounds(left, top, right - left, bottom - top)
+    })
+  }
 
   def evalNode(code: ASTNode, parent: Composite, env: Environment): TEvalNodeReturn = code match {
     //***case 1/3 atomic widget***
@@ -570,7 +570,10 @@ class LayoutScope(widgetsMap: Map[String, Widget]) {
         handleHorizontalContainer(parent, env, children)
 
     case Container(Container.Direction.Vertical, children, _, _) => // TODO consider width and height
-      handleHorizontalContainer(parent, env, children)
+      if (children.forall({ case AtomicWidget(_, _, _, Some(_)) => true; case _ => false }))
+        handleDynamicVerticalContainer(parent, env, children)
+      else
+        handleHorizontalContainer(parent, env, children)
 
     //***case 3/3 property scope
     case PropertyScope(container, attributes) => {
