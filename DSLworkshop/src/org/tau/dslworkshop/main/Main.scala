@@ -164,47 +164,48 @@ object Main {
       
       
 // test "maindemo" simplified
+          """Emailtextbox <- (label:(SenderW)x(EEHeight))[text = EmailSender(i), fgcolor = EEfgcol(i), bgcolor = EEbgcol(i)] | (button)[text = EmailSubject(i), fgcolor = EEfgcol(i), bgcolor = EEbgcol(i), checked = ?(false), active = Activate(i,checked) + 5]
 
-//          """Emailtextbox <- (label:(SenderW)x(EEHeight))[text = EmailSender(i), fgcolor = EEfgcol(i), bgcolor = EEbgcol(i)] | (button)[text = EmailSubject(i), fgcolor = EEfgcol(i), bgcolor = EEbgcol(i), checked = ?(false), active = Activate(i,checked) + 5]
-//
-//EmailList  <- (((Emailtextbox)
-//                   *---*
-//                 [i=0...15]):?x(ListHeight))
-//
-//EmailView <-
-//
-//  (label:(descW)x(descH))[text = AdressLabel]    | (textbox:?x?) [text = readSender]
-//                                            |
-//  (label:(descW)x(descH))[text = "Subject:"] | (textbox:?x?) [text = readSubject]
-//                                            |
-//                                (textbox)[text = readContent]
-//
-//
-//main_window <- (
-//
-//        (button:100x30)[text = "New", checked = NewC] | (button:100x?)[text = "Reply", checked = ReplyC] | (button:100x?)[text = "Refresh", checked = RefreshC] | ()
-//                                      |
-//  (EmailList) | (EmailView)[readContent = EmailContent(Active), readSender = EmailSender(Active), readSubject = EmailSubject(Active), AdressLabel = "From: "]
-//
-//)[SenderW = ?(150), ListHeight = height - 30, EEHeight = ?(30), descW = ?(150), descH = ?(30), NewC = ?(false), ReplyC = ?(false), RefreshC = ?(false), Active = ?(0)]
-//
-//
-//reply_window <- (
-//
-//    (EmailView:?x(height-30))[descW = ?(150), descH = ?(30), AdressLabel = "To: "]
-//                    |
-//  (button:100x?)[text = "Submit", checked = SubmitC] | ()
-//
-//)[readContent = ?, readSender = ?, readSubject = ?, SubmitC = ?(false)]"""
+EmailList  <- (((Emailtextbox)
+                   *---*
+                 [i=0...15]):?x(ListHeight))
+
+EmailView <-
+
+  (label:(descW)x(descH))[text = AdressLabel]    | (textbox:?x?) [text = readSender]
+                                            |
+  (label:(descW)x(descH))[text = "Subject:"] | (textbox:?x?) [text = readSubject]
+                                            |
+                                (textbox)[text = readContent]
+
+
+main_window <- (
+
+        (button:100x30)[text = "New", checked = NewC] | (button:100x?)[text = "Reply", checked = ReplyC] | (button:100x?)[text = "Refresh", checked = RefreshC] | ()
+                                      -----
+  (EmailList) | (EmailView)[readContent = EmailContent(Active), readSender = EmailSender(Active), readSubject = EmailSubject(Active), AdressLabel = "From: "]
+
+)[SenderW = ?(150), ListHeight = height - 30, EEHeight = ?(30), descW = ?(150), descH = ?(30), NewC = ?(false), ReplyC = ?(false), RefreshC = ?(false), Active = ?(0)]
+
+
+reply_window <- (
+
+    (EmailView:?x(height-30))[descW = ?(150), descH = ?(30), AdressLabel = "To: "]
+                    -----
+  (button:100x?)[text = "Submit", checked = SubmitC] | ()
+
+)[readContent = ?, readSender = ?, readSubject = ?, SubmitC = ?(false)]"""
+ 
       
-      """ main_window <- (
-    (button:?x(height/2))
-           -----
-    (button:?x(height/2))
-           ---
-    (button:?x(height/2))
-  )
-    """
+      
+//      """ main_window <- (
+//    (button:?x(height/2))
+//           -----
+//    (button:?x(height/2))
+//           ---
+//    (button:?x(height/2))
+//  )
+//    """
 
       
       

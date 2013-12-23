@@ -318,7 +318,264 @@ class LayoutScope(widgetsMap: Map[String, Widget]) {
       isChangingSize = false
     })
   }
+  
+    def handleVerticalContainer(parent: Composite, env: Environment, children: List[Widget]): TEvalNodeReturn = {
+    var seenQM = 0
+    var sashes = mutableBuffer[Sash]()
+    val childInfo = children map (evalNode(_, parent, env))
+    val qms = childInfo count { case (_, _, _, b, _) => b } // total number of question marks (qms)
+    val numHeight = childInfo map { case (_, h, _, _, _) => h } sum
+    var sashMap = mutableMap[Sash, Double]()
+    var prevSashMap = Map[Sash, (Option[Sash], Int)]()
+    var nextSashMap = Map[Sash, (Option[Sash], Int)]()
+    var sashTopBounds = mutableMap[Sash, Int]()
+    var sashBottomBounds = mutableMap[Sash, Int]()
+    var changeSizes = List[((Int, Int, Int, Int) => Unit, Option[Sash], Option[Int], Option[Sash], Option[Int], Option[Int])]()
+    var j = 0
+    var isChangingSize = false
+    for (i <- 0 to childInfo.length - 1) {
+      childInfo(i) match { //i is the right mark
+        case (_, _, _, true, qmChangeSize) =>
+          if (seenQM > 0) { // ... ? ... ? ...
+            val topSash = new Sash(parent, SWT.HORIZONTAL | SWT.SMOOTH)
+            (childInfo(j): @unchecked) match {
+              case (_, _, _, true, changeSize) =>
+                changeSizes ::= (changeSize, if (sashes isEmpty) None else Some(sashes last),
+                  if (sashes isEmpty)
+                    Some(childInfo take (childInfo prefixLength { case (_, _, _, b, _) => !b })
+                    map ({ case (_, h, _, false, _) => h; case _ => print("Error: 346"); 0 }) sum)
+                  else
+                    Some(0), Some(topSash), Some(0), None)
+            }
+            prevSashMap += topSash -> (if (sashes.isEmpty) None else Some(sashes.last),
+              if (sashes.isEmpty)
+                childInfo takeWhile { case (_, _, _, b, _) => !b } map { case (_, h, _, false, _) => h; case _ => print("Error: 352"); 0 } sum
+              else 0) // MARK 8.12, originally without adding the childInfo(j)._1
+            sashMap(topSash) = 1.0 / qms
+            sashes += topSash
+            if (i > j + 1) { // ... ? 20 20 20 ? ...
+              val bottomSash = new Sash(parent, SWT.HORIZONTAL | SWT.SMOOTH)
+              sashes += bottomSash
+              var accHeight = 0
+              for (j <- j + 1 to i - 1)
+                childInfo(j) match {
+                  case (_, height, _, false, changeSize) =>
+                    changeSizes ::= (changeSize, Some(topSash), Some(accHeight), None, None, Some(height))
+                    accHeight += height
+                  case _ => print("Error: 365")
+                }
+              prevSashMap += bottomSash -> (Some(topSash), accHeight)
+              sashMap(bottomSash) = 0
+              val k = j
+              val sashDist = accHeight
+              topSash addControlListener new ControlAdapter {
+                override def controlMoved(event: ControlEvent) {
+                  if (!isChangingSize) {
+                    val topBound = prevSashMap(topSash) match {
+                      case (Some(prevSash), topMargin) => prevSash.getBounds.y + SASH_WIDTH + topMargin
+                      case (None, topMargin) => sashTopBounds(topSash) + topMargin
+                    }
+                    if (topSash.getBounds.y < topBound + childInfo(k)._2)
+                      topSash.setLocation(topSash.getBounds.x, topBound + childInfo(k)._2)
+                    val bottomBound = nextSashMap(bottomSash) match {
+                      case (Some(nextSash), bottomMargin) => nextSash.getBounds.y - bottomMargin - sashDist - SASH_WIDTH
+                      case (None, bottomMargin) => sashBottomBounds(bottomSash) - bottomMargin - sashDist - SASH_WIDTH
+                    }
+                    if (topSash.getBounds.y + SASH_WIDTH > bottomBound - childInfo(i)._2)
+                      topSash.setLocation(topSash.getBounds.x, bottomBound - SASH_WIDTH - childInfo(i)._2)
+                    (childInfo(k): @unchecked) match {
+                      case (_, _, _, true, changeSize) => changeSize(topSash.getBounds.x, topBound, topSash.getBounds.x + topSash.getBounds.width, topSash.getBounds.y)
+                    }
+                    var accHeight = 0
+                    for (j <- k + 1 to i - 1) childInfo(j) match {
+                      case (_, height, _, false, changeSize) =>
+                        changeSize(topSash.getBounds.x, topSash.getBounds.y + SASH_WIDTH + accHeight, topSash.getBounds.x + topSash.getBounds.width, topSash.getBounds.y + SASH_WIDTH + accHeight + height)
+                        accHeight += height
+                      case _ => print("Error: 394")
+                    }
+                    bottomSash.setLocation(topSash.getBounds.x, topSash.getBounds.y + SASH_WIDTH + accHeight)
+                    (childInfo(i): @unchecked) match {
+                      case (_, _, _, true, changeSize) => changeSize(topSash.getBounds.x, bottomSash.getBounds.y + SASH_WIDTH, topSash.getBounds.x + topSash.getBounds.width, bottomBound + accHeight + SASH_WIDTH)
+                    }
+                    sashMap(topSash) = (topSash.getBounds.y - topBound) * 1.0 / (sashBottomBounds(topSash) - sashTopBounds(topSash) - numHeight - sashes.length * SASH_WIDTH)
+                    nextSashMap(bottomSash) match {
+                      case (Some(nextSash), _) => sashMap(nextSash) = (bottomBound + accHeight - bottomSash.getBounds.y) * 1.0 / (sashBottomBounds(topSash) - sashTopBounds(topSash) - numHeight - sashes.length * SASH_WIDTH)
+                      case _ =>
+                    }
+                  }
+                }
+              }
+              bottomSash addControlListener new ControlAdapter {
+                override def controlMoved(event: ControlEvent) {
+                  if (!isChangingSize) {
+                    val topBound = prevSashMap(topSash) match {
+                      case (Some(prevSash), topMargin) => prevSash.getBounds.y + 2 * SASH_WIDTH + topMargin + sashDist
+                      case (None, topMargin) => sashTopBounds(bottomSash) + topMargin + SASH_WIDTH + sashDist
+                    }
+                    if (bottomSash.getBounds.y < topBound + childInfo(k)._2)
+                      bottomSash.setLocation(bottomSash.getBounds.x, topBound + childInfo(k)._2)
+                    val bottomBound = nextSashMap(bottomSash) match {
+                      case (Some(nextSash), bottomMargin) => nextSash.getBounds.y - bottomMargin
+                      case (None, bottomMargin) => sashBottomBounds(bottomSash) - bottomMargin
+                    }
+                    if (bottomSash.getBounds.y + SASH_WIDTH > bottomBound - childInfo(i)._2)
+                      bottomSash.setLocation(bottomSash.getBounds.x, bottomBound - SASH_WIDTH - childInfo(i)._2)
+                    (childInfo(i): @unchecked) match {
+                      case (_, _, _, true, changeSize) => changeSize(bottomSash.getBounds.x, bottomSash.getBounds.y + SASH_WIDTH, bottomSash.getBounds.x + bottomSash.getBounds.width, bottomBound)
+                    }
+                    var accHeight = 0
+                    for (j <- i - 1 to k + 1 by -1) childInfo(j) match {
+                      case (_, height, _, false, changeSize) =>
+                        changeSize(bottomSash.getBounds.x, bottomSash.getBounds.y - accHeight - height, bottomSash.getBounds.x + bottomSash.getBounds.width, bottomSash.getBounds.y - accHeight)
+                        accHeight += height
+                      case _ => print("Error: 431")
+                    }
+                    topSash.setLocation(bottomSash.getBounds.x, bottomSash.getBounds.y - SASH_WIDTH - accHeight)
+                    (childInfo(k): @unchecked) match {
+                      case (_, _, _, true, changeSize) => changeSize(bottomSash.getBounds.x, topBound - accHeight - SASH_WIDTH, bottomSash.getBounds.x + bottomSash.getBounds.width, topSash.getBounds.y)
+                    }
+                    sashMap(topSash) = (topSash.getBounds.y - topBound + accHeight + SASH_WIDTH) * 1.0 / (sashBottomBounds(topSash) - sashTopBounds(topSash) - numHeight - sashes.length * SASH_WIDTH)
+                    nextSashMap(bottomSash) match {
+                      case (Some(nextSash), _) => sashMap(nextSash) = (bottomBound - bottomSash.getBounds.y - SASH_WIDTH) * 1.0 / (sashBottomBounds(bottomSash) - sashTopBounds(bottomSash) - numHeight - sashes.length * SASH_WIDTH)
+                      case _ =>
+                    }
+                  }
+                }
+              }
+              if (i == childInfo.length - 1)
+                (childInfo(i): @unchecked) match {
+                  case (_, _, _, true, changeSize) =>
+                    changeSizes ::= (changeSize, Some(topSash), Some(accHeight + SASH_WIDTH), None, Some(0), None)
+                }
+            } else {
+              if (i == childInfo.length - 1)
+                (childInfo(i): @unchecked) match {
+                  case (_, _, _, true, changeSize) =>
+                    changeSizes ::= (changeSize, Some(topSash), Some(0), None, Some(0), None)
+                }
+              topSash addControlListener new ControlAdapter {
+                override def controlMoved(event: ControlEvent) {
+                  if (!isChangingSize) {
+                    val topBound = prevSashMap(topSash) match {
+                      case (Some(prevSash), topMargin) => prevSash.getBounds.y + SASH_WIDTH + topMargin
+                      case (None, topMargin) => sashTopBounds(topSash) + topMargin
+                    }
+                    if (topSash.getBounds.y < topBound + childInfo(i - 1)._2) // MARK 9.12 - added 'childInfo(i-1)._2'
+                      topSash.setLocation(topSash.getBounds.x, topBound + childInfo(i - 1)._2) // MARK 9.12 - added 'childInfo(i-1)._1'
+                    val bottomBound = nextSashMap(topSash) match {
+                      case (Some(nextSash), bottomMargin) => nextSash.getBounds.y - bottomMargin
+                      case (None, bottomMargin) => sashBottomBounds(topSash) - bottomMargin
+                    }
+                    if (topSash.getBounds.y + SASH_WIDTH > bottomBound - childInfo(i)._2)
+                      topSash.setLocation(topSash.getBounds.x, bottomBound - SASH_WIDTH - childInfo(i)._2)
+                    (childInfo(i - 1): @unchecked) match {
+                      case (_, _, _, true, changeSize) => changeSize(topSash.getBounds.x, topBound, topSash.getBounds.x + topSash.getBounds.width, topSash.getBounds.y)
+                    }
+                    (childInfo(i): @unchecked) match {
+                      case (_, _, _, true, changeSize) => changeSize(topSash.getBounds.x, topSash.getBounds.y + SASH_WIDTH, topSash.getBounds.x + topSash.getBounds.width, bottomBound)
+                    }
+                    //println(currRight)
+                    sashMap(topSash) = (topSash.getBounds.y - topBound) * 1.0 / (sashBottomBounds(topSash) - sashTopBounds(topSash) - numHeight - sashes.length * SASH_WIDTH)
+                    nextSashMap(topSash) match {
+                      case (Some(nextSash), _) => sashMap(nextSash) = (bottomBound - topSash.getBounds.y - SASH_WIDTH) * 1.0 / (sashBottomBounds(topSash) - sashTopBounds(topSash) - numHeight - sashes.length * SASH_WIDTH)
+                      case _ =>
+                    }
+                  }
+                }
+              }
+            }
+          } else { // 20 20 ? ...
+            var accHeight = 0
+            for (j <- 0 to i - 1)
+              childInfo(j) match {
+                case (_, height, _, false, changeSize) =>
+                  changeSizes ::= (changeSize, None, Some(accHeight), None, None, Some(height))
+                  accHeight += height
+                case _ => print("Error: 494")
+              }
+            if (i == childInfo.length - 1)
+              (childInfo(i): @unchecked) match {
+                case (_, _, _, true, changeSize) =>
+                  changeSizes ::= (changeSize, None, Some(accHeight), None, Some(0), None)
+              }
+          }
+          j = i
+          seenQM += 1
+        case (_, height, _, false, _) =>
+          if (j == 0 && i == childInfo.length - 1) { // 20 20 20
+            var accHeight = 0
+            for (j <- i to 0 by -1)
+              childInfo(j) match {
+                case (_, height, _, false, changeSize) =>
+                  changeSizes ::= (changeSize, None, None, None, Some(accHeight), Some(height))
+                  accHeight += height
+                case (_, _, _, true, changeSize) =>
+                  changeSizes ::= (changeSize, None, Some(0), None, Some(accHeight), None)
+              }
+          } else if (i == childInfo.length - 1) { // ... ? 20 20
+            var accHeight = 0
+            for (j <- i to j + 1 by -1)
+              childInfo(j) match {
+                case (_, height, _, false, changeSize) =>
+                  changeSizes ::= (changeSize, None, None, None, Some(accHeight), Some(height))
+                  accHeight += height
+                case _ => print("Error: 522")
+              }
+            (childInfo(j): @unchecked) match {
+              case (_, _, _, true, changeSize) =>
+                if (seenQM > 1)
+                  changeSizes ::= (changeSize, Some(sashes.last), Some(0), None, Some(accHeight), None)
+                else
+                  changeSizes ::= (changeSize, None, Some(numHeight - accHeight), None, Some(accHeight), None)
+            }
+          }
+      }
+    }
+    for ((sash, (prevSash, const)) <- prevSashMap) prevSash match {
+      case Some(prevSash) => nextSashMap += prevSash -> (Some(sash), const)
+      case _ =>
+    }
+    if (!sashes.isEmpty)
+      nextSashMap += sashes.last -> (None, (childInfo reverse) takeWhile { case (_, _, _, b, _) => !b } map { case (_, h, _, false, _) => h; case _ => 0 } sum)
+    val totalHeight = numHeight + sashes.length * SASH_WIDTH
+    val width = childInfo map { case (w, _, _, _, _) => w } max
+    val isWidthQM = childInfo.count({ case (_, _, isQM, _, _) => !isQM }) == 0
+    (width, totalHeight, isWidthQM, seenQM > 0, (left: Int, top: Int, right: Int, bottom: Int) => {
+      sashes foreach (sash => {
+        sashTopBounds(sash) = top
+        sashBottomBounds(sash) = bottom
+      })
+      isChangingSize = true
+      sashes foreach (sash => {
+        val (prevSash, constMargin) = prevSashMap(sash)
+        val topMargin = (prevSash map (s => s.getBounds.y + s.getBounds.height) getOrElse top) + constMargin + sashMap(sash) * (bottom - top - totalHeight)
+        sash.setBounds(left, topMargin.toInt, right - left, SASH_WIDTH) //left top width height
+        // println("sash", sash.getBounds)
+      })
+      changeSizes foreach {
+        case (changeSize, Some(topSash), Some(topMargin), None, None, Some(height)) =>
+          changeSize(left, topSash.getBounds.y + topSash.getBounds.height + topMargin,
+            right, topSash.getBounds.y + topSash.getBounds.height + topMargin + height)
+        case (changeSize, Some(topSash), Some(topMargin), Some(bottomSash), Some(bottomMargin), None) =>
+          changeSize(left, topSash.getBounds.y + topSash.getBounds.height + topMargin,
+            right, bottomSash.getBounds.y - bottomMargin)
+        case (changeSize, None, Some(topMargin), Some(bottomSash), Some(bottomMargin), None) =>
+          changeSize(left, top + topMargin, right, bottomSash.getBounds.y - bottomMargin)
+        case (changeSize, None, Some(topMargin), None, None, Some(height)) =>
+          changeSize(left, top + topMargin, right, top + topMargin + height)
+        case (changeSize, None, None, None, Some(bottomMargin), Some(height)) =>
+          changeSize(left, bottom - bottomMargin - height, right, bottom - bottomMargin)
+        case (changeSize, Some(topSash), Some(topMargin), None, Some(bottomMargin), None) =>
+          changeSize(left, topSash.getBounds.y + topSash.getBounds.height + topMargin, right, bottom - bottomMargin)
+        case (changeSize, None, Some(topMargin), None, Some(bottomMargin), None) =>
+          changeSize(left, top + topMargin, right, bottom - bottomMargin)
+        case _ => print("Error: 572")
+      }
 
+      isChangingSize = false
+    })
+  }
+    
   def handleDynamicHorizontalContainer(parent: Composite, env: Environment, children: List[Widget]): TEvalNodeReturn = {
     val scrolledComposite = new ScrolledComposite(parent, SWT.H_SCROLL | SWT.V_SCROLL)
     scrolledComposite setLayout new FillLayout
@@ -573,7 +830,7 @@ class LayoutScope(widgetsMap: Map[String, Widget]) {
       if (children.forall({ case AtomicWidget(_, _, _, Some(_)) => true; case _ => false }))
         handleDynamicVerticalContainer(parent, env, children)
       else
-        handleHorizontalContainer(parent, env, children)
+        handleVerticalContainer(parent, env, children)
 
     //***case 3/3 property scope
     case PropertyScope(container, attributes) => {
