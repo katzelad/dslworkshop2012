@@ -64,8 +64,10 @@ class DSLProgram(code: String) {
         InitialAttribute(argName, argValue)
       }), None, None)
       val scope = new LayoutScope(widgetsMap)
-      val (_, _, _, _, changeWindowSize) = scope.evalNode(mainWidget, window, new Environment(evaluatedVarMap, unevaluatedVarMap))
+      val (width, height, isWidthQM, isHeightQM, changeWindowSize) = scope.evalNode(mainWidget, window, new Environment(evaluatedVarMap, unevaluatedVarMap))
       window setLayout new FillLayout
+      window.getChildren()(0).setSize(width, height) // TODO add code to handle limitation on window size when not '?'
+      window.pack
       window.open
       while (!window.isDisposed) {
         if (!display.readAndDispatch) {

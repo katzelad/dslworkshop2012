@@ -318,8 +318,8 @@ class LayoutScope(widgetsMap: Map[String, Widget]) {
       isChangingSize = false
     })
   }
-  
-    def handleVerticalContainer(parent: Composite, env: Environment, children: List[Widget]): TEvalNodeReturn = {
+
+  def handleVerticalContainer(parent: Composite, env: Environment, children: List[Widget]): TEvalNodeReturn = {
     var seenQM = 0
     var sashes = mutableBuffer[Sash]()
     val childInfo = children map (evalNode(_, parent, env))
@@ -575,7 +575,7 @@ class LayoutScope(widgetsMap: Map[String, Widget]) {
       isChangingSize = false
     })
   }
-    
+
   def handleDynamicHorizontalContainer(parent: Composite, env: Environment, children: List[Widget]): TEvalNodeReturn = {
     val scrolledComposite = new ScrolledComposite(parent, SWT.H_SCROLL | SWT.V_SCROLL)
     scrolledComposite setLayout new FillLayout
@@ -604,7 +604,7 @@ class LayoutScope(widgetsMap: Map[String, Widget]) {
       scrolledComposite.setBounds(left, top, right - left, bottom - top)
     })
   }
-  
+
   def handleDynamicVerticalContainer(parent: Composite, env: Environment, children: List[Widget]): TEvalNodeReturn = {
     val scrolledComposite = new ScrolledComposite(parent, SWT.H_SCROLL | SWT.V_SCROLL)
     scrolledComposite setLayout new FillLayout
@@ -779,6 +779,7 @@ class LayoutScope(widgetsMap: Map[String, Widget]) {
           val (width, height, _, _, changeSize) = evalNode(PropertyScope(widgetsMap(s), attributes), composite, newEnv)
           scrolledComposite setMinWidth width
           scrolledComposite setMinHeight height
+          scrolledComposite setSize (width, height)
           scrolledComposite addControlListener new ControlAdapter {
             override def controlResized(event: ControlEvent) {
               newEnv.evaluatedVarMap("width") = scrolledComposite.getSize.x
@@ -812,11 +813,23 @@ class LayoutScope(widgetsMap: Map[String, Widget]) {
         case _ =>
       }
       val widgetForResize = widget match { case w: Button if (w.getStyle & SWT.RADIO) == SWT.RADIO => widget.getParent; case _ => widget }
-      (widthVal getOrElse 0, heightVal getOrElse 0, widthVal.isEmpty, heightVal.isEmpty, (left: Int, top: Int, right: Int, bottom: Int) => {
-        widgetForResize setBounds (left, top, math.min(right - left, width.map(env.evalInt).getOrElse(Int.MaxValue)),
-          math.min(bottom - top, height.map(env.evalInt).getOrElse(Int.MaxValue)))
-        changeImageSize(widgetForResize.getSize.x, widgetForResize.getSize.y)
-      })
+      (widthVal getOrElse 0,
+        heightVal getOrElse 0,
+        width match {
+          case Some(Variable(name, _, false)) => true  //TODO value? handling (unrelatedly, also width/height expressions ltr update todo)
+          case None => true
+          case _ => false
+        },
+        height match {
+          case Some(Variable(name, _, false)) => true
+          case None => true
+          case _ => false
+        },
+        (left: Int, top: Int, right: Int, bottom: Int) => {
+          widgetForResize setBounds (left, top, math.min(right - left, width.map(env.evalInt).getOrElse(Int.MaxValue)),
+            math.min(bottom - top, height.map(env.evalInt).getOrElse(Int.MaxValue)))
+          changeImageSize(widgetForResize.getSize.x, widgetForResize.getSize.y)
+        })
     // TODO deal with vertical
 
     //***case 2/3 - container***

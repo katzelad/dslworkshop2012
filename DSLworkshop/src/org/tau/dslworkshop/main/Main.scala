@@ -125,12 +125,12 @@ object Main {
 //         
 //          """
 
-      //testing demo subprograms - simplified, no vertical
+//      testing demo subprograms - simplified, no vertical
 //            """L <- (
 //            (label)[text="Do you like?"]
-//            |
+//            ----
 //            (label)[text={v=>"true", otherwise "false"}]
-//            |
+//            ----
 //            (radio)[checked=v] | (label)[text="Yes"] | (radio)[checked=!v] | (label)[text="No"]
 //          )
 //          I <- (image)[filename={v=>"D:\\like.jpg", otherwise "D:\\dislike.jpg"}]
@@ -145,6 +145,14 @@ object Main {
 //      Colors = {0x00FF00, 0x808080, 0xFF0000, 0xFFFF00, 0x008000, 0x008080, 0x000080}])
 //    
 //      """
+      
+      
+      //test radios original
+//      """ main_window <-
+//    (((radio:50x20)[checked = v = i, halign = center] | (label)[text = Animals[i], halign = center])
+//                           *---*
+//     [i=0...6,Animals={"Alpaca","Bunny","Cat","Dog","Elephant","Fox","Goose"}])[v=?(3)]
+//    """
       
       
     //testing width/height expressions SUPER BASIC CASE    //fails due to with 0
