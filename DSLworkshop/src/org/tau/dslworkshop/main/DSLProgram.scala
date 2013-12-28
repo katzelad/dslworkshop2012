@@ -75,7 +75,7 @@ class DSLProgram(code: String) {
         }
       }
       display.dispose
-      mainWidget.attributes.map(att => att.getName + "=" + scope.params(att.getName)).mkString(" ")
+      mainWidget.attributes.map(att => att.getName + "=" + scope.getParams(att.getName)).mkString(" ")
     }
     
   }

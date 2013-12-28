@@ -11,8 +11,10 @@ package object main {
   type TEvaluatedVarMap = ScopingMap[String, Any]
 
   type TUnevaluatedVarMap = ScopingMap[String, Set[() => Unit]]
+  
+  type TChangeSize = (Int, Int, Int, Int) => Unit
 
-  type TEvalNodeReturn = (Int, Int, Boolean, Boolean, (Int, Int, Int, Int) => Unit)
+  type TEvalNodeReturn = (Int, Int, Boolean, Boolean, TChangeSize)
 
   val SASH_WIDTH = 5
 

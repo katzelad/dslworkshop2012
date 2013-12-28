@@ -41,13 +41,13 @@ import org.tau.workshop2011.parser.AST.Variable
 
 class LayoutScope(widgetsMap: Map[String, Widget]) {
 
-  var params: TEvaluatedVarMap = null
+  private var params: TEvaluatedVarMap = null
 
-  var varsAffectedByCurrentUpdate: Set[String] = null
+  private var varsAffectedByCurrentUpdate: Set[String] = null
 
   def getParams = params
 
-  def isReservedAtrribute(att: String) = att match {
+  private def isReservedAtrribute(att: String) = att match {
     case "halign" => true
     case "text" => true
     case "checked" => true
@@ -62,7 +62,7 @@ class LayoutScope(widgetsMap: Map[String, Widget]) {
     case _ => false
   }
 
-  def handleHorizontalContainer(parent: Composite, env: Environment, children: List[Widget]): TEvalNodeReturn = {
+  private def handleHorizontalContainer(parent: Composite, env: Environment, children: List[Widget]): TEvalNodeReturn = {
     var seenQM = 0
     var sashes = mutableBuffer[Sash]()
     val childInfo = children map (evalNode(_, parent, env))
@@ -319,7 +319,7 @@ class LayoutScope(widgetsMap: Map[String, Widget]) {
     })
   }
 
-  def handleVerticalContainer(parent: Composite, env: Environment, children: List[Widget]): TEvalNodeReturn = {
+  private def handleVerticalContainer(parent: Composite, env: Environment, children: List[Widget]): TEvalNodeReturn = {
     var seenQM = 0
     var sashes = mutableBuffer[Sash]()
     val childInfo = children map (evalNode(_, parent, env))
@@ -576,7 +576,7 @@ class LayoutScope(widgetsMap: Map[String, Widget]) {
     })
   }
 
-  def handleDynamicHorizontalContainer(parent: Composite, env: Environment, children: List[Widget]): TEvalNodeReturn = {
+  private def handleDynamicHorizontalContainer(parent: Composite, env: Environment, children: List[Widget]): TEvalNodeReturn = {
     val scrolledComposite = new ScrolledComposite(parent, SWT.H_SCROLL | SWT.V_SCROLL)
     scrolledComposite setLayout new FillLayout
     scrolledComposite setExpandHorizontal true
@@ -605,7 +605,7 @@ class LayoutScope(widgetsMap: Map[String, Widget]) {
     })
   }
 
-  def handleDynamicVerticalContainer(parent: Composite, env: Environment, children: List[Widget]): TEvalNodeReturn = {
+  private def handleDynamicVerticalContainer(parent: Composite, env: Environment, children: List[Widget]): TEvalNodeReturn = {
     val scrolledComposite = new ScrolledComposite(parent, SWT.H_SCROLL | SWT.V_SCROLL)
     scrolledComposite setLayout new FillLayout
     scrolledComposite setExpandHorizontal true
@@ -816,7 +816,7 @@ class LayoutScope(widgetsMap: Map[String, Widget]) {
       (widthVal getOrElse 0,
         heightVal getOrElse 0,
         width match {
-          case Some(Variable(name, _, false)) => true  //TODO value? handling (unrelatedly, also width/height expressions ltr update todo)
+          case Some(Variable(name, _, false)) => true //TODO value? handling (unrelatedly, also width/height expressions ltr update todo)
           case None => true
           case _ => false
         },
