@@ -115,65 +115,62 @@ object Main {
       //      x<-(y)[x=?(3)]
       //      m<-(label :20x20 )[ text =" typical "]"""
 
-//            """L <- (
-//            (label:?x?)[text="Do you like?"] |
-//            (radio:?x?)[checked=v] | (label:30x?)[text="Yes"] | (radio:?x?)[checked=!v] | (label:?x?)[text="No"]
-//          )
-//          I <- (image:32x32)[filename={v=>"like.png", otherwise "dislike.png"}]
-//          main_window <- 
-//            (label:?x?)[text="Do you like?"] |
-//            (radio:?x?)[checked=false] | (label:30x70)[text="Yes"] | (radio:?x?)[checked=true] | (label:?x?)[text="No"]
-//         
-//          """
+      //            """L <- (
+      //            (label:?x?)[text="Do you like?"] |
+      //            (radio:?x?)[checked=v] | (label:30x?)[text="Yes"] | (radio:?x?)[checked=!v] | (label:?x?)[text="No"]
+      //          )
+      //          I <- (image:32x32)[filename={v=>"like.png", otherwise "dislike.png"}]
+      //          main_window <- 
+      //            (label:?x?)[text="Do you like?"] |
+      //            (radio:?x?)[checked=false] | (label:30x70)[text="Yes"] | (radio:?x?)[checked=true] | (label:?x?)[text="No"]
+      //         
+      //          """
 
-//      testing demo subprograms - simplified, no vertical
-//            """L <- (
-//            (label)[text="Do you like?"]
-//            ----
-//            (label)[text={v=>"true", otherwise "false"}]
-//            ----
-//            (radio)[checked=v] | (label)[text="Yes"] | (radio)[checked=!v] | (label)[text="No"]
-//          )
-//          I <- (image)[filename={v=>"D:\\like.jpg", otherwise "D:\\dislike.jpg"}]
-//          main_window <- ((L) | (I:80x80))[v=?(1)]
-//          """
+      //      testing demo subprograms - simplified, no vertical
+      //            """L <- (
+      //            (label)[text="Do you like?"]
+      //            ----
+      //            (label)[text={v=>"true", otherwise "false"}]
+      //            ----
+      //            (radio)[checked=v] | (label)[text="Yes"] | (radio)[checked=!v] | (label)[text="No"]
+      //          )
+      //          I <- (image)[filename={v=>"D:\\like.jpg", otherwise "D:\\dislike.jpg"}]
+      //          main_window <- ((L) | (I:80x80))[v=?(1)]
+      //          """
 
       //testing IterationMacro
-//      """ main_window <-
-//    (((radio:30x30)[checked = v = i, bgcolor = Colors[i]] | (label)[text = Animals[i], fgcolor = Colors[i]])
-//                           *|*
-//     [i=0...3,Animals={"Alpaca","Bunny","Cat","Dog","Elephant","Fox","Goose"},
-//      Colors = {0x00FF00, 0x808080, 0xFF0000, 0xFFFF00, 0x008000, 0x008080, 0x000080}])
-//    
-//      """
-      
-      
+      //      """ main_window <-
+      //    (((radio:30x30)[checked = v = i, bgcolor = Colors[i]] | (label)[text = Animals[i], fgcolor = Colors[i]])
+      //                           *|*
+      //     [i=0...3,Animals={"Alpaca","Bunny","Cat","Dog","Elephant","Fox","Goose"},
+      //      Colors = {0x00FF00, 0x808080, 0xFF0000, 0xFFFF00, 0x008000, 0x008080, 0x000080}])
+      //    
+      //      """
+
       //test radios original
-//      """ main_window <-
-//    (((radio:50x20)[checked = v = i, halign = center] | (label)[text = Animals[i], halign = center])
-//                           *---*
-//     [i=0...6,Animals={"Alpaca","Bunny","Cat","Dog","Elephant","Fox","Goose"}])[v=?(3)]
-//    """
-      
-      
-    //testing width/height expressions SUPER BASIC CASE    //fails due to with 0
-//          """ main_window <- (
-//    		(button:(200)x?) | (button) 
-//    		)
-//    		"""
-      
+      //      """ main_window <-
+      //    (((radio:50x20)[checked = v = i, halign = center] | (label)[text = Animals[i], halign = center])
+      //                           *---*
+      //     [i=0...6,Animals={"Alpaca","Bunny","Cat","Dog","Elephant","Fox","Goose"}])[v=?(3)]
+      //    """
+
+      //testing width/height expressions SUPER BASIC CASE    //fails due to with 0
+      //          """ main_window <- (
+      //    		(button:(200)x?) | (button) 
+      //    		)
+      //    		"""
+
       //testing width/height expressions
-//    """ main_window <- (
-//    (button:200x?)|
-//    (button:?x500)|
-//    (button:?x?)|
-//    (button:200x?)
-//  )
-//    """
-      
-      
-// test "maindemo" simplified
-          """Emailtextbox <- (label:(SenderW)x(EEHeight))[text = EmailSender(i), fgcolor = EEfgcol(i), bgcolor = EEbgcol(i)] | (button)[text = EmailSubject(i), fgcolor = EEfgcol(i), bgcolor = EEbgcol(i), checked = ?(false), active = Activate(i,checked) + 5]
+      //    """ main_window <- (
+      //    (button:200x?)|
+      //    (button:?x500)|
+      //    (button:?x?)|
+      //    (button:200x?)
+      //  )
+      //    """
+
+      // test "maindemo" simplified
+      """Emailtextbox <- (label:(SenderW)x(EEHeight))[text = EmailSender(i), fgcolor = EEfgcol(i), bgcolor = EEbgcol(i)] | (button)[text = EmailSubject(i), fgcolor = EEfgcol(i), bgcolor = EEbgcol(i), checked = ?(false), active = Activate(i,checked) + 5]
 
 EmailList  <- (((Emailtextbox)
                    *---*
@@ -204,153 +201,170 @@ reply_window <- (
   (button:100x?)[text = "Submit", checked = SubmitC] | ()
 
 )[readContent = ?, readSender = ?, readSubject = ?, SubmitC = ?(false)]"""
- 
-      
-      
-//      """ main_window <- (
-//    (button:?x(height/2))
-//           -----
-//    (button:?x(height/2))
-//           ---
-//    (button:?x(height/2))
-//  )
-//    """
 
-      
-      
-      
-//    val instance = new DSLProgram(code)("main_window")
-//    println(args.mkString("{", " ", "}"))
-//    
-//    instance.bind("EmailSender", (_: Seq[Any]) => "Neta Katz")
-//    instance.bind("EEfgcol", (_: Seq[Any]) => new Color("0xFF0000"))
-//    instance.bind("EEbgcol", (_: Seq[Any]) => new Color("0x00FF00"))
-//    instance.bind("EmailSubject", (_: Seq[Any]) => "Piggish slippers")
-//    instance.bind("EmailContent", (_: Seq[Any]) => "I WANT MY PIGGISH SLIPPERS")
-//    val output = instance(/*args*/ ("v=3" :: Nil).toArray)
-//
-//    println(output)
-      
-      val (doo, re, mi, fa, sol, la, si) = (60, 62, 64, 65, 67, 69, 71)
-      
-      val vol = 50
-      def wait(time: Double) = Thread.sleep((250 * time).toInt)
-      val s = MidiSystem.getSynthesizer()
-      s.loadInstrument(s.getDefaultSoundbank().getInstruments()(16))
-      s.open
-      val instruments = s.getAvailableInstruments()
-      print(s.isSoundbankSupported(s.getDefaultSoundbank()))
-//      for (i <- s.getDefaultSoundbank().getInstruments())
-//        println(i)
-      val channels = s.getChannels()
-      val pianoChannel = channels(0)
-//      pianoChannel.programChange(s.getDefaultSoundbank().getInstruments()(16).getPatch().getProgram())
-      def play(note: Int) = { pianoChannel.allNotesOff(); pianoChannel.noteOn(note, vol)}
-//    pianoChannel.
-      play(mi + 12)
-      wait(1)
-      play(re + 13)
-      wait(1)
-      play(mi + 12)
-      wait(1)
-      play(re + 13)
-      wait(1)
-      play(mi + 12)
-      wait(1)
-      play(si)
-      wait(1)
-      play(re + 12)
-      wait(1)
-      play(doo + 12)
-      wait(1)
-      play(la)
-      play(la - 24)
-      wait(1)
-      play(mi - 12)
-      wait(1)
-      play(la - 12)
-      wait(1)
-      play(doo)
-      wait(1)
-      play(mi)
-      wait(1)
-      play(la)
-      wait(1)
-      play(si)
-      play(mi - 24)
-      wait(1)
-      play(mi - 12)
-      wait(1)
-      play(sol - 11)
-      wait(1)
-      play(mi)
-      wait(1)
-      play(sol + 1)
-      wait(1)
-      play(si)
-      wait(1)
-      play(doo + 12)
-      play(la - 24)
-      wait(1)
-      play(mi - 12)
-      wait(1)
-      play(la - 12)
-      wait(1)
-      play(mi)
-      wait(1)
-      
-      play(mi + 12)
-      wait(1)
-      play(re + 13)
-      wait(1)
-      play(mi + 12)
-      wait(1)
-      play(re + 13)
-      wait(1)
-      play(mi + 12)
-      wait(1)
-      play(si)
-      wait(1)
-      play(re + 12)
-      wait(1)
-      play(doo + 12)
-      wait(1)
-      play(la)
-      play(la - 24)
-      wait(1)
-      play(mi - 12)
-      wait(1)
-      play(la - 12)
-      wait(1)
-      play(doo)
-      wait(1)
-      play(mi)
-      wait(1)
-      play(la)
-      wait(1)
-      play(si)
-      play(mi - 24)
-      wait(1)
-      play(mi - 12)
-      wait(1)
-      play(sol - 11)
-      wait(1)
-      play(mi)
-      wait(1)
-      play(doo + 12)
-      wait(1)
-      play(si)
-      wait(1)
-      play(la)
-      play(la - 24)
-      wait(1)
-      play(mi - 12)
-      wait(1)
-      play(la - 12)
-      wait(1)
-      play(si)
-      wait(1)
-      
-      s.close
+    //      """ main_window <- (
+    //    (button:?x(height/2))
+    //           -----
+    //    (button:?x(height/2))
+    //           ---
+    //    (button:?x(height/2))
+    //  )
+    //    """
+
+    //    val instance = new DSLProgram(code)("main_window")
+    //    println(args.mkString("{", " ", "}"))
+    //    
+    //    instance.bind("EmailSender", (_: Seq[Any]) => "Neta Katz")
+    //    instance.bind("EEfgcol", (_: Seq[Any]) => new Color("0xFF0000"))
+    //    instance.bind("EEbgcol", (_: Seq[Any]) => new Color("0x00FF00"))
+    //    instance.bind("EmailSubject", (_: Seq[Any]) => "Piggish slippers")
+    //    instance.bind("EmailContent", (_: Seq[Any]) => "I WANT MY PIGGISH SLIPPERS")
+    //    val output = instance(/*args*/ ("v=3" :: Nil).toArray)
+    //
+    //    println(output)
+
+    val (doo, re, mi, fa, sol, la, si) = (60, 62, 64, 65, 67, 69, 71)
+
+    val vol = 50
+    def wait(time: Double) = Thread.sleep((250 * time).toInt)
+    val s = MidiSystem.getSynthesizer()
+    s.loadInstrument(s.getDefaultSoundbank().getInstruments()(16))
+    s.open
+    val instruments = s.getAvailableInstruments()
+    print(s.isSoundbankSupported(s.getDefaultSoundbank()))
+    //      for (i <- s.getDefaultSoundbank().getInstruments())
+    //        println(i)
+    val channels = s.getChannels()
+    val pianoChannel = channels(0)
+    //      pianoChannel.programChange(s.getDefaultSoundbank().getInstruments()(16).getPatch().getProgram())
+    def play(note: Int) = { pianoChannel.allNotesOff(); pianoChannel.noteOn((note - 4) % 12 match { case 4 | 6 | 7 => note + 1; case _ => note }, vol) }
+    //    pianoChannel.
+
+    play(mi + 12)
+    wait(1)
+    play(re + 13)
+    wait(1)
+    play(mi + 12)
+    wait(1)
+    play(re + 13)
+    wait(1)
+    play(mi + 12)
+    wait(1)
+    play(si)
+    wait(1)
+    play(re + 12)
+    wait(1)
+    play(doo + 12)
+    wait(1)
+    play(la)
+    play(la - 24)
+    wait(1)
+    play(mi - 12)
+    wait(1)
+    play(la - 12)
+    wait(1)
+    play(doo)
+    wait(1)
+    play(mi)
+    wait(1)
+    play(la)
+    wait(1)
+    play(si)
+    play(mi - 24)
+    wait(1)
+    play(mi - 12)
+    wait(1)
+    play(sol - 11)
+    wait(1)
+    play(mi)
+    wait(1)
+    play(sol + 1)
+    wait(1)
+    play(si)
+    wait(1)
+    play(doo + 12)
+    play(la - 24)
+    wait(1)
+    play(mi - 12)
+    wait(1)
+    play(la - 12)
+    wait(1)
+    play(mi)
+    wait(1)
+
+    play(mi + 12)
+    wait(1)
+    play(re + 13)
+    wait(1)
+    play(mi + 12)
+    wait(1)
+    play(re + 13)
+    wait(1)
+    play(mi + 12)
+    wait(1)
+    play(si)
+    wait(1)
+    play(re + 12)
+    wait(1)
+    play(doo + 12)
+    wait(1)
+    play(la)
+    play(la - 24)
+    wait(1)
+    play(mi - 12)
+    wait(1)
+    play(la - 12)
+    wait(1)
+    play(doo)
+    wait(1)
+    play(mi)
+    wait(1)
+    play(la)
+    wait(1)
+    play(si)
+    play(mi - 24)
+    wait(1)
+    play(mi - 12)
+    wait(1)
+    play(sol - 11)
+    wait(1)
+    play(mi)
+    wait(1)
+    play(doo + 12)
+    wait(1)
+    play(si)
+    wait(1)
+    play(la)
+    play(la - 24)
+    wait(1)
+    play(mi - 12)
+    wait(1)
+    play(la - 12)
+    wait(1)
+    play(si)
+    wait(1)
+
+    //      play(doo + 12)
+    //      wait(2)
+    //      play(sol)
+    //      wait(2)
+    //      play(doo + 12)
+    //      wait(1)
+    //      play(si - 1)
+    //      wait(1)
+    //      play(la - 1)
+    //      wait(1)
+    //      play(sol)
+    //      wait(2)
+    //      play(si - 1)
+    //      wait(2)
+    //      play(sol)
+    //      wait(1)
+    //      play(fa)
+    //      wait(1)
+    //      play(doo)
+    //      wait(1)
+
+    s.close
   }
 }
