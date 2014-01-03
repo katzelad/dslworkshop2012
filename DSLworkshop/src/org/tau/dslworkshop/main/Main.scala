@@ -170,37 +170,37 @@ object Main {
       //    """
 
       // test "maindemo" simplified
-      """Emailtextbox <- (label:(SenderW)x(EEHeight))[text = EmailSender(i), fgcolor = EEfgcol(i), bgcolor = EEbgcol(i)] | (button)[text = EmailSubject(i), fgcolor = EEfgcol(i), bgcolor = EEbgcol(i), checked = ?(false), active = Activate(i,checked) + 5]
-
-EmailList  <- (((Emailtextbox)
-                   *---*
-                 [i=0...15]):?x(ListHeight))
-
-EmailView <-
-
-  (label:(descW)x(descH))[text = AdressLabel]    | (textbox:?x?) [text = readSender]
-                                            |
-  (label:(descW)x(descH))[text = "Subject:"] | (textbox:?x?) [text = readSubject]
-                                            |
-                                (textbox)[text = readContent]
-
-
-main_window <- (
-
-        (button:100x30)[text = "New", checked = NewC] | (button:100x?)[text = "Reply", checked = ReplyC] | (button:100x?)[text = "Refresh", checked = RefreshC] | ()
-                                      -----
-  (EmailList) | (EmailView)[readContent = EmailContent(Active), readSender = EmailSender(Active), readSubject = EmailSubject(Active), AdressLabel = "From: "]
-
-)[SenderW = ?(150), ListHeight = height - 30, EEHeight = ?(30), descW = ?(150), descH = ?(30), NewC = ?(false), ReplyC = ?(false), RefreshC = ?(false), Active = ?(0)]
-
-
-reply_window <- (
-
-    (EmailView:?x(height-30))[descW = ?(150), descH = ?(30), AdressLabel = "To: "]
-                    -----
-  (button:100x?)[text = "Submit", checked = SubmitC] | ()
-
-)[readContent = ?, readSender = ?, readSubject = ?, SubmitC = ?(false)]"""
+//      """Emailtextbox <- (label:(SenderW)x(EEHeight))[text = EmailSender(i), fgcolor = EEfgcol(i), bgcolor = EEbgcol(i)] | (button)[text = EmailSubject(i), fgcolor = EEfgcol(i), bgcolor = EEbgcol(i), checked = ?(false), active = Activate(i,checked) + 5]
+//
+//EmailList  <- (((Emailtextbox)
+//                   *---*
+//                 [i=0...15]):?x(ListHeight))
+//
+//EmailView <-
+//
+//  (label:(descW)x(descH))[text = AdressLabel]    | (textbox:?x?) [text = readSender]
+//                                            |
+//  (label:(descW)x(descH))[text = "Subject:"] | (textbox:?x?) [text = readSubject]
+//                                            |
+//                                (textbox)[text = readContent]
+//
+//
+//main_window <- (
+//
+//        (button:100x30)[text = "New", checked = NewC] | (button:100x?)[text = "Reply", checked = ReplyC] | (button:100x?)[text = "Refresh", checked = RefreshC] | ()
+//                                      -----
+//  (EmailList) | (EmailView)[readContent = EmailContent(Active), readSender = EmailSender(Active), readSubject = EmailSubject(Active), AdressLabel = "From: "]
+//
+//)[SenderW = ?(150), ListHeight = height - 30, EEHeight = ?(30), descW = ?(150), descH = ?(30), NewC = ?(false), ReplyC = ?(false), RefreshC = ?(false), Active = ?(0)]
+//
+//
+//reply_window <- (
+//
+//    (EmailView:?x(height-30))[descW = ?(150), descH = ?(30), AdressLabel = "To: "]
+//                    -----
+//  (button:100x?)[text = "Submit", checked = SubmitC] | ()
+//
+//)[readContent = ?, readSender = ?, readSubject = ?, SubmitC = ?(false)]"""
 
     //      """ main_window <- (
     //    (button:?x(height/2))
@@ -210,18 +210,80 @@ reply_window <- (
     //    (button:?x(height/2))
     //  )
     //    """
+      
+            //PIANO PARTIAL
+      """ main_window <-
+      (
+      (TITLE)
+      ---
+      (CONTROLS)
+      )
+            
+      TITLE <- (label)[text="DSL PIANO"]
 
-    //    val instance = new DSLProgram(code)("main_window")
-    //    println(args.mkString("{", " ", "}"))
-    //    
-    //    instance.bind("EmailSender", (_: Seq[Any]) => "Neta Katz")
-    //    instance.bind("EEfgcol", (_: Seq[Any]) => new Color("0xFF0000"))
-    //    instance.bind("EEbgcol", (_: Seq[Any]) => new Color("0x00FF00"))
-    //    instance.bind("EmailSubject", (_: Seq[Any]) => "Piggish slippers")
-    //    instance.bind("EmailContent", (_: Seq[Any]) => "I WANT MY PIGGISH SLIPPERS")
-    //    val output = instance(/*args*/ ("v=3" :: Nil).toArray)
-    //
-    //    println(output)
+		CONTROLS <-
+    	(
+		(label)[text={is_eng=>"Controls", is_heb=> "אפשרויות", is_deu=>"Kontrol", otherwise "Controls"}]
+		---
+		(VOLUME)
+		---
+		(INSTRUMENT)
+		---
+		(PEDAL)
+		---
+		(OCTAVE)
+    	)
+		
+		VOLUME<-
+		(
+		(label)[text={is_eng=>"Volume:", is_heb=>"ווליום:", is_deu=>"Volumen", otherwise "Volume"}]
+		---
+		(slider) [maxvalue=120, minvalue =0 , value=vol*mute] 
+		---
+		(checkbox)[checked=(mute=0)]
+    	) [vol=60, mute=1]
+		
+		INSTRUMENT<-
+    	(
+    		(label)[text={is_eng=>"Instrument:", is_heb=>"כלי נגינה:", is_deu=>"Instrument", otherwise "Instrument"}]
+    		---
+    		(
+    			
+    			( (radio) [checked= instrument = i] | (label)[text = Instuments[i]] )
+		     *|*
+		     [i=0...4,Instruments={"Piano","Violin","Drums","Guitar","Trumpet"}]
+    		|
+    		(image)[filename={(instrument="Piano")=>"Piano.png", (instrument="Violin")=>"Violin.png",
+    						  (instrument="Drums")=>"Drums.png",(instrument="Guitar")=>"Guitar.png",(instrument="Trumpet")=>"Trumpet.png",otherwise "dislike.png"}]
+    		)
+    	)
+		
+		PEDAL<-
+		(
+		 (label)[text={is_eng=>"Pedal", is_heb=>"פדל:", is_deu=>"Pedal", otherwise "Pedal"}] |
+		 (checkbox)[checked = pedal]
+		) [pedal = ?(false)]
+				
+		OCTAVE<-
+		(
+		(label)[text={is_eng=>"Octave", is_heb=>"אוקטבה:", is_deu=>"Octave", otherwise "Octave"}] |
+		(button)[text = "up", checked = up ] |
+		(button)[text = "down", checked = down]
+		) [up= ?(false) , down = ?(false)]
+      
+        """
+
+        val instance = new DSLProgram(code)("main_window")
+        println(args.mkString("{", " ", "}"))
+        
+        instance.bind("EmailSender", (_: Seq[Any]) => "Neta Katz")
+        instance.bind("EEfgcol", (_: Seq[Any]) => new Color("0xFF0000"))
+        instance.bind("EEbgcol", (_: Seq[Any]) => new Color("0x00FF00"))
+        instance.bind("EmailSubject", (_: Seq[Any]) => "Piggish slippers")
+        instance.bind("EmailContent", (_: Seq[Any]) => "I WANT MY PIGGISH SLIPPERS")
+        val output = instance(/*args*/ ("v=3" :: Nil).toArray)
+    
+        println(output)
 
     val (doo, re, mi, fa, sol, la, si) = (60, 62, 64, 65, 67, 69, 71)
 
@@ -237,7 +299,7 @@ reply_window <- (
     val channels = s.getChannels()
     val pianoChannel = channels(0)
     //      pianoChannel.programChange(s.getDefaultSoundbank().getInstruments()(16).getPatch().getProgram())
-    def play(note: Int) = { pianoChannel.allNotesOff(); pianoChannel.noteOn(note + 12, vol) }
+    def play(note: Int, drop: Boolean = false) = { if (drop) pianoChannel.allNotesOff(); pianoChannel.noteOn(note, vol) }
     //    pianoChannel.
 
     play(mi + 12)
