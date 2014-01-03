@@ -3,7 +3,10 @@ package org.tau.dslworkshop.main
 class ScopingMap[K, V](parent: ScopingMap[K, V] = null) extends scala.collection.mutable.HashMap[K, V] {
   override def apply(key: K) =
     if (parent == null)
-      super.apply(key)
+      if (super.contains(key))
+        super.apply(key)
+      else
+        throw new VariableNotFound(key)
     else
       super.get(key) match {
         case Some(value) => value

@@ -21,7 +21,7 @@ class DSLProgram(code: String) {
   val widgetsMap = LayoutParser parseAll (LayoutParser.Program, code) match {
     case LayoutParser.Success(result, nextInput) =>
       /*print(result);*/ result.defs.toMap
-    case LayoutParser.NoSuccess(msg, nextInput) => throw new Exception("Could not parse the input.\n" + msg)
+    case LayoutParser.NoSuccess(msg, nextInput) => throw new ParsingError(msg, nextInput.pos.line, nextInput.pos.column)
   }
 
   class DSLObject protected[DSLProgram] (name: String) {

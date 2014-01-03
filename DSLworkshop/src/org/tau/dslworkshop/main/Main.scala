@@ -170,62 +170,75 @@ object Main {
       //    """
 
       // test "maindemo" simplified
-//      """Emailtextbox <- (label:(SenderW)x(EEHeight))[text = EmailSender(i), fgcolor = EEfgcol(i), bgcolor = EEbgcol(i)] | (button)[text = EmailSubject(i), fgcolor = EEfgcol(i), bgcolor = EEbgcol(i), checked = ?(false), active = Activate(i,checked) + 5]
-//
-//EmailList  <- (((Emailtextbox)
-//                   *---*
-//                 [i=0...15]):?x(ListHeight))
-//
-//EmailView <-
-//
-//  (label:(descW)x(descH))[text = AdressLabel]    | (textbox:?x?) [text = readSender]
-//                                            |
-//  (label:(descW)x(descH))[text = "Subject:"] | (textbox:?x?) [text = readSubject]
-//                                            |
-//                                (textbox)[text = readContent]
-//
-//
-//main_window <- (
-//
-//        (button:100x30)[text = "New", checked = NewC] | (button:100x?)[text = "Reply", checked = ReplyC] | (button:100x?)[text = "Refresh", checked = RefreshC] | ()
-//                                      -----
-//  (EmailList) | (EmailView)[readContent = EmailContent(Active), readSender = EmailSender(Active), readSubject = EmailSubject(Active), AdressLabel = "From: "]
-//
-//)[SenderW = ?(150), ListHeight = height - 30, EEHeight = ?(30), descW = ?(150), descH = ?(30), NewC = ?(false), ReplyC = ?(false), RefreshC = ?(false), Active = ?(0)]
-//
-//
-//reply_window <- (
-//
-//    (EmailView:?x(height-30))[descW = ?(150), descH = ?(30), AdressLabel = "To: "]
-//                    -----
-//  (button:100x?)[text = "Submit", checked = SubmitC] | ()
-//
-//)[readContent = ?, readSender = ?, readSubject = ?, SubmitC = ?(false)]"""
+      //      """Emailtextbox <- (label:(SenderW)x(EEHeight))[text = EmailSender(i), fgcolor = EEfgcol(i), bgcolor = EEbgcol(i)] | (button)[text = EmailSubject(i), fgcolor = EEfgcol(i), bgcolor = EEbgcol(i), checked = ?(false), active = Activate(i,checked) + 5]
+      //
+      //EmailList  <- (((Emailtextbox)
+      //                   *---*
+      //                 [i=0...15]):?x(ListHeight))
+      //
+      //EmailView <-
+      //
+      //  (label:(descW)x(descH))[text = AdressLabel]    | (textbox:?x?) [text = readSender]
+      //                                            |
+      //  (label:(descW)x(descH))[text = "Subject:"] | (textbox:?x?) [text = readSubject]
+      //                                            |
+      //                                (textbox)[text = readContent]
+      //
+      //
+      //main_window <- (
+      //
+      //        (button:100x30)[text = "New", checked = NewC] | (button:100x?)[text = "Reply", checked = ReplyC] | (button:100x?)[text = "Refresh", checked = RefreshC] | ()
+      //                                      -----
+      //  (EmailList) | (EmailView)[readContent = EmailContent(Active), readSender = EmailSender(Active), readSubject = EmailSubject(Active), AdressLabel = "From: "]
+      //
+      //)[SenderW = ?(150), ListHeight = height - 30, EEHeight = ?(30), descW = ?(150), descH = ?(30), NewC = ?(false), ReplyC = ?(false), RefreshC = ?(false), Active = ?(0)]
+      //
+      //
+      //reply_window <- (
+      //
+      //    (EmailView:?x(height-30))[descW = ?(150), descH = ?(30), AdressLabel = "To: "]
+      //                    -----
+      //  (button:100x?)[text = "Submit", checked = SubmitC] | ()
+      //
+      //)[readContent = ?, readSender = ?, readSubject = ?, SubmitC = ?(false)]"""
 
-    //      """ main_window <- (
-    //    (button:?x(height/2))
-    //           -----
-    //    (button:?x(height/2))
-    //           ---
-    //    (button:?x(height/2))
-    //  )
-    //    """
-      
-            //PIANO PARTIAL
+      //      """ main_window <- (
+      //    (button:?x(height/2))
+      //           -----
+      //    (button:?x(height/2))
+      //           ---
+      //    (button:?x(height/2))
+      //  )
+      //    """
+
+      //PIANO PARTIAL
       """ main_window <-
       (
-      (TITLE)
+      (TITLE:?x30)
       ---
-      (CONTROLS)
-      )
+      ((CONTROLS:280x?)|(RIGHTHANDSCREEN))
+      )[is_eng = ?(true), is_deu = ?(false), instrument = ?(0), mycolor = 0xFFDDDD ]
             
-      TITLE <- (label)[text="DSL PIANO"]
+      TITLE <- (label)[text="סדנה", bgcolor = 0xFFDDDD, fgcolor = 0x770000]
 
+      RIGHTHANDSCREEN<-
+      (
+      (TOP)
+      ---
+      (MIDDLE)
+      ---
+      (BOTTOM)
+      )
+     
+      TOP<-(TITLE)
+      MIDDLE<-(TITLE)
+      BOTTOM<-(TITLE)
+      
 		CONTROLS <-
     	(
-		(label)[text={is_eng=>"Controls", is_heb=> "אפשרויות", is_deu=>"Kontrol", otherwise "Controls"}]
+		(label:?x20)[text={is_eng=>"Controls", is_deu=>"Kontrol", otherwise "Controls"}]
 		---
-		(VOLUME)
+		(VOLUME:?x?)
 		---
 		(INSTRUMENT)
 		---
@@ -236,54 +249,57 @@ object Main {
 		
 		VOLUME<-
 		(
-		(label)[text={is_eng=>"Volume:", is_heb=>"ווליום:", is_deu=>"Volumen", otherwise "Volume"}]
-		---
-		(slider) [maxvalue=120, minvalue =0 , value=vol*mute] 
-		---
-		(checkbox)[checked=(mute=0)]
+			(label:?x20)[text={is_eng=>"Volume:", is_deu=>"Volumen", otherwise "Volume"}, bgcolor = mycolor]
+			---
+			(slider:?x20) [maxvalue=120, minvalue =0 , value=vol*mute] 
+			---
+	    	(checkbox:20x20)[checked=(mute=0)] | (label:30x?)[text={is_eng=>"Mute", is_deu=>"Dampfen", otherwise "Mute"}]
     	) [vol=60, mute=1]
 		
 		INSTRUMENT<-
     	(
-    		(label)[text={is_eng=>"Instrument:", is_heb=>"כלי נגינה:", is_deu=>"Instrument", otherwise "Instrument"}]
+    		(label:?x20)[text={is_eng=>"Instrument:", is_deu=>"Instrument", otherwise "Instrument"}]
     		---
     		(
     			
-    			( (radio) [checked= instrument = i] | (label)[text = Instuments[i]] )
-		     *|*
-		     [i=0...4,Instruments={"Piano","Violin","Drums","Guitar","Trumpet"}]
+    			(( (radio:20x20) [checked= instrument = i] | (label)[text = Instruments[i]] )
+		     *---*
+		     [i=0...4,Instruments={"Piano","Violin","Drums","Guitar","Trumpet"}])
     		|
-    		(image)[filename={(instrument="Piano")=>"Piano.png", (instrument="Violin")=>"Violin.png",
-    						  (instrument="Drums")=>"Drums.png",(instrument="Guitar")=>"Guitar.png",(instrument="Trumpet")=>"Trumpet.png",otherwise "dislike.png"}]
+    		(image:100x?)[filename={instrument=0=>"D:\\Piano.png", instrument=1=>"D:\\Violin.png",
+    						  instrument=2=>"D:\\Drums.png",instrument=3=>"D:\\Guitar.png",instrument=4=>"D:\\Trumpet.png",otherwise ""}]
     		)
     	)
 		
 		PEDAL<-
 		(
-		 (label)[text={is_eng=>"Pedal", is_heb=>"פדל:", is_deu=>"Pedal", otherwise "Pedal"}] |
-		 (checkbox)[checked = pedal]
+    		(checkbox:20x20)[checked = pedal] |
+    		(label:30x?)[text={is_eng=>"Pedal", is_deu=>"Pedal", otherwise "Pedal"}]
 		) [pedal = ?(false)]
 				
 		OCTAVE<-
 		(
-		(label)[text={is_eng=>"Octave", is_heb=>"אוקטבה:", is_deu=>"Octave", otherwise "Octave"}] |
-		(button)[text = "up", checked = up ] |
-		(button)[text = "down", checked = down]
+			(label)[text={is_eng=>"Octave", is_deu=>"Octave", otherwise "Octave"}] |
+	    	(
+	    		(button)[text = "Up", checked = up ]
+	    		---
+	    		(button)[text = "Down", checked = down]
+	    	)
 		) [up= ?(false) , down = ?(false)]
       
         """
 
-        val instance = new DSLProgram(code)("main_window")
-        println(args.mkString("{", " ", "}"))
-        
-        instance.bind("EmailSender", (_: Seq[Any]) => "Neta Katz")
-        instance.bind("EEfgcol", (_: Seq[Any]) => new Color("0xFF0000"))
-        instance.bind("EEbgcol", (_: Seq[Any]) => new Color("0x00FF00"))
-        instance.bind("EmailSubject", (_: Seq[Any]) => "Piggish slippers")
-        instance.bind("EmailContent", (_: Seq[Any]) => "I WANT MY PIGGISH SLIPPERS")
-        val output = instance(/*args*/ ("v=3" :: Nil).toArray)
-    
-        println(output)
+    val instance = new DSLProgram(code)("main_window")
+    println(args.mkString("{", " ", "}"))
+
+    instance.bind("EmailSender", (_: Seq[Any]) => "Neta Katz")
+    instance.bind("EEfgcol", (_: Seq[Any]) => new Color("0xFF0000"))
+    instance.bind("EEbgcol", (_: Seq[Any]) => new Color("0x00FF00"))
+    instance.bind("EmailSubject", (_: Seq[Any]) => "Piggish slippers")
+    instance.bind("EmailContent", (_: Seq[Any]) => "I WANT MY PIGGISH SLIPPERS")
+    val output = instance( /*args*/ ("v=3" :: Nil).toArray)
+
+    println(output)
 
     val (doo, re, mi, fa, sol, la, si) = (60, 62, 64, 65, 67, 69, 71)
 
@@ -302,109 +318,113 @@ object Main {
     def play(note: Int, drop: Boolean = false) = { if (drop) pianoChannel.allNotesOff(); pianoChannel.noteOn(note, vol) }
     //    pianoChannel.
 
-    play(mi + 12)
-    wait(1)
-    play(re + 13)
-    wait(1)
-    play(mi + 12)
-    wait(1)
-    play(re + 13)
-    wait(1)
-    play(mi + 12)
-    wait(1)
-    play(si)
-    wait(1)
-    play(re + 12)
-    wait(1)
-    play(doo + 12)
-    wait(1)
-    play(la)
-    play(la - 24)
-    wait(1)
-    play(mi - 12)
-    wait(1)
-    play(la - 12)
-    wait(1)
-    play(doo)
-    wait(1)
-    play(mi)
-    wait(1)
-    play(la)
-    wait(1)
-    play(si)
-    play(mi - 24)
-    wait(1)
-    play(mi - 12)
-    wait(1)
-    play(sol - 11)
-    wait(1)
-    play(mi)
-    wait(1)
-    play(sol + 1)
-    wait(1)
-    play(si)
-    wait(1)
-    play(doo + 12)
-    play(la - 24)
-    wait(1)
-    play(mi - 12)
-    wait(1)
-    play(la - 12)
-    wait(1)
-    play(mi)
-    wait(1)
+    def furelise {
+      play(mi + 12)
+      wait(1)
+      play(re + 13)
+      wait(1)
+      play(mi + 12)
+      wait(1)
+      play(re + 13)
+      wait(1)
+      play(mi + 12)
+      wait(1)
+      play(si)
+      wait(1)
+      play(re + 12)
+      wait(1)
+      play(doo + 12)
+      wait(1)
+      play(la)
+      play(la - 24)
+      wait(1)
+      play(mi - 12)
+      wait(1)
+      play(la - 12)
+      wait(1)
+      play(doo)
+      wait(1)
+      play(mi)
+      wait(1)
+      play(la)
+      wait(1)
+      play(si)
+      play(mi - 24)
+      wait(1)
+      play(mi - 12)
+      wait(1)
+      play(sol - 11)
+      wait(1)
+      play(mi)
+      wait(1)
+      play(sol + 1)
+      wait(1)
+      play(si)
+      wait(1)
+      play(doo + 12)
+      play(la - 24)
+      wait(1)
+      play(mi - 12)
+      wait(1)
+      play(la - 12)
+      wait(1)
+      play(mi)
+      wait(1)
 
-    play(mi + 12)
-    wait(1)
-    play(re + 13)
-    wait(1)
-    play(mi + 12)
-    wait(1)
-    play(re + 13)
-    wait(1)
-    play(mi + 12)
-    wait(1)
-    play(si)
-    wait(1)
-    play(re + 12)
-    wait(1)
-    play(doo + 12)
-    wait(1)
-    play(la)
-    play(la - 24)
-    wait(1)
-    play(mi - 12)
-    wait(1)
-    play(la - 12)
-    wait(1)
-    play(doo)
-    wait(1)
-    play(mi)
-    wait(1)
-    play(la)
-    wait(1)
-    play(si)
-    play(mi - 24)
-    wait(1)
-    play(mi - 12)
-    wait(1)
-    play(sol - 11)
-    wait(1)
-    play(mi)
-    wait(1)
-    play(doo + 12)
-    wait(1)
-    play(si)
-    wait(1)
-    play(la)
-    play(la - 24)
-    wait(1)
-    play(mi - 12)
-    wait(1)
-    play(la - 12)
-    wait(1)
-    play(si)
-    wait(1)
+      play(mi + 12)
+      wait(1)
+      play(re + 13)
+      wait(1)
+      play(mi + 12)
+      wait(1)
+      play(re + 13)
+      wait(1)
+      play(mi + 12)
+      wait(1)
+      play(si)
+      wait(1)
+      play(re + 12)
+      wait(1)
+      play(doo + 12)
+      wait(1)
+      play(la)
+      play(la - 24)
+      wait(1)
+      play(mi - 12)
+      wait(1)
+      play(la - 12)
+      wait(1)
+      play(doo)
+      wait(1)
+      play(mi)
+      wait(1)
+      play(la)
+      wait(1)
+      play(si)
+      play(mi - 24)
+      wait(1)
+      play(mi - 12)
+      wait(1)
+      play(sol - 11)
+      wait(1)
+      play(mi)
+      wait(1)
+      play(doo + 12)
+      wait(1)
+      play(si)
+      wait(1)
+      play(la)
+      play(la - 24)
+      wait(1)
+      play(mi - 12)
+      wait(1)
+      play(la - 12)
+      wait(1)
+      play(si)
+      wait(1)
+    }
+    
+//    furelise
 
     s.close
   }
