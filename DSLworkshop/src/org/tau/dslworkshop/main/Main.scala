@@ -225,7 +225,7 @@ reply_window <- (
 
     val (doo, re, mi, fa, sol, la, si) = (60, 62, 64, 65, 67, 69, 71)
 
-    val vol = 50
+    val vol = 40
     def wait(time: Double) = Thread.sleep((250 * time).toInt)
     val s = MidiSystem.getSynthesizer()
     s.loadInstrument(s.getDefaultSoundbank().getInstruments()(16))
@@ -237,7 +237,7 @@ reply_window <- (
     val channels = s.getChannels()
     val pianoChannel = channels(0)
     //      pianoChannel.programChange(s.getDefaultSoundbank().getInstruments()(16).getPatch().getProgram())
-    def play(note: Int) = { pianoChannel.allNotesOff(); pianoChannel.noteOn((note - 4) % 12 match { case 4 | 6 | 7 => note + 1; case _ => note }, vol) }
+    def play(note: Int) = { pianoChannel.allNotesOff(); pianoChannel.noteOn(note + 12, vol) }
     //    pianoChannel.
 
     play(mi + 12)
@@ -343,27 +343,6 @@ reply_window <- (
     wait(1)
     play(si)
     wait(1)
-
-    //      play(doo + 12)
-    //      wait(2)
-    //      play(sol)
-    //      wait(2)
-    //      play(doo + 12)
-    //      wait(1)
-    //      play(si - 1)
-    //      wait(1)
-    //      play(la - 1)
-    //      wait(1)
-    //      play(sol)
-    //      wait(2)
-    //      play(si - 1)
-    //      wait(2)
-    //      play(sol)
-    //      wait(1)
-    //      play(fa)
-    //      wait(1)
-    //      play(doo)
-    //      wait(1)
 
     s.close
   }
