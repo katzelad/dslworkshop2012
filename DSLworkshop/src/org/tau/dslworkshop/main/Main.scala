@@ -223,16 +223,22 @@ object Main {
 
       RIGHTHANDSCREEN<-
       (
-      (TOP)
+      (RecentlyplayedLangAbout)
       ---
       (MIDDLE)
       ---
       (BOTTOM)
       )
      
-      TOP<-(TITLE)
+      RecentlyplayedLangAbout<-((Recentlyplayed)|((Lang) --- (About)))
       MIDDLE<-(TITLE)
       BOTTOM<-(TITLE)
+      
+      Recentlyplayed<-((:50x?)|(((label)|(button)|(button)) --- (TITLE)))
+      
+      Lang<-(TITLE)
+      
+      About<-(TITLE)
       
 		CONTROLS <-
     	(
