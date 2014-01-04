@@ -274,8 +274,8 @@ object Main {
 		     *---*
 		     [i=0...4,Instruments={"Piano","Violin","Drums","Guitar","Trumpet"}])
     		|
-    		(image:100x100)[filename={instrument=0=>"D:\\Piano.png", instrument=1=>"D:\\Violin.png",
-    						  instrument=2=>"D:\\Drums.png",instrument=3=>"D:\\Guitar.png",instrument=4=>"D:\\Trumpet.png",otherwise ""}]
+    		(image:100x100)[filename={instrument=0=>"Graphics\\piano.png", instrument=1=>"Graphics\\violin.png",
+    						  instrument=2=>"Graphics\\drums.png",instrument=3=>"Graphics\\guitar.png",instrument=4=>"Graphics\\trumpet.png",otherwise ""}]
     		)
     	)
 		
