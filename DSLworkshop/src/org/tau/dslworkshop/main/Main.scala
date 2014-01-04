@@ -237,24 +237,26 @@ object Main {
 		CONTROLS <-
     	(
 		(label:?x20)[text={is_eng=>"Controls", is_deu=>"Kontrol", otherwise "Controls"}]
-		---
+    	---
 		(VOLUME:?x?)
+    	---
+    	(INSTRUMENT)
 		---
-		(INSTRUMENT)
-		---
-		(PEDAL)
+    	(PEDAL)
 		---
 		(OCTAVE)
+      	---
+    	()
     	)
 		
 		VOLUME<-
 		(
 			(label:?x20)[text={is_eng=>"Volume:", is_deu=>"Volumen", otherwise "Volume"}, bgcolor = mycolor]
 			---
-			(slider:?x20) [maxvalue=120, minvalue =0 , value=vol*mute] 
+			(slider:?x20) [maxvalue=120, minvalue =0 , value=vol] 
 			---
-	    	(checkbox:20x20)[checked=(mute=0)] | (label:30x?)[text={is_eng=>"Mute", is_deu=>"Dampfen", otherwise "Mute"}]
-    	) [vol=60, mute=1]
+	    	(checkbox:20x20)[checked=(vol=0)] | (label:30x?)[text={is_eng=>"Mute", is_deu=>"Dampfen", otherwise "Mute"}]
+    	) [vol=?(60), mute=1]
 		
 		INSTRUMENT<-
     	(
@@ -266,7 +268,7 @@ object Main {
 		     *---*
 		     [i=0...4,Instruments={"Piano","Violin","Drums","Guitar","Trumpet"}])
     		|
-    		(image:100x?)[filename={instrument=0=>"D:\\Piano.png", instrument=1=>"D:\\Violin.png",
+    		(image:100x100)[filename={instrument=0=>"D:\\Piano.png", instrument=1=>"D:\\Violin.png",
     						  instrument=2=>"D:\\Drums.png",instrument=3=>"D:\\Guitar.png",instrument=4=>"D:\\Trumpet.png",otherwise ""}]
     		)
     	)
@@ -281,23 +283,33 @@ object Main {
 		(
 			(label)[text={is_eng=>"Octave", is_deu=>"Octave", otherwise "Octave"}] |
 	    	(
-	    		(button)[text = "Up", checked = up ]
+	    		(button:50x20)[text = "Up", checked = up ]
 	    		---
-	    		(button)[text = "Down", checked = down]
+	    		(button:?x20)[text = "Down", checked = down]
 	    	)
-		) [up= ?(false) , down = ?(false)]
+		)
       
         """
 
+      
+      //TODO mute disables volume feature (using another var)
+      //TODO octave up/down disabled after a few clicks feature
+      //TODO add dummy widgets with fixed size for spacing
+      //TODO all the rest
+      
     val instance = new DSLProgram(code)("main_window")
     println(args.mkString("{", " ", "}"))
 
-    instance.bind("EmailSender", (_: Seq[Any]) => "Neta Katz")
-    instance.bind("EEfgcol", (_: Seq[Any]) => new Color("0xFF0000"))
-    instance.bind("EEbgcol", (_: Seq[Any]) => new Color("0x00FF00"))
-    instance.bind("EmailSubject", (_: Seq[Any]) => "Piggish slippers")
-    instance.bind("EmailContent", (_: Seq[Any]) => "I WANT MY PIGGISH SLIPPERS")
-    val output = instance( /*args*/ ("v=3" :: Nil).toArray)
+    //    instance.bind("EmailSender", (_: Seq[Any]) => "Neta Katz")
+    //    instance.bind("EEfgcol", (_: Seq[Any]) => new Color("0xFF0000"))
+    //    instance.bind("EEbgcol", (_: Seq[Any]) => new Color("0x00FF00"))
+    //    instance.bind("EmailSubject", (_: Seq[Any]) => "Piggish slippers")
+    //    instance.bind("EmailContent", (_: Seq[Any]) => "I WANT MY PIGGISH SLIPPERS")
+
+    instance.when_changed("up", () => println("up")) // TODO write actual function
+    instance.when_changed("down", () => println("down")) // TODO write actual function
+
+    val output = instance( /*args*/ ("up=0" :: "down=0" :: Nil).toArray)
 
     println(output)
 
@@ -423,8 +435,8 @@ object Main {
       play(si)
       wait(1)
     }
-    
-//    furelise
+
+    //    furelise
 
     s.close
   }

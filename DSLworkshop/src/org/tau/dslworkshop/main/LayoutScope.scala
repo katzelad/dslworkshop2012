@@ -62,6 +62,8 @@ class LayoutScope(widgetsMap: Map[String, Widget]) {
     case _ => false
   }
 
+  private def createSash(parent: Composite, direction: Int) = new Sash(parent, direction | SWT.SMOOTH | SWT.BORDER)
+
   private def handleHorizontalContainer(parent: Composite, env: Environment, children: List[Widget]): TEvalNodeReturn = {
     var seenQM = 0
     var sashes = mutableBuffer[Sash]()
@@ -80,7 +82,7 @@ class LayoutScope(widgetsMap: Map[String, Widget]) {
       childInfo(i) match { //i is the right mark
         case (_, _, true, _, qmChangeSize) =>
           if (seenQM > 0) { // ... ? ... ? ...
-            val leftSash = new Sash(parent, SWT.VERTICAL | SWT.SMOOTH)
+            val leftSash = createSash(parent, SWT.VERTICAL)
             (childInfo(j): @unchecked) match {
               case (_, _, true, _, changeSize) =>
                 changeSizes ::= (changeSize, if (sashes isEmpty) None else Some(sashes last),
@@ -97,7 +99,7 @@ class LayoutScope(widgetsMap: Map[String, Widget]) {
             sashMap(leftSash) = 1.0 / qms
             sashes += leftSash
             if (i > j + 1) { // ... ? 20 20 20 ? ...
-              val rightSash = new Sash(parent, SWT.VERTICAL | SWT.SMOOTH)
+              val rightSash = createSash(parent, SWT.VERTICAL)
               sashes += rightSash
               var accWidth = 0
               for (j <- j + 1 to i - 1)
@@ -337,7 +339,7 @@ class LayoutScope(widgetsMap: Map[String, Widget]) {
       childInfo(i) match { //i is the right mark
         case (_, _, _, true, qmChangeSize) =>
           if (seenQM > 0) { // ... ? ... ? ...
-            val topSash = new Sash(parent, SWT.HORIZONTAL | SWT.SMOOTH)
+            val topSash = createSash(parent, SWT.HORIZONTAL)
             (childInfo(j): @unchecked) match {
               case (_, _, _, true, changeSize) =>
                 changeSizes ::= (changeSize, if (sashes isEmpty) None else Some(sashes last),
@@ -354,7 +356,7 @@ class LayoutScope(widgetsMap: Map[String, Widget]) {
             sashMap(topSash) = 1.0 / qms
             sashes += topSash
             if (i > j + 1) { // ... ? 20 20 20 ? ...
-              val bottomSash = new Sash(parent, SWT.HORIZONTAL | SWT.SMOOTH)
+              val bottomSash = createSash(parent, SWT.HORIZONTAL)
               sashes += bottomSash
               var accHeight = 0
               for (j <- j + 1 to i - 1)
@@ -636,7 +638,7 @@ class LayoutScope(widgetsMap: Map[String, Widget]) {
 
   def evalNode(code: ASTNode, parent: Composite, env: Environment): TEvalNodeReturn = code match {
     //***case 1/3 atomic widget***
-    case AtomicWidget(kind, attributes, width, height) =>
+    case AtomicWidget(kind, attributes, widthExpr, heightExpr) =>
       val changeAtt = mutableMap[String, () => Unit]()
       var hAlign = 0
       var text = ""
@@ -647,10 +649,10 @@ class LayoutScope(widgetsMap: Map[String, Widget]) {
       var value: Option[Int] = None
       var changeImageSize = (width: Int, height: Int) => {}
       //Delete this line var (minWidth, minHeight, isWidthQM, isHeightQM) = (0, 0, true, true)
-      val widthVal = (width match { case Some(w: Literal[_]) => width; case _ => None }).map(env.evalInt)
+      var widthVar = (widthExpr match { case Some(w: Literal[_]) => widthExpr; case _ => None }).map(env.evalInt)
       // NOTE: a known issue: the parser does not distinguish between (label) and (label:?x?)
       // which causes handling that does not support native label and image size (3.2.2 in the project specs)
-      val heightVal = height.map(env.evalInt)
+      var heightVar = heightExpr.map(env.evalInt)
       for (att <- attributes) att.getName match {
         case "halign" => hAlign = hAlignASTToSWT(env.evalHAlign(att.getValue.get))
         // valign not included due to lack of SWT support
@@ -699,6 +701,7 @@ class LayoutScope(widgetsMap: Map[String, Widget]) {
         case "button" =>
           val button = new Button(parent, SWT.PUSH | SWT.WRAP | hAlign)
           button setText text
+          button.addSelectionListener(new WidgetSelectionAdapter[Boolean]("checked", () => button.getSelection(), env.changeVarLTR))
           changeAttRTL("halign", expr => button.setAlignment(hAlignASTToSWT(env.evalHAlign(expr))))
           changeAttRTL("text", expr => button.setText(env.evalString(expr)))
           button
@@ -771,12 +774,20 @@ class LayoutScope(widgetsMap: Map[String, Widget]) {
           scrolledComposite setExpandVertical true
           val composite = new Composite(scrolledComposite, SWT.NONE)
           scrolledComposite setContent composite
-          val newEnv = new Environment(new ScopingMap(env.evaluatedVarMap), new ScopingMap(env.unevaluatedVarMap))
+          val newEnv =
+            if (params == null)
+              env
+            else
+              new Environment(new ScopingMap(env.evaluatedVarMap), new ScopingMap(env.unevaluatedVarMap))
           newEnv.evaluatedVarMap.put("width", 0)
           newEnv.evaluatedVarMap.put("height", 0)
           newEnv.unevaluatedVarMap.put("width", Set())
           newEnv.unevaluatedVarMap.put("height", Set())
-          val (width, height, _, _, changeSize) = evalNode(PropertyScope(widgetsMap(s), attributes), composite, newEnv)
+          val (width, height, isWidthQM, isHeightQM, changeSize) = evalNode(PropertyScope(widgetsMap(s), attributes), composite, newEnv)
+          if (widthVar.isEmpty && !isWidthQM)
+            widthVar = Some(width)
+          if (heightVar.isEmpty && !isHeightQM)
+            heightVar = Some(height)
           scrolledComposite setMinWidth width
           scrolledComposite setMinHeight height
           scrolledComposite setSize (width, height)
@@ -804,30 +815,30 @@ class LayoutScope(widgetsMap: Map[String, Widget]) {
           widget setFont fontASTToSWT(env.evalFont(att.getValue.get), widget.getDisplay())
           changeAttRTL("font", expr => widget.setFont(fontASTToSWT(env.evalFont(expr), widget.getDisplay())))
         // attribute "code" helps handling "bind" 
-        case "code" =>
-          widget.addListener(SWT.Selection, new Listener {
-            override def handleEvent(e: Event) = {
-              env.eval(att.getValue.get)
-            }
-          })
+        //        case "code" =>
+        //          widget.addListener(SWT.Selection, new Listener {
+        //            override def handleEvent(e: Event) = {
+        //              env.eval(att.getValue.get)
+        //            }
+        //          })
         case _ =>
       }
       val widgetForResize = widget match { case w: Button if (w.getStyle & SWT.RADIO) == SWT.RADIO => widget.getParent; case _ => widget }
-      (widthVal getOrElse 0,
-        heightVal getOrElse 0,
-        width match {
+      (widthVar getOrElse 0,
+        heightVar getOrElse 0,
+        widthExpr match {
           case Some(Variable(name, _, false)) => true //TODO value? handling (unrelatedly, also width/height expressions ltr update todo)
-          case None => true
+          case None => widthVar.isEmpty
           case _ => false
         },
-        height match {
+        heightExpr match {
           case Some(Variable(name, _, false)) => true
-          case None => true
+          case None => heightVar.isEmpty
           case _ => false
         },
         (left: Int, top: Int, right: Int, bottom: Int) => {
-          widgetForResize setBounds (left, top, math.min(right - left, width.map(env.evalInt).getOrElse(Int.MaxValue)),
-            math.min(bottom - top, height.map(env.evalInt).getOrElse(Int.MaxValue)))
+          widgetForResize setBounds (left, top, math.min(right - left, widthExpr.map(env.evalInt).getOrElse(Int.MaxValue)),
+            math.min(bottom - top, heightExpr.map(env.evalInt).getOrElse(Int.MaxValue)))
           changeImageSize(widgetForResize.getSize.x, widgetForResize.getSize.y)
         })
     // TODO deal with vertical
@@ -848,10 +859,15 @@ class LayoutScope(widgetsMap: Map[String, Widget]) {
     //***case 3/3 property scope
     case PropertyScope(container, attributes) => {
       //first add the variables to the varmap:
-      val newEnv = new Environment(new ScopingMap(env.evaluatedVarMap), new ScopingMap(env.unevaluatedVarMap))
+      val newEnv =
+        if (params == null)
+          env
+        else
+          new Environment(new ScopingMap(env.evaluatedVarMap), new ScopingMap(env.unevaluatedVarMap))
       attributes.map({
         case ExpressionAttribute(att, expr) => // var = value
-          newEnv.unevaluatedVarMap.put(att.id, Set())
+          if (!newEnv.unevaluatedVarMap.contains(att.id))
+            newEnv.unevaluatedVarMap.put(att.id, Set())
           newEnv.getVariables(expr).map(variable =>
             env.unevaluatedVarMap(variable) += (() => {
               if (!varsAffectedByCurrentUpdate(att.id)) {
@@ -863,7 +879,10 @@ class LayoutScope(widgetsMap: Map[String, Widget]) {
           newEnv.evaluatedVarMap.put(att.id, env.eval(expr))
 
         case InitialAttribute(att, Some(expr)) => // var = ?(value)
-          newEnv.unevaluatedVarMap.put(att.id, Set(INITIAL_ATT_FLAG))
+          if (!newEnv.unevaluatedVarMap.contains(att.id))
+            newEnv.unevaluatedVarMap.put(att.id, Set(INITIAL_ATT_FLAG))
+          else
+            newEnv.unevaluatedVarMap(att.id) += INITIAL_ATT_FLAG
           newEnv.evaluatedVarMap.put(att.id, env.eval(expr))
 
         case InitialAttribute(att, None) => // var = ?
