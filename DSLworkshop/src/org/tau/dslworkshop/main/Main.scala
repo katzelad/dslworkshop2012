@@ -213,16 +213,18 @@ object Main {
 
       //PIANO
       """
-      Placeholder <- (label)[text="placeholder", bgcolor = 0x8330FF, fgcolor = 0xffffff, font = ("arial", 16, bold)]
+      Placeholder <- (label)[text="placeholder", bgcolor = 0x30CEFF, fgcolor = 0xffffff, font = ("arial", 16, bold)]
+      
+      Leftmargin<-(:20x?)[bgcolor = regbgcolor]
       
       main_window <-
       (
     	(ProgramTitle:?x30)
     	---
-    	((Controls:280x?)|(RightHandArea))
+    	(((Leftmargin)|(Controls:280x?))|(RightHandArea))
       )[is_eng = ?(true), is_deu = ?(false), instrument = ?(0),
-    	titlebgcolor = 0xFFA528, titlefgcolor = 0xFFFFFF, titlefont = ("arial", 14, bold),
-    	regbgcolor = 0xFFFFFF, regfgcolor = 0xFF6A26, regfont = ("arial", 12, bold)]
+    	titlebgcolor = 0xFFFFFF, titlefgcolor = 0xFF2B39, titlefont = ("arial", 12, bold),
+    	regbgcolor = 0xFFFFFF, regfgcolor = 0xFF6A26, regfont = ("arial", 10, bold)]
       
       ProgramTitle <- (label)[text="TAU PIANO", bgcolor = 0xFFA528, fgcolor = 0xffffff, font = ("arial", 16, bold)]
 
@@ -230,20 +232,33 @@ object Main {
       (
     	(RecentlyplayedLangAbout)
     	---
-    	(MIDDLE)
+    	(PianoRythmNowplayngRecord:?x250)
     	---
     	(BOTTOM)
       )
      
       
+      PianoRythmNowplayngRecord<-
+      (
+      (Leftmargin)|
+       (((Piano)|(Nowplaying))
+      ---
+      ((Rythm)|(Record)))
+      )
+      
+      Piano <-(label)[text="PianoKeys"]     
+      Nowplaying <-	(label)[text="NowPlaying"]
+      Rythm <- (label)[text="Rythm"]
+      Record <- (label)[text="record"]
+      
       RecentlyplayedLangAbout<-((Recentlyplayed)|((Lang) --- (About)))
       
       Recentlyplayed<-
       (
-    	(:50x?)
+    	(Leftmargin)
     	|
     	(
-    		((label:100x?)[text={is_eng=>"Recently Played:", is_deu=>"Zuletzt gespielt:", otherwise "Recently Played:"}]|(:50x?)|(button:50x30)[text="Clear"]|(:20x30)|(button:60x30)[text="Save to Text File"]|())
+    		((label:100x?)[text={is_eng=>"Recently Played:", is_deu=>"Zuletzt gespielt:", otherwise "Recently Played:"}, bgcolor=regbgcolor, fgcolor=regfgcolor, font=regfont]|(:50x?)|(button:50x30)[text="Clear"]|(:20x30)|(button:60x30)[text="Save to Text File"]|())
     		---
     		(Placeholder)
     	)
@@ -265,26 +280,28 @@ object Main {
       
       Controls <-
       (
-    	(label:?x20)[text={is_eng=>"Controls", is_deu=>"Kontrol", otherwise "Controls"}]
-    	---
-    	(VOLUME:?x?)
-    	---
-    	(INSTRUMENT)
-		---
-    	(PEDAL)
-		---
-		(OCTAVE)
-      	---
-    	()
+    		(label:?x20)[text={is_eng=>"Controls", is_deu=>"Kontrol", otherwise "Controls"}, bgcolor = regbgcolor, fgcolor = regfgcolor, font = regfont]
+    		---
+    		(VOLUME:?x?)
+    		---
+    		(INSTRUMENT)
+    		---
+	    	(PEDAL)
+			---
+			(OCTAVE)
+	      	---
+	    	()
       )
       
       VOLUME<-
       (
 			(label:?x20)[text={is_eng=>"Volume:", is_deu=>"Volumen", otherwise "Volume"}, bgcolor = regbgcolor, fgcolor = regfgcolor, font = regfont]
 			---
-			(slider:?x20) [maxvalue=120, minvalue =0 , value=vol]
+			((slider:?x20) [maxvalue=120, minvalue =0 , value=vol]|(:20x?)[bgcolor = regbgcolor])
 			---
-	    	(checkbox:20x20)[checked=(vol=0), bgcolor = regbgcolor, fgcolor = regfgcolor, font = regfont] | (label:?x?)[text={is_eng=>"Mute", is_deu=>"Dampfen", otherwise "Mute"}, bgcolor = regbgcolor, fgcolor = regfgcolor, font = regfont]
+	    	(checkbox:20x20)[checked=(vol=0), bgcolor = regbgcolor, fgcolor = regfgcolor, font = regfont] |
+    		(label:50x?)[text={is_eng=>"Mute", is_deu=>"Dampfen", otherwise "Mute"}, bgcolor = regbgcolor, fgcolor = regfgcolor, font = regfont]|
+    		()[bgcolor = regbgcolor]
       ) [vol=?(60), mute=1]
 		
       
@@ -294,14 +311,19 @@ object Main {
     		---
     		(
     			
-    			(( (radio:20x20) [checked= instrument = i] | (label)[text = Instruments[i]] )
+    			(( (radio:20x20) [checked= instrument = i, bgcolor = regbgcolor] | (label)[text = Instruments[i], bgcolor = regbgcolor, fgcolor=regfgcolor,font = regfont] )
 		     *---*
-		     [i=0...4,Instruments={"Piano","Violin","Drums","Guitar","Trumpet"}])
+		     [i=0...4,Instruments={piano, violin, drums, guitar, trumpet}])
     		|
     		(image:100x100)[filename={instrument=0=>"Graphics\\piano.png", instrument=1=>"Graphics\\violin.png",
-    						  instrument=2=>"Graphics\\drums.png",instrument=3=>"Graphics\\guitar.png",instrument=4=>"Graphics\\trumpet.png",otherwise ""}]
+    						instrument=2=>"Graphics\\drums.png",instrument=3=>"Graphics\\guitar.png",instrument=4=>"Graphics\\trumpet.png",otherwise ""},
+    						bgcolor = regbgcolor]
     		)
-      )
+      )[piano={is_eng=>"Piano", is_deu=>"Klavier", otherwise "Piano"},
+    	guitar={is_eng=>"Guitar", is_deu=>"Gitarre", otherwise "Guitar"},
+    	violin={is_eng=>"Violin", is_deu=>"Violine", otherwise "Violin"},
+    	trumpet={is_eng=>"Trumpet", is_deu=>"Trompete", otherwise "Trumpet"},
+    	drums={is_eng=>"Drums", is_deu=>"Schlagzeug", otherwise "Drums"}]
 		
       
       PEDAL<-
