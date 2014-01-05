@@ -211,40 +211,63 @@ object Main {
       //  )
       //    """
 
-      //PIANO PARTIAL
-      """ main_window <-
+      //PIANO
+      """
+      Placeholder <- (label)[text="placeholder", bgcolor = 0x8330FF, fgcolor = 0xffffff, font = ("arial", 16, bold)]
+      
+      main_window <-
       (
-      (TITLE:?x30)
-      ---
-      ((CONTROLS:280x?)|(RIGHTHANDSCREEN))
-      )[is_eng = ?(true), is_deu = ?(false), instrument = ?(0), mycolor = 0xFFDDDD ]
-            
-      TITLE <- (label)[text="סדנה", bgcolor = 0xFFDDDD, fgcolor = 0x770000]
+    	(ProgramTitle:?x30)
+    	---
+    	((Controls:280x?)|(RightHandArea))
+      )[is_eng = ?(true), is_deu = ?(false), instrument = ?(0),
+    	titlebgcolor = 0xFFA528, titlefgcolor = 0xFFFFFF, titlefont = ("arial", 14, bold),
+    	regbgcolor = 0xFFFFFF, regfgcolor = 0xFF6A26, regfont = ("arial", 12, bold)]
+      
+      ProgramTitle <- (label)[text="TAU PIANO", bgcolor = 0xFFA528, fgcolor = 0xffffff, font = ("arial", 16, bold)]
 
-      RIGHTHANDSCREEN<-
+      RightHandArea<-
       (
-      (RecentlyplayedLangAbout)
-      ---
-      (MIDDLE)
-      ---
-      (BOTTOM)
+    	(RecentlyplayedLangAbout)
+    	---
+    	(MIDDLE)
+    	---
+    	(BOTTOM)
       )
      
+      
       RecentlyplayedLangAbout<-((Recentlyplayed)|((Lang) --- (About)))
-      MIDDLE<-(TITLE)
-      BOTTOM<-(TITLE)
       
-      Recentlyplayed<-((:50x?)|(((label)|(button)|(button)) --- (TITLE)))
-      
-      Lang<-(TITLE)
-      
-      About<-(TITLE)
-      
-		CONTROLS <-
+      Recentlyplayed<-
+      (
+    	(:50x?)
+    	|
     	(
-		(label:?x20)[text={is_eng=>"Controls", is_deu=>"Kontrol", otherwise "Controls"}]
+    		((label:100x?)[text={is_eng=>"Recently Played:", is_deu=>"Zuletzt gespielt:", otherwise "Recently Played:"}]|(:50x?)|(button:50x30)[text="Clear"]|(:20x30)|(button:60x30)[text="Save to Text File"]|())
+    		---
+    		(Placeholder)
+    	)
+      )
+      
+      Lang<-
+      (
+      
+    	(Placeholder)
     	---
-		(VOLUME:?x?)
+    	()
+      )
+      
+      About<-(Placeholder)
+     
+      MIDDLE<-(Placeholder)
+      
+      BOTTOM<-(Placeholder)
+      
+      Controls <-
+      (
+    	(label:?x20)[text={is_eng=>"Controls", is_deu=>"Kontrol", otherwise "Controls"}]
+    	---
+    	(VOLUME:?x?)
     	---
     	(INSTRUMENT)
 		---
@@ -253,20 +276,21 @@ object Main {
 		(OCTAVE)
       	---
     	()
-    	)
-		
-		VOLUME<-
-		(
-			(label:?x20)[text={is_eng=>"Volume:", is_deu=>"Volumen", otherwise "Volume"}, bgcolor = mycolor]
+      )
+      
+      VOLUME<-
+      (
+			(label:?x20)[text={is_eng=>"Volume:", is_deu=>"Volumen", otherwise "Volume"}, bgcolor = regbgcolor, fgcolor = regfgcolor, font = regfont]
 			---
-			(slider:?x20) [maxvalue=120, minvalue =0 , value=vol] 
+			(slider:?x20) [maxvalue=120, minvalue =0 , value=vol]
 			---
-	    	(checkbox:20x20)[checked=(vol=0)] | (label:30x?)[text={is_eng=>"Mute", is_deu=>"Dampfen", otherwise "Mute"}]
-    	) [vol=?(60), mute=1]
+	    	(checkbox:20x20)[checked=(vol=0), bgcolor = regbgcolor, fgcolor = regfgcolor, font = regfont] | (label:?x?)[text={is_eng=>"Mute", is_deu=>"Dampfen", otherwise "Mute"}, bgcolor = regbgcolor, fgcolor = regfgcolor, font = regfont]
+      ) [vol=?(60), mute=1]
 		
-		INSTRUMENT<-
-    	(
-    		(label:?x20)[text={is_eng=>"Instrument:", is_deu=>"Instrument", otherwise "Instrument"}]
+      
+      INSTRUMENT<-
+      (
+    		(label:?x20)[text={is_eng=>"Instrument:", is_deu=>"Instrument", otherwise "Instrument"}, bgcolor = titlebgcolor, fgcolor = titlefgcolor, font = titlefont]
     		---
     		(
     			
@@ -277,23 +301,25 @@ object Main {
     		(image:100x100)[filename={instrument=0=>"Graphics\\piano.png", instrument=1=>"Graphics\\violin.png",
     						  instrument=2=>"Graphics\\drums.png",instrument=3=>"Graphics\\guitar.png",instrument=4=>"Graphics\\trumpet.png",otherwise ""}]
     		)
-    	)
+      )
 		
-		PEDAL<-
-		(
+      
+      PEDAL<-
+      (
     		(checkbox:20x20)[checked = pedal] |
     		(label:30x?)[text={is_eng=>"Pedal", is_deu=>"Pedal", otherwise "Pedal"}]
-		) [pedal = ?(false)]
+      ) [pedal = ?(false)]
 				
-		OCTAVE<-
-		(
+      
+      OCTAVE<-
+      (
 			(label)[text={is_eng=>"Octave", is_deu=>"Octave", otherwise "Octave"}] |
 	    	(
-	    		(button:50x20)[text = "Up", checked = up ]
+	    		(button:50x20)[text={is_eng=>"Up", is_deu=>"Herauf", otherwise "Up"}, checked = up ]
 	    		---
-	    		(button:?x20)[text = "Down", checked = down]
+	    		(button:?x20)[text={is_eng=>"Down", is_deu=>"Hinab", otherwise "Down"}, checked = down]
 	    	)
-		)
+      )
       
         """
 
@@ -301,6 +327,7 @@ object Main {
       //TODO mute disables volume feature (using another var)
       //TODO octave up/down disabled after a few clicks feature
       //TODO add dummy widgets with fixed size for spacing
+      //TODO instruments text in german? possible?
       //TODO all the rest
       
     val instance = new DSLProgram(code)("main_window")
