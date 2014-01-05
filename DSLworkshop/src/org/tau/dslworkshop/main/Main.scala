@@ -251,14 +251,23 @@ object Main {
       Rythm <- (label)[text="Rythm"]
       Record <- (label)[text="record"]
       
-      RecentlyplayedLangAbout<-((Recentlyplayed)|((Lang) --- (About)))
+      RecentlyplayedLangAbout<-
+      (
+    	(Recentlyplayed)|((Lang)
+    						---
+    					(About))
+      )
       
       Recentlyplayed<-
       (
     	(Leftmargin)
     	|
     	(
-    		((label:100x?)[text={is_eng=>"Recently Played:", is_deu=>"Zuletzt gespielt:", otherwise "Recently Played:"}, bgcolor=regbgcolor, fgcolor=regfgcolor, font=regfont]|(:50x?)|(button:50x30)[text="Clear"]|(:20x30)|(button:60x30)[text="Save to Text File"]|())
+    		((label:100x?)[text={is_eng=>"Recently Played:", is_deu=>"Zuletzt gespielt:", otherwise "Recently Played:"}, bgcolor=regbgcolor, fgcolor=regfgcolor, font=regfont]|
+    		(:50x?)|
+    		(button:50x30)[text="Clear"]|
+    		(:20x30)|
+    		(button:60x30)[text="Save to Text File"]|())
     		---
     		(Placeholder)
     	)
@@ -266,10 +275,15 @@ object Main {
       
       Lang<-
       (
-      
-    	(Placeholder)
-    	---
-    	()
+    	(Leftmargin)
+    	|
+    	(
+    		(label:100x?)[text={is_eng=>"Language:", is_deu=>"Sprache:", otherwise "Language:"}, bgcolor=regbgcolor, fgcolor=regfgcolor, font=regfont]
+    		---
+    		(combo:100x100 )[text = "English,Deutch",enabled = true, bgcolor = regbgcolor, fgcolor = 0x000000]
+    	)
+    	|
+    	(image:100x100)[filename={is_eng=>"Graphics\\UKFlag.png", is_deu=>"Graphics\\GermanyFlag.png", otherwise "Graphics\\UKFlag.png"},bgcolor = regbgcolor]
       )
       
       About<-(Placeholder)
