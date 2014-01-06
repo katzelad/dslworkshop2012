@@ -213,63 +213,102 @@ object Main {
 
       //PIANO
       """
-      Placeholder <- (label)[text="placeholder", bgcolor = 0x30CEFF, fgcolor = 0xffffff, font = ("arial", 16, bold)]
+      Placeholder <-
+      (label)[text="placeholder", bgcolor = 0x30CEFF, fgcolor = 0xffffff, font = ("arial", 16, bold)]
       
-      Leftmargin<-(:20x?)[bgcolor = regbgcolor]
+      Leftmargin<-
+      (:20x?)[bgcolor = regbgcolor]
+      
+      Upmargin<-
+      (:?x15)[bgcolor = regbgcolor]
+      
+      Spacer<-
+      ()[bgcolor=regbgcolor]
       
       main_window <-
       (
     	(ProgramTitle:?x30)
     	---
-    	(((Leftmargin)|(Controls:280x?))|(RightHandArea))
+    	(Upmargin)
+    	---
+    	((Leftmargin)|(Controls:280x?)|(Leftmargin)|(RightHandArea))
       )[is_eng = ?(true), is_deu = ?(false), instrument = ?(0),
     	titlebgcolor = 0xFFFFFF, titlefgcolor = 0xFF2B39, titlefont = ("arial", 12, bold),
     	regbgcolor = 0xFFFFFF, regfgcolor = 0xFF6A26, regfont = ("arial", 10, bold)]
       
-      ProgramTitle <- (label)[text="TAU PIANO", bgcolor = 0xFFA528, fgcolor = 0xffffff, font = ("arial", 16, bold)]
+      ProgramTitle <-
+      (label)[text="TAU PIANO", bgcolor = 0xFFA528, fgcolor = 0xffffff, font = ("arial", 16, bold)]
 
       RightHandArea<-
       (
-    	(RecentlyplayedLangAbout)
+    	(RecentlyplayedLangAbout:?x160)
     	---
-    	(PianoRythmNowplayngRecord:?x250)
+    	(PianoRythmNowplayngRecord:?x240)
     	---
-    	(BOTTOM)
+    	(BOTTOM:?x160)
+    	---
+    	(Spacer)
       )
      
       
       PianoRythmNowplayngRecord<-
       (
-      (Leftmargin)|
-       (((Piano)|(Nowplaying))
+      ((Spacer)|(Piano:500x250)|(Spacer)|(Nowplaying))
       ---
-      ((Rythm)|(Record)))
+      ((Rythm)|(Record))
       )
       
-      Piano <-(label)[text="PianoKeys"]     
-      Nowplaying <-	(label)[text="NowPlaying"]
+      Piano <-
+      (
+    	(Upmargin)
+    	---
+    	(image)[filename="Graphics\\pianoKeys.png"]
+      )
+      
+      Nowplaying<-
+      (
+    	(Leftmargin)
+    	|
+    	(
+    		(Upmargin)
+    		---
+    		((label:150x20)[text={is_eng=>"Now Playing:", is_deu=>"Jetzt Spielen:", otherwise "Now Playing:"}, bgcolor=regbgcolor, fgcolor=regfgcolor, font=regfont]|(Spacer))
+    		---
+    		((image:30x30)[filename={instrument=0=>"Graphics\\piano.png", instrument=1=>"Graphics\\violin.png",
+    						instrument=2=>"Graphics\\drums.png",instrument=3=>"Graphics\\guitar.png",instrument=4=>"Graphics\\trumpet.png",otherwise ""},
+    						bgcolor = regbgcolor]
+    		 |(Spacer)
+    		)
+    		---
+    		(Spacer)
+    	)
+      )
+      
       Rythm <- (label)[text="Rythm"]
       Record <- (label)[text="record"]
       
       RecentlyplayedLangAbout<-
       (
-    	(Recentlyplayed)|((Lang)
-    						---
-    					(About))
+    	(Recentlyplayed)|((Lang:250x75)
+    									---
+    								(About))
       )
       
       Recentlyplayed<-
       (
-    	(Leftmargin)
-    	|
     	(
     		((label:100x?)[text={is_eng=>"Recently Played:", is_deu=>"Zuletzt gespielt:", otherwise "Recently Played:"}, bgcolor=regbgcolor, fgcolor=regfgcolor, font=regfont]|
-    		(:50x?)|
+    		(:50x?)[bgcolor=regbgcolor]|
     		(button:50x30)[text="Clear"]|
-    		(:20x30)|
-    		(button:60x30)[text="Save to Text File"]|())
+    		(:20x30)[bgcolor=regbgcolor]|
+    		(button:60x30)[text="Save to Text File"])|
+    		(Spacer)
     		---
-    		(Placeholder)
+    		(Upmargin)
+    		---
+    		(textbox)[text ="Placeholder for recently played notes", enabled = true, bgcolor = 0xFFAA00, fgcolor = regfgcolor, font = regfont, halign = center]
+    		---
+    		(Spacer)
     	)
       )
       
@@ -278,18 +317,30 @@ object Main {
     	(Leftmargin)
     	|
     	(
-    		(label:100x?)[text={is_eng=>"Language:", is_deu=>"Sprache:", otherwise "Language:"}, bgcolor=regbgcolor, fgcolor=regfgcolor, font=regfont]
+    		((label:80x20)[text={is_eng=>"Language:", is_deu=>"Sprache:", otherwise "Language:"}, bgcolor=regbgcolor, fgcolor=regfgcolor, font=regfont]|(Spacer))
     		---
-    		(combo:100x100 )[text = "English,Deutch",enabled = true, bgcolor = regbgcolor, fgcolor = 0x000000]
+    		(combo:80x20 )[text = "En,De",enabled = true, bgcolor = regbgcolor, fgcolor = 0x000000]
+    		---
+    		(Spacer)
     	)
     	|
-    	(image:100x100)[filename={is_eng=>"Graphics\\UKFlag.png", is_deu=>"Graphics\\GermanyFlag.png", otherwise "Graphics\\UKFlag.png"},bgcolor = regbgcolor]
+    	(Leftmargin)
+    	|
+    	((image:60x40)[filename={is_eng=>"Graphics\\UKFlag.png", is_deu=>"Graphics\\GermanyFlag.png", otherwise "Graphics\\UKFlag.png"},bgcolor = regbgcolor]---(Spacer))
+    	|
+    	(Spacer)
       )
       
-      About<-(Placeholder)
+      About<-
+      (
+    	(Upmargin)
+    	---
+    	((Leftmargin)|(button:60x30)[text={is_eng=>"About", is_deu=>"Uber", otherwise "About"}, bgcolor=regbgcolor, fgcolor=regfgcolor, font=regfont]|(Spacer))
+    	---
+    	(Spacer)
+      )
      
-      MIDDLE<-(Placeholder)
-      
+         
       BOTTOM<-(Placeholder)
       
       Controls <-
@@ -304,7 +355,7 @@ object Main {
 			---
 			(OCTAVE)
 	      	---
-	    	()
+	    	(Spacer)
       )
       
       VOLUME<-
@@ -315,7 +366,7 @@ object Main {
 			---
 	    	(checkbox:20x20)[checked=(vol=0), bgcolor = regbgcolor, fgcolor = regfgcolor, font = regfont] |
     		(label:50x?)[text={is_eng=>"Mute", is_deu=>"Dampfen", otherwise "Mute"}, bgcolor = regbgcolor, fgcolor = regfgcolor, font = regfont]|
-    		()[bgcolor = regbgcolor]
+    		(Spacer)
       ) [vol=?(60), mute=1]
 		
       
@@ -342,14 +393,15 @@ object Main {
       
       PEDAL<-
       (
-    		(checkbox:20x20)[checked = pedal] |
-    		(label:30x?)[text={is_eng=>"Pedal", is_deu=>"Pedal", otherwise "Pedal"}]
+    		(checkbox:20x20)[checked = pedal, bgcolor=regbgcolor] |
+    		(label:30x?)[text={is_eng=>"Pedal", is_deu=>"Pedal", otherwise "Pedal"}, bgcolor=regbgcolor]|
+    		(Spacer)
       ) [pedal = ?(false)]
 				
       
       OCTAVE<-
       (
-			(label)[text={is_eng=>"Octave", is_deu=>"Octave", otherwise "Octave"}] |
+			(label)[text={is_eng=>"Octave", is_deu=>"Octave", otherwise "Octave"}, bgcolor=regbgcolor] |
 	    	(
 	    		(button:50x20)[text={is_eng=>"Up", is_deu=>"Herauf", otherwise "Up"}, checked = up ]
 	    		---
@@ -364,6 +416,8 @@ object Main {
       //TODO octave up/down disabled after a few clicks feature
       //TODO add dummy widgets with fixed size for spacing
       //TODO instruments text in german? possible?
+      //TODO handle language changes according to the combo (change values of is_eng etc) + add dependencies on the is_eng in regarding to the flag image
+      //todo about button
       //TODO all the rest
       
     val instance = new DSLProgram(code)("main_window")
