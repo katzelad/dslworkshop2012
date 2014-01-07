@@ -214,13 +214,16 @@ object Main {
       //PIANO
       """
       main_window <-
+      (inner_main_window)[langchoice=?(0), initWidth=?(800), initHeight=?(450)]
+      
+      inner_main_window <-
       (
-    	(ProgramTitle:?x33)
+    	(ProgramTitle:(initWidth)x33)
     	---
     	(Upmargin)
     	---
-    	((Leftmargin)|(Controls:280x?)|(Leftmargin)|(RightHandArea))
-      )[is_eng = ?(true), is_deu = ?(false), instrument = ?(0),
+    	((Leftmargin)|(Controls:200x(initHeight))|(Leftmargin)|(RightHandArea))
+      )[is_eng=langchoice=0, is_deu=langchoice=1, instrument = ?(0),
     	titlebgcolor = 0xFFFFFF, titlefgcolor = 0xFF2B39, titlefont = ("arial", 12, bold),
     	regbgcolor = 0xFFFFFF, regfgcolor = 0xFF6A26, regfont = ("arial", 10, bold)]
       
@@ -233,8 +236,7 @@ object Main {
       Spacer<-
       ()[bgcolor=regbgcolor]
       
-      ProgramTitle <-
-      (label)[text="TAU PIANO", bgcolor = 0xFFA528, fgcolor = 0xffffff, font = ("arial", 16, bold)]
+      ProgramTitle <- (label)[text="TAU PIANO", bgcolor = 0xFFA528, fgcolor = 0xffffff, font = ("arial", 16, bold)]
 
       RightHandArea<-
       (
@@ -260,7 +262,7 @@ object Main {
     		(
     			(label:100x?)[text={is_eng=>"Recently Played:", is_deu=>"Zuletzt gespielt:", otherwise "Recently Played:"}, bgcolor=regbgcolor, fgcolor=regfgcolor, font=regfont]|
     			(:50x?)[bgcolor=regbgcolor]|
-    			(button:50x30)[text="Clear"]|
+    			(button:50x30)[text={is_eng=>"Clear", is_deu=>"Klar", otherwise "Clear"}]|
     			(:20x30)[bgcolor=regbgcolor]|
     			(button:60x30)[text="Save to Text File"]|
     			(Spacer)
@@ -280,7 +282,7 @@ object Main {
     	(
     		((label:80x20)[text={is_eng=>"Language:", is_deu=>"Sprache:", otherwise "Language:"}, bgcolor=regbgcolor, fgcolor=regfgcolor, font=regfont]|(Spacer))
     		---
-    		(combo:80x20 )[text = "En,De",enabled = true, bgcolor = regbgcolor, fgcolor = 0x000000]
+    		(combo:80x20 )[value=langchoice, text ="En,De",enabled = true, bgcolor = regbgcolor, fgcolor = 0x000000]
     		---
     		(Spacer)
     	)
@@ -296,7 +298,7 @@ object Main {
       (
     	(Upmargin)
     	---
-    	((Leftmargin)|(button:60x30)[text={is_eng=>"About", is_deu=>"Uber", otherwise "About"}, bgcolor=regbgcolor, fgcolor=regfgcolor, font=regfont]|(Spacer))
+    	((Leftmargin)|(button:60x30)[text={is_eng=>"About", is_deu=>"Informationen", otherwise "About"}, bgcolor=regbgcolor, fgcolor=regfgcolor, font=regfont]|(Spacer))
     	---
     	(Spacer)
       )
@@ -304,11 +306,11 @@ object Main {
       
       PianoRythmNowplayngRecord<-
       (
-      ((Piano:550x230)|(Nowplaying))
+      ((Piano:550x230)|(Nowplaying:180x?))
       ---
       ((Rythm)|(Record))
       )
-      
+       
       Piano <-
       (
     	(Upmargin)
@@ -337,9 +339,9 @@ object Main {
       
       Rythm <-
       (
-    		((label:80x20)[text={is_eng=>"Choose Rythm:", is_deu=>"Rhythmus Selektieren:", otherwise "Choose Rythm:"}, bgcolor=regbgcolor, fgcolor=regfgcolor, font=regfont]|(Spacer))
+    		((label:80x40)[text={is_eng=>"Choose Rythm:", is_deu=>"Rhythmus Selektieren:", otherwise "Choose Rythm:"}, bgcolor=regbgcolor, fgcolor=regfgcolor, font=regfont]|(Spacer))
     		---
-    		(combo:80x20 )[text = "En,De",enabled = true, bgcolor = regbgcolor, fgcolor = 0x000000]
+    		(combo:80x20 )[text = "rythm1,rythm2",enabled = true, bgcolor = regbgcolor, fgcolor = 0x000000]
     		---
     		(Spacer)
     	)
@@ -387,12 +389,11 @@ object Main {
     		(label:?x20)[text={is_eng=>"Instrument:", is_deu=>"Instrument", otherwise "Instrument"}, bgcolor = titlebgcolor, fgcolor = titlefgcolor, font = titlefont]
     		---
     		(
-    			
     			(( (radio:20x20) [checked= instrument = i, bgcolor = regbgcolor] | (label)[text = Instruments[i], bgcolor = regbgcolor, fgcolor=regfgcolor,font = regfont] )
-		     *---*
-		     [i=0...4,Instruments={piano, violin, drums, guitar, trumpet}])
-    		|
-    		(image:100x100)[filename={instrument=0=>"Graphics\\piano.png", instrument=1=>"Graphics\\violin.png",
+		     	*---*
+		     	[i=0...4,Instruments={piano, violin, drums, guitar, trumpet}])
+    			|
+    			(image:100x100)[filename={instrument=0=>"Graphics\\piano.png", instrument=1=>"Graphics\\violin.png",
     						instrument=2=>"Graphics\\drums.png",instrument=3=>"Graphics\\guitar.png",instrument=4=>"Graphics\\trumpet.png",otherwise ""},
     						bgcolor = regbgcolor]
     		)
@@ -424,14 +425,15 @@ object Main {
         """
 
       
+      //todo make initheight/width work
       //TODO mute disables volume feature (using another var)
       //TODO octave up/down disabled after a few clicks feature
-      //TODO add dummy widgets with fixed size for spacing
-      //TODO instruments text in german? possible?
-      //TODO handle language changes according to the combo (change values of is_eng etc) + add dependencies on the is_eng in regarding to the flag image
       //todo about button
       //todo record button
+      //todo get rid of titlebgcolor/font/fgcolor etc if unused
       //TODO all the rest
+      //TODO make sure window resizes nicely/make sure dummy widgets with fixed size for spacing works
+      //TODO perhaps add languages
       
     val instance = new DSLProgram(code)("main_window")
     println(args.mkString("{", " ", "}"))
@@ -444,7 +446,8 @@ object Main {
 
     instance.when_changed("up", () => println("up")) // TODO write actual function
     instance.when_changed("down", () => println("down")) // TODO write actual function
-
+     
+    
     val output = instance( /*args*/ ("up=0" :: "down=0" :: Nil).toArray)
 
     println(output)

@@ -730,7 +730,7 @@ class LayoutScope(widgetsMap: Map[String, Widget]) {
         case "image" =>
           val label = new Label(parent, SWT.NONE)
           label setImage new Image(label.getDisplay(), image)
-          changeImageSize = (width, height) => { // TODO fix change image size
+          changeImageSize = (width, height) => {
             if (width > 0 && height > 0) {
               label.getImage.dispose
               label.setImage(new Image(label.getDisplay, new ImageData(image).scaledTo(label.getSize.x, label.getSize.y)))
