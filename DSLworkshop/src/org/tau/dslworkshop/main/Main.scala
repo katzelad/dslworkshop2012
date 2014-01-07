@@ -213,8 +213,16 @@ object Main {
 
       //PIANO
       """
-      Placeholder <-
-      (label)[text="placeholder", bgcolor = 0x30CEFF, fgcolor = 0xffffff, font = ("arial", 16, bold)]
+      main_window <-
+      (
+    	(ProgramTitle:?x33)
+    	---
+    	(Upmargin)
+    	---
+    	((Leftmargin)|(Controls:280x?)|(Leftmargin)|(RightHandArea))
+      )[is_eng = ?(true), is_deu = ?(false), instrument = ?(0),
+    	titlebgcolor = 0xFFFFFF, titlefgcolor = 0xFF2B39, titlefont = ("arial", 12, bold),
+    	regbgcolor = 0xFFFFFF, regfgcolor = 0xFF6A26, regfont = ("arial", 10, bold)]
       
       Leftmargin<-
       (:20x?)[bgcolor = regbgcolor]
@@ -225,17 +233,6 @@ object Main {
       Spacer<-
       ()[bgcolor=regbgcolor]
       
-      main_window <-
-      (
-    	(ProgramTitle:?x30)
-    	---
-    	(Upmargin)
-    	---
-    	((Leftmargin)|(Controls:280x?)|(Leftmargin)|(RightHandArea))
-      )[is_eng = ?(true), is_deu = ?(false), instrument = ?(0),
-    	titlebgcolor = 0xFFFFFF, titlefgcolor = 0xFF2B39, titlefont = ("arial", 12, bold),
-    	regbgcolor = 0xFFFFFF, regfgcolor = 0xFF6A26, regfont = ("arial", 10, bold)]
-      
       ProgramTitle <-
       (label)[text="TAU PIANO", bgcolor = 0xFFA528, fgcolor = 0xffffff, font = ("arial", 16, bold)]
 
@@ -243,49 +240,13 @@ object Main {
       (
     	(RecentlyplayedLangAbout:?x160)
     	---
-    	(PianoRythmNowplayngRecord:?x240)
+    	(PianoRythmNowplayngRecord:?x320)
     	---
-    	(BOTTOM:?x160)
+    	(BOTTOM:?x10)
     	---
     	(Spacer)
       )
      
-      
-      PianoRythmNowplayngRecord<-
-      (
-      ((Spacer)|(Piano:500x250)|(Spacer)|(Nowplaying))
-      ---
-      ((Rythm)|(Record))
-      )
-      
-      Piano <-
-      (
-    	(Upmargin)
-    	---
-    	(image)[filename="Graphics\\pianoKeys.png"]
-      )
-      
-      Nowplaying<-
-      (
-    	(Leftmargin)
-    	|
-    	(
-    		(Upmargin)
-    		---
-    		((label:150x20)[text={is_eng=>"Now Playing:", is_deu=>"Jetzt Spielen:", otherwise "Now Playing:"}, bgcolor=regbgcolor, fgcolor=regfgcolor, font=regfont]|(Spacer))
-    		---
-    		((image:30x30)[filename={instrument=0=>"Graphics\\piano.png", instrument=1=>"Graphics\\violin.png",
-    						instrument=2=>"Graphics\\drums.png",instrument=3=>"Graphics\\guitar.png",instrument=4=>"Graphics\\trumpet.png",otherwise ""},
-    						bgcolor = regbgcolor]
-    		 |(Spacer)
-    		)
-    		---
-    		(Spacer)
-    	)
-      )
-      
-      Rythm <- (label)[text="Rythm"]
-      Record <- (label)[text="record"]
       
       RecentlyplayedLangAbout<-
       (
@@ -296,20 +257,20 @@ object Main {
       
       Recentlyplayed<-
       (
-    	(
-    		((label:100x?)[text={is_eng=>"Recently Played:", is_deu=>"Zuletzt gespielt:", otherwise "Recently Played:"}, bgcolor=regbgcolor, fgcolor=regfgcolor, font=regfont]|
-    		(:50x?)[bgcolor=regbgcolor]|
-    		(button:50x30)[text="Clear"]|
-    		(:20x30)[bgcolor=regbgcolor]|
-    		(button:60x30)[text="Save to Text File"])|
-    		(Spacer)
+    		(
+    			(label:100x?)[text={is_eng=>"Recently Played:", is_deu=>"Zuletzt gespielt:", otherwise "Recently Played:"}, bgcolor=regbgcolor, fgcolor=regfgcolor, font=regfont]|
+    			(:50x?)[bgcolor=regbgcolor]|
+    			(button:50x30)[text="Clear"]|
+    			(:20x30)[bgcolor=regbgcolor]|
+    			(button:60x30)[text="Save to Text File"]|
+    			(Spacer)
+    		)
     		---
     		(Upmargin)
     		---
     		(textbox)[text ="Placeholder for recently played notes", enabled = true, bgcolor = 0xFFAA00, fgcolor = regfgcolor, font = regfont, halign = center]
     		---
     		(Spacer)
-    	)
       )
       
       Lang<-
@@ -340,8 +301,59 @@ object Main {
     	(Spacer)
       )
      
-         
-      BOTTOM<-(Placeholder)
+      
+      PianoRythmNowplayngRecord<-
+      (
+      ((Piano:550x230)|(Nowplaying))
+      ---
+      ((Rythm)|(Record))
+      )
+      
+      Piano <-
+      (
+    	(Upmargin)
+    	---
+    	(image)[filename="Graphics\\pianoKeys.png"]
+      )
+      
+      Nowplaying<-
+      (
+    	(Leftmargin)
+    	|
+    	(
+    		(Upmargin)
+    		---
+    		((label:150x20)[text={is_eng=>"Now Playing:", is_deu=>"Jetzt Spielen:", otherwise "Now Playing:"}, bgcolor=regbgcolor, fgcolor=regfgcolor, font=regfont]|(Spacer))
+    		---
+    		((image:30x30)[filename={instrument=0=>"Graphics\\piano.png", instrument=1=>"Graphics\\violin.png",
+    						instrument=2=>"Graphics\\drums.png",instrument=3=>"Graphics\\guitar.png",instrument=4=>"Graphics\\trumpet.png",otherwise ""},
+    						bgcolor = regbgcolor]
+    		 |(Spacer)
+    		)
+    		---
+    		(Spacer)
+    	)
+      )
+      
+      Rythm <-
+      (
+    		((label:80x20)[text={is_eng=>"Choose Rythm:", is_deu=>"Rhythmus Selektieren:", otherwise "Choose Rythm:"}, bgcolor=regbgcolor, fgcolor=regfgcolor, font=regfont]|(Spacer))
+    		---
+    		(combo:80x20 )[text = "En,De",enabled = true, bgcolor = regbgcolor, fgcolor = 0x000000]
+    		---
+    		(Spacer)
+    	)
+      
+      Record <-
+      (
+    	(Upmargin)
+    	---
+    	((Leftmargin)|(button:60x30)[text={is_eng=>"Record", is_deu=>"Rekord", otherwise "Record"}, bgcolor=0x0000FF, fgcolor=regfgcolor, font=regfont]|(Spacer))
+    	---
+    	(Spacer)
+      )
+      
+      BOTTOM<-(label)[text="bottom placeholder"]
       
       Controls <-
       (
@@ -418,6 +430,7 @@ object Main {
       //TODO instruments text in german? possible?
       //TODO handle language changes according to the combo (change values of is_eng etc) + add dependencies on the is_eng in regarding to the flag image
       //todo about button
+      //todo record button
       //TODO all the rest
       
     val instance = new DSLProgram(code)("main_window")
