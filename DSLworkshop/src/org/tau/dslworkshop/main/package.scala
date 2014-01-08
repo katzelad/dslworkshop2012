@@ -15,6 +15,8 @@ package object main {
   type TChangeSize = (Int, Int, Int, Int) => Unit
 
   type TEvalNodeReturn = (Int, Int, Boolean, Boolean, TChangeSize)
+  
+  type TExtensions = Map[String, (Any, Any) => Unit]
 
   val SASH_WIDTH = 5
 

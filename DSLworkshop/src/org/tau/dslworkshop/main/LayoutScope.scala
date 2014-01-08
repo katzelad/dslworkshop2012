@@ -42,7 +42,7 @@ import org.tau.workshop2011.parser.AST.Variable
 import org.eclipse.swt.events.MouseAdapter
 import org.eclipse.swt.events.MouseEvent
 
-class LayoutScope(widgetsMap: Map[String, Widget]) {
+class LayoutScope(widgetsMap: Map[String, Widget], extensions: TExtensions) {
 
   private var params: TEvaluatedVarMap = null
 
@@ -667,14 +667,16 @@ class LayoutScope(widgetsMap: Map[String, Widget]) {
         case "minvalue" => minValue = env.evalInt(att.getValue.get)
         case _ =>
       }
-      class WidgetSelectionAdapter[T](attName: String, attValue: () => T, changeVarLTR: (Expr, T) => String) extends SelectionAdapter {
+      class WidgetSelectionAdapter[T](attName: String, attValue: () => T, changeVarLTR: (Expr, T) => (String, Any)) extends SelectionAdapter {
         override def widgetSelected(e: SelectionEvent) {
           if (attributes.exists(_.getName == attName)) {
-            val name = changeVarLTR(attributes.find(_.getName == attName).get.getValue.get, attValue())
+            val (name, old) = changeVarLTR(attributes.find(_.getName == attName).get.getValue.get, attValue())
             if (name == null)
               return
             varsAffectedByCurrentUpdate = Set(name)
             env.unevaluatedVarMap(name).foreach(_())
+            if (extensions.contains(name))
+              extensions(name)(old, env.evaluatedVarMap(name))
             varsAffectedByCurrentUpdate = null
           }
         }
@@ -886,9 +888,12 @@ class LayoutScope(widgetsMap: Map[String, Widget]) {
           newEnv.getVariables(expr).map(variable =>
             env.unevaluatedVarMap(variable) += (() => {
               if (!varsAffectedByCurrentUpdate(att.id)) {
+                val old = newEnv.evaluatedVarMap(att.id)
                 newEnv.evaluatedVarMap(att.id) = env.eval(expr)
                 varsAffectedByCurrentUpdate += att.id
                 newEnv.unevaluatedVarMap(att.id).foreach(_())
+                if (extensions.contains(att.id))
+                  extensions(att.id)(old, env.evaluatedVarMap(att.id))
               }
             }))
           newEnv.evaluatedVarMap.put(att.id, env.eval(expr))

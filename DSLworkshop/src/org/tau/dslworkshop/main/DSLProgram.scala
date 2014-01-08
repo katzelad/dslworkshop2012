@@ -13,12 +13,14 @@ import org.eclipse.swt.SWT
 import org.tau.workshop2011.parser.AST.InitialAttribute
 import org.tau.workshop2011.parser.AST.Variable
 import org.tau.workshop2011.parser.AST.Literal
+import org.eclipse.swt.events.KeyAdapter
+import org.eclipse.swt.events.KeyEvent
 
 class DSLProgram(code: String) {
 
-  val display = new Display
+  private val display = new Display
 
-  val widgetsMap = LayoutParser parseAll (LayoutParser.Program, code) match {
+  private val widgetsMap = LayoutParser parseAll (LayoutParser.Program, code) match {
     case LayoutParser.Success(result, nextInput) =>
       /*print(result);*/ result.defs.toMap
     case LayoutParser.NoSuccess(msg, nextInput) => throw new ParsingError(msg, nextInput.pos.line, nextInput.pos.column)
@@ -26,13 +28,17 @@ class DSLProgram(code: String) {
 
   class DSLObject protected[DSLProgram] (name: String) {
 
-    val window = new Shell(display)
+    private val window = new Shell(display)
 
-    var evaluatedVarMap = new TEvaluatedVarMap()
+    private var evaluatedVarMap = new TEvaluatedVarMap()
 
-    var unevaluatedVarMap = new TUnevaluatedVarMap()
+    private var unevaluatedVarMap = new TUnevaluatedVarMap()
+    
+    private var extensions: TExtensions = Map()
+    
+    private var keyHandlers = Set[Char => Unit]()
 
-    val widget = widgetsMap get name match {
+    private val widget = widgetsMap get name match {
       case Some(widget) => widget
       case None => throw new Exception("Error: " + name + " not found.")
     }
@@ -46,10 +52,16 @@ class DSLProgram(code: String) {
       evaluatedVarMap.put(name, value)
     }
 
-    def when_changed(varName: String, func: ( /*Any, Any*/ ) => Unit) {
+    def when_changed(varName: String, action: (Any, Any) => Unit) {
       if (!unevaluatedVarMap.contains(varName))
         unevaluatedVarMap.put(varName, new HashSet[() => Unit])
-      unevaluatedVarMap(varName) += func
+      unevaluatedVarMap(varName) += (() => {
+      extensions += varName -> action
+      })
+    }
+
+    def onKey(action: Char => Unit) {
+      keyHandlers += action
     }
 
     def apply(args: Array[String]) = {
@@ -63,10 +75,15 @@ class DSLProgram(code: String) {
             argValueString.toInt))
         InitialAttribute(argName, argValue)
       }), None, None)
-      val scope = new LayoutScope(widgetsMap)
+      val scope = new LayoutScope(widgetsMap, extensions)
       val (width, height, isWidthQM, isHeightQM, changeWindowSize) = scope.evalNode(mainWidget, window, new Environment(evaluatedVarMap, unevaluatedVarMap))
       window setLayout new FillLayout
       window.getChildren()(0).setSize(width, height) // TODO add code to handle limitation on window size when not '?'
+      keyHandlers.map(action => window.getChildren()(0) addKeyListener new KeyAdapter {
+        override def keyPressed(event: KeyEvent) {
+          action(event.character)
+        }
+      })
       window.pack
       window.open
       while (!window.isDisposed) {
@@ -77,7 +94,7 @@ class DSLProgram(code: String) {
       display.dispose
       mainWidget.attributes.map(att => att.getName + "=" + scope.getParams(att.getName)).mkString(" ")
     }
-    
+
   }
 
   def apply(name: String) = new DSLObject(name)

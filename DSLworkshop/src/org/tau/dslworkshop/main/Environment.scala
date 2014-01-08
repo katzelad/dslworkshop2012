@@ -118,7 +118,7 @@ class Environment(var evaluatedVarMap: TEvaluatedVarMap, var unevaluatedVarMap: 
 
   // Returns the name of the changed variable or null if nothing was changed
   // Changes the variable, does not recurse
-  def changeVarLTR(exp: Expr, value: Boolean): String = exp match {
+  def changeVarLTR(exp: Expr, value: Boolean): (String, Any) = exp match {
     case Negation(inside) => changeVarLTR(inside, !value)
     case Comparison(left @ Variable(id, _, false), right) if unevaluatedVarMap(id)(INITIAL_ATT_FLAG) && value  =>
       changeVarLTR(left, eval(right))
@@ -129,9 +129,10 @@ class Environment(var evaluatedVarMap: TEvaluatedVarMap, var unevaluatedVarMap: 
   
   def changeVarLTR(exp: Expr, value: Any) = exp match {
     case Variable(name, _, false) =>
+      val old = evaluatedVarMap(name)
       evaluatedVarMap(name) = value
-      name
-    case _ => null
+      (name, old)
+    case _ => (null, null)
   }
   
 }
