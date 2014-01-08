@@ -425,7 +425,8 @@ object Main {
         """
 
     //todo make initheight/width work
-    //TODO mute disables volume feature (using another var)
+    //todo piano notes play by coordinates
+      //TODO mute disables volume feature (using another var)
     //TODO octave up/down disabled after a few clicks feature
     //todo about button
     //todo record button
