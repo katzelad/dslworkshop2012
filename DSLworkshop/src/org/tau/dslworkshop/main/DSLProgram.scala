@@ -53,11 +53,9 @@ class DSLProgram(code: String) {
     }
 
     def when_changed(varName: String, action: (Any, Any) => Unit) {
-      if (!unevaluatedVarMap.contains(varName))
-        unevaluatedVarMap.put(varName, new HashSet[() => Unit])
-      unevaluatedVarMap(varName) += (() => {
+//      if (!unevaluatedVarMap.contains(varName))
+//        unevaluatedVarMap.put(varName, new HashSet[() => Unit])
       extensions += varName -> action
-      })
     }
 
     def onKey(action: Char => Unit) {

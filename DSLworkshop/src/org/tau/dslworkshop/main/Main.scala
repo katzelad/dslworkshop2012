@@ -246,7 +246,7 @@ object Main {
       pianoChannel.noteOn(note, vol)
     }
 
-    instance.when_changed("vol", (_, newer) => {print(vol); vol = newer.asInstanceOf[Int]}) //todo debug whenchanged
+    instance.when_changed("vol", (_, newer) => vol = newer.asInstanceOf[Int]) //todo debug whenchanged
     instance.when_changed("up", (_, _) => println("up")) // TODO write actual function
     instance.when_changed("down", (_, _) => println("down")) // TODO write actual function
     instance.bind("play", (x: Int, y: Int) => play(if (x < 250) doo else re))
