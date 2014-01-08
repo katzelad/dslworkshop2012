@@ -25,6 +25,7 @@ import org.tau.workshop2011.expressions.Color
 import org.tau.workshop2011.expressions.Font
 import org.tau.workshop2011.expressions.HAlign
 import org.tau.workshop2011.expressions.TextStyle
+import org.tau.workshop2011.expressions.Type
 import org.tau.workshop2011.parser.AST.ASTNode
 import org.tau.workshop2011.parser.AST.AtomicWidget
 import org.tau.workshop2011.parser.AST.Container
@@ -38,6 +39,8 @@ import org.eclipse.swt.widgets.Group
 import org.eclipse.swt.graphics.ImageData
 import org.tau.workshop2011.parser.AST.Literal
 import org.tau.workshop2011.parser.AST.Variable
+import org.eclipse.swt.events.MouseAdapter
+import org.eclipse.swt.events.MouseEvent
 
 class LayoutScope(widgetsMap: Map[String, Widget]) {
 
@@ -741,10 +744,22 @@ class LayoutScope(widgetsMap: Map[String, Widget]) {
             label.getImage.dispose
             label.setImage(new Image(label.getDisplay, new ImageData(image).scaledTo(label.getSize.x, label.getSize.y)))
           })
-          /*if (widthVal.isEmpty)
-            widthVal = Some(new ImageData(image).width)
-          if (heightVal.isEmpty)
-            heightVal = Some(new ImageData(image).height)*/
+          attributes.find(_.getName == "action") match {
+            case Some(att) =>
+              label addMouseListener new MouseAdapter {
+                override def mouseUp(info: MouseEvent) {
+                  val expr = att.getValue.get
+                  val untyped = env.eval(expr)
+                  try
+                    untyped.asInstanceOf[(Int, Int) => Unit].apply(info.x, info.y)
+                  catch {
+                    case e: ClassCastException =>
+                      throw new Exception("Syntax Error: Expected (Int, Int) => Unit, found " + Type.fromValue(untyped) + " in " + expr)
+                  }
+                }
+              }
+            case None =>
+          }
           label
         case "combo" =>
           val combo = new Combo(parent, SWT.DROP_DOWN | SWT.READ_ONLY)

@@ -315,7 +315,7 @@ object Main {
       (
     	(Upmargin)
     	---
-    	(image)[filename="Graphics\\pianoKeys.png"]
+    	(image)[filename="Graphics\\pianoKeys.png", action=play]
       )
       
       Nowplaying<-
@@ -424,17 +424,16 @@ object Main {
       
         """
 
-      
-      //todo make initheight/width work
-      //TODO mute disables volume feature (using another var)
-      //TODO octave up/down disabled after a few clicks feature
-      //todo about button
-      //todo record button
-      //todo get rid of titlebgcolor/font/fgcolor etc if unused
-      //TODO all the rest
-      //TODO make sure window resizes nicely/make sure dummy widgets with fixed size for spacing works
-      //TODO perhaps add languages
-      
+    //todo make initheight/width work
+    //TODO mute disables volume feature (using another var)
+    //TODO octave up/down disabled after a few clicks feature
+    //todo about button
+    //todo record button
+    //todo get rid of titlebgcolor/font/fgcolor etc if unused
+    //TODO all the rest
+    //TODO make sure window resizes nicely/make sure dummy widgets with fixed size for spacing works
+    //TODO perhaps add languages
+
     val instance = new DSLProgram(code)("main_window")
     println(args.mkString("{", " ", "}"))
 
@@ -444,139 +443,145 @@ object Main {
     //    instance.bind("EmailSubject", (_: Seq[Any]) => "Piggish slippers")
     //    instance.bind("EmailContent", (_: Seq[Any]) => "I WANT MY PIGGISH SLIPPERS")
 
-    instance.when_changed("up", () => println("up")) // TODO write actual function
-    instance.when_changed("down", () => println("down")) // TODO write actual function
-     
-    
-    val output = instance( /*args*/ ("up=0" :: "down=0" :: Nil).toArray)
-
-    println(output)
-
+    var vol = 50
     val (doo, re, mi, fa, sol, la, si) = (60, 62, 64, 65, 67, 69, 71)
-
-    val vol = 40
-    def wait(time: Double) = Thread.sleep((250 * time).toInt)
-    val s = MidiSystem.getSynthesizer()
-    s.loadInstrument(s.getDefaultSoundbank().getInstruments()(16))
-    s.open
-    val instruments = s.getAvailableInstruments()
-    print(s.isSoundbankSupported(s.getDefaultSoundbank()))
-    //      for (i <- s.getDefaultSoundbank().getInstruments())
-    //        println(i)
-    val channels = s.getChannels()
-    val pianoChannel = channels(0)
-    //      pianoChannel.programChange(s.getDefaultSoundbank().getInstruments()(16).getPatch().getProgram())
-    def play(note: Int, drop: Boolean = false) = { if (drop) pianoChannel.allNotesOff(); pianoChannel.noteOn(note, vol) }
-    //    pianoChannel.
-
-    def furelise {
-      play(mi + 12)
-      wait(1)
-      play(re + 13)
-      wait(1)
-      play(mi + 12)
-      wait(1)
-      play(re + 13)
-      wait(1)
-      play(mi + 12)
-      wait(1)
-      play(si)
-      wait(1)
-      play(re + 12)
-      wait(1)
-      play(doo + 12)
-      wait(1)
-      play(la)
-      play(la - 24)
-      wait(1)
-      play(mi - 12)
-      wait(1)
-      play(la - 12)
-      wait(1)
-      play(doo)
-      wait(1)
-      play(mi)
-      wait(1)
-      play(la)
-      wait(1)
-      play(si)
-      play(mi - 24)
-      wait(1)
-      play(mi - 12)
-      wait(1)
-      play(sol - 11)
-      wait(1)
-      play(mi)
-      wait(1)
-      play(sol + 1)
-      wait(1)
-      play(si)
-      wait(1)
-      play(doo + 12)
-      play(la - 24)
-      wait(1)
-      play(mi - 12)
-      wait(1)
-      play(la - 12)
-      wait(1)
-      play(mi)
-      wait(1)
-
-      play(mi + 12)
-      wait(1)
-      play(re + 13)
-      wait(1)
-      play(mi + 12)
-      wait(1)
-      play(re + 13)
-      wait(1)
-      play(mi + 12)
-      wait(1)
-      play(si)
-      wait(1)
-      play(re + 12)
-      wait(1)
-      play(doo + 12)
-      wait(1)
-      play(la)
-      play(la - 24)
-      wait(1)
-      play(mi - 12)
-      wait(1)
-      play(la - 12)
-      wait(1)
-      play(doo)
-      wait(1)
-      play(mi)
-      wait(1)
-      play(la)
-      wait(1)
-      play(si)
-      play(mi - 24)
-      wait(1)
-      play(mi - 12)
-      wait(1)
-      play(sol - 11)
-      wait(1)
-      play(mi)
-      wait(1)
-      play(doo + 12)
-      wait(1)
-      play(si)
-      wait(1)
-      play(la)
-      play(la - 24)
-      wait(1)
-      play(mi - 12)
-      wait(1)
-      play(la - 12)
-      wait(1)
-      play(si)
-      wait(1)
+    val synth = MidiSystem.getSynthesizer()
+    synth.open
+    val pianoChannel = synth.getChannels()(0)
+    def play(note: Int, pedal: Boolean = false) {
+      if (!pedal)
+        pianoChannel.allNotesOff()
+      pianoChannel.noteOn(note, vol)
     }
 
-    //    furelise
+    instance.when_changed("up", () => println("up")) // TODO write actual function
+    instance.when_changed("down", () => println("down")) // TODO write actual function
+    instance.bind("play", (x: Int, y: Int) => play(if (x < 250) doo else re))
 
-    s.close
+    val output = instance( /*args*/ ("up=0" :: "down=0" :: Nil).toArray)
+
+    synth.close
+    println(output)
+
+    //    def wait(time: Double) = Thread.sleep((250 * time).toInt)
+    //    
+    //    synth.loadInstrument(synth.getDefaultSoundbank().getInstruments()(16))
+    //    val instruments = synth.getAvailableInstruments()
+    //    print(synth.isSoundbankSupported(synth.getDefaultSoundbank()))
+    //    //      for (i <- s.getDefaultSoundbank().getInstruments())
+    //    //        println(i)
+    //    //      pianoChannel.programChange(s.getDefaultSoundbank().getInstruments()(16).getPatch().getProgram())
+    //    def play(note: Int, drop: Boolean = false) = { if (drop) pianoChannel.allNotesOff(); pianoChannel.noteOn(note, vol) }
+    //    //    pianoChannel.
+    //
+    //    def furelise {
+    //      play(mi + 12)
+    //      wait(1)
+    //      play(re + 13)
+    //      wait(1)
+    //      play(mi + 12)
+    //      wait(1)
+    //      play(re + 13)
+    //      wait(1)
+    //      play(mi + 12)
+    //      wait(1)
+    //      play(si)
+    //      wait(1)
+    //      play(re + 12)
+    //      wait(1)
+    //      play(doo + 12)
+    //      wait(1)
+    //      play(la)
+    //      play(la - 24)
+    //      wait(1)
+    //      play(mi - 12)
+    //      wait(1)
+    //      play(la - 12)
+    //      wait(1)
+    //      play(doo)
+    //      wait(1)
+    //      play(mi)
+    //      wait(1)
+    //      play(la)
+    //      wait(1)
+    //      play(si)
+    //      play(mi - 24)
+    //      wait(1)
+    //      play(mi - 12)
+    //      wait(1)
+    //      play(sol - 11)
+    //      wait(1)
+    //      play(mi)
+    //      wait(1)
+    //      play(sol + 1)
+    //      wait(1)
+    //      play(si)
+    //      wait(1)
+    //      play(doo + 12)
+    //      play(la - 24)
+    //      wait(1)
+    //      play(mi - 12)
+    //      wait(1)
+    //      play(la - 12)
+    //      wait(1)
+    //      play(mi)
+    //      wait(1)
+    //
+    //      play(mi + 12)
+    //      wait(1)
+    //      play(re + 13)
+    //      wait(1)
+    //      play(mi + 12)
+    //      wait(1)
+    //      play(re + 13)
+    //      wait(1)
+    //      play(mi + 12)
+    //      wait(1)
+    //      play(si)
+    //      wait(1)
+    //      play(re + 12)
+    //      wait(1)
+    //      play(doo + 12)
+    //      wait(1)
+    //      play(la)
+    //      play(la - 24)
+    //      wait(1)
+    //      play(mi - 12)
+    //      wait(1)
+    //      play(la - 12)
+    //      wait(1)
+    //      play(doo)
+    //      wait(1)
+    //      play(mi)
+    //      wait(1)
+    //      play(la)
+    //      wait(1)
+    //      play(si)
+    //      play(mi - 24)
+    //      wait(1)
+    //      play(mi - 12)
+    //      wait(1)
+    //      play(sol - 11)
+    //      wait(1)
+    //      play(mi)
+    //      wait(1)
+    //      play(doo + 12)
+    //      wait(1)
+    //      play(si)
+    //      wait(1)
+    //      play(la)
+    //      play(la - 24)
+    //      wait(1)
+    //      play(mi - 12)
+    //      wait(1)
+    //      play(la - 12)
+    //      wait(1)
+    //      play(si)
+    //      wait(1)
+    //    }
+    //
+    //    //    furelise
+    //
+    //    synth.close
   }
 }
