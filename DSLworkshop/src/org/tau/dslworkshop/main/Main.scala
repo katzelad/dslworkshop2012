@@ -236,7 +236,7 @@ object Main {
     //    instance.bind("EmailContent", (_: Seq[Any]) => "I WANT MY PIGGISH SLIPPERS")
 
     var vol = 50
-    val (doo, re, mi, fa, sol, la, si) = (60, 62, 64, 65, 67, 69, 71)
+    val (doo, doodiez, re, rediez, mi, fa, fadiez, sol, soldiez, la, ladiez, si) = (60, 61, 62, 63, 64, 65, 66, 67, 68, 69,70, 71)
     val synth = MidiSystem.getSynthesizer()
     synth.open
     val pianoChannel = synth.getChannels()(0)
@@ -250,7 +250,31 @@ object Main {
     instance.when_changed("up", (_, _) => println("up")) // TODO write actual function
     instance.when_changed("down", (_, _) => println("down")) // TODO write actual function
     instance.bind("play", (x: Int, y: Int) => play(if (x < 250) doo else re))
-    instance.onKey(key => if (key == 'q') play(doo))
+    instance.onKey(key =>	{if (key == 'q') play(doo)
+        					if (key == 'w') play(re)
+        					if (key == 'e') play(mi)
+        					if (key == 'r') play(fa)
+        					if (key == 't') play(sol)
+        					if (key == 'y') play(la)
+        					if (key == 'u') play(si)
+        					if (key == 'a') play(doo+12)
+        					if (key == 's') play(re+12)
+        					if (key == 'd') play(mi+12)
+        					if (key == 'f') play(fa+12)
+        					if (key == 'g') play(sol+12)
+        					if (key == 'h') play(la+12)
+        					if (key == 'j') play(si+12)
+        					if (key == '1') play(doodiez)
+        					if (key == '2') play(rediez)
+        					if (key == '3') play(fadiez)
+        					if (key == '4') play(soldiez)
+        					if (key == '5') play(ladiez)
+        					if (key == '6') play(doodiez+12)
+        					if (key == '7') play(rediez+12)
+        					if (key == '8') play(fadiez+12)
+        					if (key == '9') play(soldiez+12)
+        					if (key == '0') play(ladiez+12)
+        					})
 
     val output = instance( /*args*/ ("up=0" :: "down=0" :: Nil).toArray)
 
