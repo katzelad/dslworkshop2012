@@ -49,7 +49,7 @@ main_window <-
 			(:20x?)[bgcolor=regbgcolor]|
 			(button:63x33)[text={is_eng=>"Clear", is_deu=>"Klar", otherwise "Clear"}, checked=clear]|
 			(:40x33)[bgcolor=regbgcolor]|
-			(label:100x?)[text={is_eng=>"Choose File Name:", is_deu=>"Gib einen Dateinamen:", otherwise "Choose File Name:"}, bgcolor=regbgcolor, fgcolor=regfgcolor, font=regfont]|
+			(label:100x?)[text={is_eng=>"Choose Text File Name:", is_deu=>"Gib einen Textdateinamen:", otherwise "Choose Text File Name:"}, bgcolor=regbgcolor, fgcolor=regfgcolor, font=regfont]|
 			(textbox:100x?)[text=filename, enabled = true, bgcolor = 0xFFFF00, fgcolor = regfgcolor, font = regfont]|
 			(:20x33)[bgcolor=regbgcolor]|
 			(button:63x33)[text={is_eng=>"Save to Text File", is_deu=>"Speichern als Textdatei", otherwise "Save to Text File"}]|
@@ -131,6 +131,8 @@ main_window <-
 		---
 		(combo:80x20 )[text = "rythm1,rythm2",enabled = true, bgcolor = regbgcolor, fgcolor = 0x000000]
 		---
+		((label:20x?)[text="slow"]|(slider:?x20)[maxvalue=120, minvalue =0 , value=10]|(:20x?)[bgcolor = regbgcolor]|(label:20x?)[text="fast"])
+		---
 		(Spacer)
 	)
   
@@ -138,7 +140,23 @@ main_window <-
   (
 	(Upmargin)
 	---
-	((Leftmargin)|(button:60x30)[text={is_eng=>"Record", is_deu=>"Rekord", otherwise "Record"}, bgcolor=0x0000FF, fgcolor=regfgcolor, font=regfont]|(Spacer))
+	(
+			(Leftmargin)|
+			(
+					(
+							(label:100x?)[text={is_eng=>"Choose Audio File Name:", is_deu=>"Gib einen Audio dateinamen:", otherwise "Choose Audio File Name:"}, bgcolor=regbgcolor, fgcolor=regfgcolor, font=regfont]|
+							(textbox:100x?)[text=filename, enabled = true, bgcolor = 0xFFFF00, fgcolor = regfgcolor, font = regfont]
+					)
+					---
+					(		(label:100x?)[text={is_eng=>"Recording Duration:", is_deu=>"Aufzeichnungsdauer:", otherwise "Recording Duration:"}, bgcolor=regbgcolor, fgcolor=regfgcolor, font=regfont]
+							---
+							(combo:80x20 )[value=2, text ="10,15,30",enabled = true, bgcolor = regbgcolor, fgcolor = 0x000000]
+					)
+			)|
+			(:20x33)[bgcolor=regbgcolor]|
+			(button:60x30)[text={is_eng=>"Record", is_deu=>"Rekord", otherwise "Record"}, bgcolor=0x0000FF, fgcolor=regfgcolor, font=regfont]|
+			(Spacer)
+	)
 	---
 	(Spacer)
   )
