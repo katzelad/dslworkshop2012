@@ -17,6 +17,7 @@ import org.eclipse.swt.events.KeyAdapter
 import org.eclipse.swt.events.KeyEvent
 import org.eclipse.swt.widgets.Listener
 import org.eclipse.swt.widgets.Event
+import org.eclipse.swt.widgets.Text
 
 class DSLProgram(code: String) {
 
@@ -62,7 +63,8 @@ class DSLProgram(code: String) {
     def onKey(action: Char => Unit) {
       display.addFilter(SWT.KeyDown, new Listener {
         override def handleEvent(event: Event) {
-          action(event.character)
+          if (!event.widget.isInstanceOf[Text])
+            action(event.character)
         }
       })
     }

@@ -47,10 +47,10 @@ main_window <-
 		(
 			(label:80x?)[text={is_eng=>"Recently Played:", is_deu=>"Zuletzt gespielt:", otherwise "Recently Played:"}, bgcolor=regbgcolor, fgcolor=regfgcolor, font=regfont]|
 			(:20x?)[bgcolor=regbgcolor]|
-			(button:63x33)[text={is_eng=>"Clear", is_deu=>"Klar", otherwise "Clear"}]|
+			(button:63x33)[text={is_eng=>"Clear", is_deu=>"Klar", otherwise "Clear"}, checked=clear]|
 			(:40x33)[bgcolor=regbgcolor]|
 			(label:100x?)[text={is_eng=>"Choose File Name:", is_deu=>"Gib einen Dateinamen:", otherwise "Choose File Name:"}, bgcolor=regbgcolor, fgcolor=regfgcolor, font=regfont]|
-			(textbox:100x?)[text="b", enabled = false, bgcolor = 0xFFFF00, fgcolor = regfgcolor, font = regfont]|
+			(textbox:100x?)[text=filename, enabled = true, bgcolor = 0xFFFF00, fgcolor = regfgcolor, font = regfont]|
 			(:20x33)[bgcolor=regbgcolor]|
 			(button:63x33)[text={is_eng=>"Save to Text File", is_deu=>"Speichern als Textdatei", otherwise "Save to Text File"}]|
 			(Spacer)

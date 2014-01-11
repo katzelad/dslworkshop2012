@@ -239,6 +239,8 @@ object Main {
     var vol = 50
     var octave = 0
     var recent = ""
+    var pedal = false
+    var filename = ""
     val (doo, doodiez, re, rediez, mi, fa, fadiez, sol, soldiez, la, ladiez, si) = (60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71)
     def noteToString(note: Int) = note % 12 + 60 match {
       case `doo` => "C"
@@ -257,7 +259,7 @@ object Main {
     val synth = MidiSystem.getSynthesizer()
     synth.open
     val pianoChannel = synth.getChannels()(0)
-    def play(note: Int, pedal: Boolean = false) {
+    def play(note: Int) {
       if (!pedal)
         pianoChannel.allNotesOff()
       pianoChannel.noteOn(note + octave * 12, vol)
@@ -274,6 +276,12 @@ object Main {
       octave = octave - 1
       instance.set("octave", octave)
     })
+    instance.when_changed("clear", (_, _) => {
+      recent = ""
+      instance.set("recent", "")
+    })
+    instance.when_changed("filename", (_, newer) => filename = newer.asInstanceOf[String])
+    instance.when_changed("pedal", (_, newer) => pedal = newer.asInstanceOf[Boolean])
     instance.bind("play", (x: Int, y: Int) => play(if (x < 250) doo else re))
     instance.onKey({
       case 'q' => play(doo)
@@ -305,7 +313,7 @@ object Main {
       case _ =>
     })
 
-    val output = instance( /*args*/ ("up=0" :: "down=0" :: "octave=0" :: "recent=\"\"" :: Nil).toArray)
+    val output = instance( /*args*/ ("up=0" :: "down=0" :: "octave=0" :: "recent=\"\"" :: "clear=0" :: "pedal=0" :: "filename=\"myfile\"" :: Nil).toArray)
 
     synth.close
     println(output)
