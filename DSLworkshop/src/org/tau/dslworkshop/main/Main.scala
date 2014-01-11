@@ -240,6 +240,20 @@ object Main {
     var octave = 0
     var recent = ""
     val (doo, doodiez, re, rediez, mi, fa, fadiez, sol, soldiez, la, ladiez, si) = (60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71)
+    def noteToString(note: Int) = note % 12 + 60 match {
+      case `doo` => "C"
+      case `doodiez` => "C#"
+      case `re` => "D"
+      case `rediez` => "D#"
+      case `mi` => "E"
+      case `fa` => "F"
+      case `fadiez` => "F#"
+      case `sol` => "G"
+      case `soldiez` => "G#"
+      case `la` => "A"
+      case `ladiez` => "A#"
+      case `si` => "B"
+    }
     val synth = MidiSystem.getSynthesizer()
     synth.open
     val pianoChannel = synth.getChannels()(0)
@@ -247,7 +261,8 @@ object Main {
       if (!pedal)
         pianoChannel.allNotesOff()
       pianoChannel.noteOn(note + octave * 12, vol)
-      instance.set("recent", recent = recent + 'A')
+      recent = recent + noteToString(note) + ' '
+      instance.set("recent", recent)
     }
 
     instance.when_changed("vol", (_, newer) => vol = newer.asInstanceOf[Int]) //todo debug whenchanged
@@ -290,7 +305,7 @@ object Main {
       case _ =>
     })
 
-    val output = instance( /*args*/ ("up=0" :: "down=0" :: "octave=0" :: "recent=\" \"" :: Nil).toArray)
+    val output = instance( /*args*/ ("up=0" :: "down=0" :: "octave=0" :: "recent=\"\"" :: Nil).toArray)
 
     synth.close
     println(output)
