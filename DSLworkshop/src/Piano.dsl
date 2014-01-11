@@ -45,9 +45,12 @@ main_window <-
   Recentlyplayed<-
   (
 		(
-			(label:100x?)[text={is_eng=>"Recently Played:", is_deu=>"Zuletzt gespielt:", otherwise "Recently Played:"}, bgcolor=regbgcolor, fgcolor=regfgcolor, font=regfont]|
-			(:50x?)[bgcolor=regbgcolor]|
+			(label:80x?)[text={is_eng=>"Recently Played:", is_deu=>"Zuletzt gespielt:", otherwise "Recently Played:"}, bgcolor=regbgcolor, fgcolor=regfgcolor, font=regfont]|
+			(:20x?)[bgcolor=regbgcolor]|
 			(button:63x33)[text={is_eng=>"Clear", is_deu=>"Klar", otherwise "Clear"}]|
+			(:40x33)[bgcolor=regbgcolor]|
+			(label:100x?)[text={is_eng=>"Choose File Name:", is_deu=>"Gib einen Dateinamen:", otherwise "Choose File Name:"}, bgcolor=regbgcolor, fgcolor=regfgcolor, font=regfont]|
+			(textbox:100x?)[text="a", enabled = false, bgcolor = 0xFFFF00, fgcolor = regfgcolor, font = regfont]|
 			(:20x33)[bgcolor=regbgcolor]|
 			(button:63x33)[text={is_eng=>"Save to Text File", is_deu=>"Speichern als Textdatei", otherwise "Save to Text File"}]|
 			(Spacer)
@@ -55,7 +58,7 @@ main_window <-
 		---
 		(Upmargin)
 		---
-		(textbox)[text=recent, enabled = true, bgcolor = 0xFFAA00, fgcolor = regfgcolor, font = regfont, halign = center]
+		(textbox)[text=recent, enabled = false, bgcolor = 0xFFAA00, fgcolor = regfgcolor, font = regfont, halign = center]
 		---
 		(Spacer)
   )
@@ -144,11 +147,17 @@ main_window <-
   
   Controls <-
   (
-		(label:?x20)[text={is_eng=>"Controls", is_deu=>"Kontrol", otherwise "Controls"}, bgcolor = regbgcolor, fgcolor = regfgcolor, font = regfont]
+		(label:?x20)[text={is_eng=>"Controls", is_deu=>"Kontrol", otherwise "Controls"}, bgcolor = titlebgcolor, fgcolor = titlefgcolor, font = titlefont]
+		---
+		(Upmargin)
 		---
 		(VOLUME:?x?)
 		---
+		(Upmargin)
+		---
 		(INSTRUMENT)
+		---
+		(Upmargin)
 		---
     	(PEDAL)
 		---
@@ -171,7 +180,7 @@ main_window <-
   
   INSTRUMENT<-
   (
-		(label:?x20)[text={is_eng=>"Instrument:", is_deu=>"Instrument", otherwise "Instrument"}, bgcolor = titlebgcolor, fgcolor = titlefgcolor, font = titlefont]
+		(label:?x20)[text={is_eng=>"Instrument:", is_deu=>"Instrument", otherwise "Instrument"}, bgcolor = regbgcolor, fgcolor = regfgcolor, font = regfont]
 		---
 		(
 			(( (radio:20x20) [checked= instrument = i, bgcolor = regbgcolor] | (label)[text = Instruments[i], bgcolor = regbgcolor, fgcolor=regfgcolor,font = regfont] )
@@ -192,17 +201,28 @@ main_window <-
   PEDAL<-
   (
 		(checkbox:20x20)[checked = pedal, bgcolor=regbgcolor] |
-		(label:30x?)[text={is_eng=>"Pedal", is_deu=>"Pedal", otherwise "Pedal"}, bgcolor=regbgcolor]|
+		(label:40x?)[text={is_eng=>"Pedal", is_deu=>"Pedal", otherwise "Pedal"}, bgcolor=regbgcolor, fgcolor=regfgcolor, font=regfont]|
 		(Spacer)
   ) [pedal = ?(false)]
 			
   
   OCTAVE<-
   (
-		(label)[text={is_eng=>"Octave", is_deu=>"Octave", otherwise "Octave"}, bgcolor=regbgcolor] |
+		(
+				(:?x30)[bgcolor=regbgcolor]
+				---
+				(label)[text={is_eng=>"Octave", is_deu=>"Octave", otherwise "Octave"}, bgcolor=regbgcolor, fgcolor=regfgcolor, font=regfont]
+		)|
+    	(image:46x106)[filename={octave=1=>"Graphics\\sol8.png",octave=0=>"Graphics\\sol.png",octave=-1=>"Graphics\\fa.png",octave=-2=>"Graphics\\fa8.png", otherwise "Graphics\\sol.png"}]|
     	(
-    		(button:50x20)[text={is_eng=>"Up", is_deu=>"Herauf", otherwise "Up"}, checked = up, enabled=!(octave=2) ]
+    		(:?x30)[bgcolor=regbgcolor]
+    		---
+    		(button:50x20)[text={is_eng=>"Up", is_deu=>"Herauf", otherwise "Up"}, checked = up, enabled=!(octave=1) ]
+    		---
+    		(:?x6)[bgcolor=regbgcolor]
     		---
     		(button:?x20)[text={is_eng=>"Down", is_deu=>"Hinab", otherwise "Down"}, checked = down, enabled=!(octave=-2)]
+    		---
+    		(Spacer)
     	)
   )
