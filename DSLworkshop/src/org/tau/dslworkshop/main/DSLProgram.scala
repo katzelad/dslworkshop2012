@@ -63,7 +63,7 @@ class DSLProgram(code: String) {
     def onKey(action: Char => Unit) {
       display.addFilter(SWT.KeyDown, new Listener {
         override def handleEvent(event: Event) {
-          if (!event.widget.isInstanceOf[Text])
+          if (!event.widget.isInstanceOf[Text]) 
             action(event.character)
         }
       })

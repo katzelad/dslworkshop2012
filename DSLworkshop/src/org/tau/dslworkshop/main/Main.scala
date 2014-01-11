@@ -275,7 +275,7 @@ object Main {
     instance.when_changed("down", (_, _) => {
       octave = octave - 1
       instance.set("octave", octave)
-    })
+    }) 
     instance.when_changed("clear", (_, _) => {
       recent = ""
       instance.set("recent", "")
