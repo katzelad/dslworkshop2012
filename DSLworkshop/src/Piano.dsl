@@ -1,13 +1,13 @@
 main_window <-
-  (inner_main_window)[vol=?(60), langchoice=?(0), initWidth=?(800), initHeight=?(450)]
+  (inner_main_window)[vol=?(60), langchoice=?(0)]
   
   inner_main_window <-
   (
-	(ProgramTitle:(initWidth)x33)
+	(ProgramTitle:?x33)
 	---
 	(Upmargin)
 	---
-	((Leftmargin)|(Controls:200x(initHeight))|(Leftmargin)|(RightHandArea))
+	((Leftmargin)|(Controls:200x?)|(Leftmargin)|(RightHandArea))
   )[is_eng=langchoice=0, is_deu=langchoice=1, instrument = ?(0),
 	titlebgcolor = 0xFFFFFF, titlefgcolor = 0xFF2B39, titlefont = ("arial", 12, bold),
 	regbgcolor = 0xFFFFFF, regfgcolor = 0xFF6A26, regfont = ("arial", 10, bold)]
@@ -47,9 +47,9 @@ main_window <-
 		(
 			(label:100x?)[text={is_eng=>"Recently Played:", is_deu=>"Zuletzt gespielt:", otherwise "Recently Played:"}, bgcolor=regbgcolor, fgcolor=regfgcolor, font=regfont]|
 			(:50x?)[bgcolor=regbgcolor]|
-			(button:50x30)[text={is_eng=>"Clear", is_deu=>"Klar", otherwise "Clear"}]|
-			(:20x30)[bgcolor=regbgcolor]|
-			(button:60x30)[text="Save to Text File"]|
+			(button:63x33)[text={is_eng=>"Clear", is_deu=>"Klar", otherwise "Clear"}]|
+			(:20x33)[bgcolor=regbgcolor]|
+			(button:63x33)[text={is_eng=>"Save to Text File", is_deu=>"Speichern als Textdatei", otherwise "Save to Text File"}]|
 			(Spacer)
 		)
 		---
@@ -91,7 +91,7 @@ main_window <-
   
   PianoRythmNowplayngRecord<-
   (
-  ((Piano:550x230)|(Nowplaying:180x?))
+  ((Piano:550x230)|(Nowplaying:180x?)|(Spacer))
   ---
   ((Rythm)|(Record))
   )
