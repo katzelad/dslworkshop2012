@@ -73,9 +73,9 @@ class DSLProgram(code: String) {
         val argValueString = arg.drop(arg.indexOf("=") + 1)
         val argValue = Some(
           if (argValueString.startsWith("\"") && argValueString.endsWith("\""))
-            Literal[String](argValueString.replace("\"", ""))
+            Literal(argValueString.replace("\"", ""))
           else
-            Literal[Int](argValueString.toInt))
+            Literal(argValueString.toInt))
         InitialAttribute(argName, argValue)
       }), None, None)
       val scope = new LayoutScope(widgetsMap, extensions)
