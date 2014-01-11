@@ -15,6 +15,8 @@ import org.tau.workshop2011.parser.AST.Variable
 import org.tau.workshop2011.parser.AST.Literal
 import org.eclipse.swt.events.KeyAdapter
 import org.eclipse.swt.events.KeyEvent
+import org.eclipse.swt.widgets.Listener
+import org.eclipse.swt.widgets.Event
 
 class DSLProgram(code: String) {
 
@@ -22,7 +24,8 @@ class DSLProgram(code: String) {
 
   private val widgetsMap = LayoutParser parseAll (LayoutParser.Program, code) match {
     case LayoutParser.Success(result, nextInput) =>
-      /*print(result);*/ result.defs.toMap
+      //      print(result)
+      result.defs.toMap
     case LayoutParser.NoSuccess(msg, nextInput) => throw new ParsingError(msg, nextInput.pos.line, nextInput.pos.column)
   }
 
@@ -33,10 +36,8 @@ class DSLProgram(code: String) {
     private var evaluatedVarMap = new TEvaluatedVarMap()
 
     private var unevaluatedVarMap = new TUnevaluatedVarMap()
-    
+
     private var extensions: TExtensions = Map()
-    
-    private var keyHandlers = Set[Char => Unit]()
 
     private val widget = widgetsMap get name match {
       case Some(widget) => widget
@@ -53,35 +54,34 @@ class DSLProgram(code: String) {
     }
 
     def when_changed(varName: String, action: (Any, Any) => Unit) {
-//      if (!unevaluatedVarMap.contains(varName))
-//        unevaluatedVarMap.put(varName, new HashSet[() => Unit])
+      //      if (!unevaluatedVarMap.contains(varName))
+      //        unevaluatedVarMap.put(varName, new HashSet[() => Unit])
       extensions += varName -> action
     }
 
     def onKey(action: Char => Unit) {
-      keyHandlers += action
+      display.addFilter(SWT.KeyDown, new Listener {
+        override def handleEvent(event: Event) {
+          action(event.character)
+        }
+      })
     }
 
     def apply(args: Array[String]) = {
       val mainWidget = AtomicWidget(name, args.toList.map(arg => {
         val argName = Variable(arg.take(arg.indexOf("=")))
         val argValueString = arg.drop(arg.indexOf("=") + 1)
-        val argValue = Some(Literal(
+        val argValue = Some(
           if (argValueString.startsWith("\"") && argValueString.endsWith("\""))
-            argValueString.replace("\"", "")
+            Literal[String](argValueString.replace("\"", ""))
           else
-            argValueString.toInt))
+            Literal[Int](argValueString.toInt))
         InitialAttribute(argName, argValue)
       }), None, None)
       val scope = new LayoutScope(widgetsMap, extensions)
       val (width, height, isWidthQM, isHeightQM, changeWindowSize) = scope.evalNode(mainWidget, window, new Environment(evaluatedVarMap, unevaluatedVarMap))
       window setLayout new FillLayout
       window.getChildren()(0).setSize(width, height) // TODO add code to handle limitation on window size when not '?'
-      keyHandlers.map(action => window.getChildren()(0) addKeyListener new KeyAdapter {
-        override def keyPressed(event: KeyEvent) {
-          action(event.character)
-        }
-      })
       window.pack
       window.open
       while (!window.isDisposed) {

@@ -225,6 +225,7 @@ object Main {
     //TODO all the rest
     //TODO make sure window resizes nicely/make sure dummy widgets with fixed size for spacing works
     //TODO perhaps add languages
+    //TODO catch exceptions
 
     val instance = new DSLProgram(code)("main_window")
     println(args.mkString("{", " ", "}"))
@@ -236,47 +237,60 @@ object Main {
     //    instance.bind("EmailContent", (_: Seq[Any]) => "I WANT MY PIGGISH SLIPPERS")
 
     var vol = 50
-    val (doo, doodiez, re, rediez, mi, fa, fadiez, sol, soldiez, la, ladiez, si) = (60, 61, 62, 63, 64, 65, 66, 67, 68, 69,70, 71)
+    var octave = 0
+    var recent = ""
+    val (doo, doodiez, re, rediez, mi, fa, fadiez, sol, soldiez, la, ladiez, si) = (60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71)
     val synth = MidiSystem.getSynthesizer()
     synth.open
     val pianoChannel = synth.getChannels()(0)
     def play(note: Int, pedal: Boolean = false) {
       if (!pedal)
         pianoChannel.allNotesOff()
-      pianoChannel.noteOn(note, vol)
+      pianoChannel.noteOn(note + octave * 12, vol)
+      instance.set("recent", recent = recent + 'A')
     }
 
     instance.when_changed("vol", (_, newer) => vol = newer.asInstanceOf[Int]) //todo debug whenchanged
-    instance.when_changed("up", (_, _) => println("up")) // TODO write actual function
-    instance.when_changed("down", (_, _) => println("down")) // TODO write actual function
+    instance.when_changed("up", (_, _) => {
+      octave = octave + 1
+      instance.set("octave", octave)
+    })
+    instance.when_changed("down", (_, _) => {
+      octave = octave - 1
+      instance.set("octave", octave)
+    })
     instance.bind("play", (x: Int, y: Int) => play(if (x < 250) doo else re))
-    instance.onKey(key =>	{if (key == 'q') play(doo)
-        					if (key == 'w') play(re)
-        					if (key == 'e') play(mi)
-        					if (key == 'r') play(fa)
-        					if (key == 't') play(sol)
-        					if (key == 'y') play(la)
-        					if (key == 'u') play(si)
-        					if (key == 'a') play(doo+12)
-        					if (key == 's') play(re+12)
-        					if (key == 'd') play(mi+12)
-        					if (key == 'f') play(fa+12)
-        					if (key == 'g') play(sol+12)
-        					if (key == 'h') play(la+12)
-        					if (key == 'j') play(si+12)
-        					if (key == '1') play(doodiez)
-        					if (key == '2') play(rediez)
-        					if (key == '3') play(fadiez)
-        					if (key == '4') play(soldiez)
-        					if (key == '5') play(ladiez)
-        					if (key == '6') play(doodiez+12)
-        					if (key == '7') play(rediez+12)
-        					if (key == '8') play(fadiez+12)
-        					if (key == '9') play(soldiez+12)
-        					if (key == '0') play(ladiez+12)
-        					})
+    instance.onKey({
+      case 'q' => play(doo)
+      case 'w' => play(re)
+      case 'e' => play(mi)
+      case 'r' => play(fa)
+      case 't' => play(sol)
+      case 'y' => play(la)
+      case 'u' => play(si)
+      case 'i' => play(doo + 12)
+      case 'z' => play(doo - 12)
+      case 'x' => play(re - 12)
+      case 'c' => play(mi - 12)
+      case 'v' => play(fa - 12)
+      case 'b' => play(sol - 12)
+      case 'n' => play(la - 12)
+      case 'm' => play(si - 12)
+      case ',' => play(doo)
+      case '2' => play(doodiez)
+      case '3' => play(rediez)
+      case '5' => play(fadiez)
+      case '6' => play(soldiez)
+      case '7' => play(ladiez)
+      case 's' => play(doodiez - 12)
+      case 'd' => play(rediez - 12)
+      case 'g' => play(fadiez - 12)
+      case 'h' => play(soldiez - 12)
+      case 'j' => play(ladiez - 12)
+      case _ =>
+    })
 
-    val output = instance( /*args*/ ("up=0" :: "down=0" :: Nil).toArray)
+    val output = instance( /*args*/ ("up=0" :: "down=0" :: "octave=0" :: "recent=\" \"" :: Nil).toArray)
 
     synth.close
     println(output)
