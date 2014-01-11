@@ -55,7 +55,7 @@ main_window <-
 		---
 		(Upmargin)
 		---
-		(textbox)[text="", enabled = true, bgcolor = 0xFFAA00, fgcolor = regfgcolor, font = regfont, halign = center]
+		(textbox)[text=recent, enabled = true, bgcolor = 0xFFAA00, fgcolor = regfgcolor, font = regfont, halign = center]
 		---
 		(Spacer)
   )
