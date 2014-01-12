@@ -8,6 +8,7 @@ import org.tau.workshop2011.parser.AST.AtomicWidget
 import org.eclipse.swt.layout.FillLayout
 import org.eclipse.swt.events.ControlAdapter
 import org.eclipse.swt.events.ControlEvent
+import org.eclipse.swt.events.MouseAdapter
 import org.eclipse.swt.widgets.Button
 import org.eclipse.swt.SWT
 import org.tau.workshop2011.parser.AST.InitialAttribute
@@ -18,6 +19,7 @@ import org.eclipse.swt.events.KeyEvent
 import org.eclipse.swt.widgets.Listener
 import org.eclipse.swt.widgets.Event
 import org.eclipse.swt.widgets.Text
+import org.eclipse.swt.events.MouseEvent
 
 class DSLProgram(code: String) {
 
@@ -55,8 +57,6 @@ class DSLProgram(code: String) {
     }
 
     def when_changed(varName: String, action: (Any, Any) => Unit) {
-      //      if (!unevaluatedVarMap.contains(varName))
-      //        unevaluatedVarMap.put(varName, new HashSet[() => Unit])
       extensions += varName -> action
     }
 

@@ -3,6 +3,7 @@ package org.tau.dslworkshop.main
 import org.tau.workshop2011.expressions.Color
 import javax.sound.midi._
 import scala.io.Source
+import java.io.File
 
 object Main {
 
@@ -226,6 +227,7 @@ object Main {
     //TODO make sure window resizes nicely/make sure dummy widgets with fixed size for spacing works
     //TODO perhaps add languages
     //TODO catch exceptions
+    //TODO debug parameters list
 
     val instance = new DSLProgram(code)("main_window")
     println(args.mkString("{", " ", "}"))
@@ -266,8 +268,25 @@ object Main {
       recent = recent + noteToString(note) + ' '
       instance.set("recent", recent)
     }
+    
+    val seqer = MidiSystem.getSequencer
+    seqer.open
+    seqer.setLoopCount(Sequencer.LOOP_CONTINUOUSLY)
 
-    instance.when_changed("vol", (_, newer) => vol = newer.asInstanceOf[Int]) //todo debug whenchanged
+    def playRhythm(rhythm: Int, prev: Int) {
+      if (prev != 0)
+        seqer.stop
+      if (rhythm != 0) {
+        val rhythmName = rhythm match {
+          case 1 => "Jazz"
+          case 2 => "Rock"
+        }
+        seqer.setSequence(MidiSystem.getSequence(new File("Audio\\" + rhythmName + ".mid")))
+        seqer.start
+      }
+    }
+
+    instance.when_changed("vol", (_, newer) => vol = newer.asInstanceOf[Int])
     instance.when_changed("up", (_, _) => {
       octave = octave + 1
       instance.set("octave", octave)
@@ -275,13 +294,14 @@ object Main {
     instance.when_changed("down", (_, _) => {
       octave = octave - 1
       instance.set("octave", octave)
-    }) 
+    })
     instance.when_changed("clear", (_, _) => {
       recent = ""
       instance.set("recent", "")
     })
     instance.when_changed("filename", (_, newer) => filename = newer.asInstanceOf[String])
     instance.when_changed("pedal", (_, newer) => pedal = newer.asInstanceOf[Boolean])
+    instance.when_changed("rhythmchoice", (old, newer) => playRhythm(newer.asInstanceOf[Int], old.asInstanceOf[Int]))
     instance.bind("play", (x: Int, y: Int) => play(if (x < 250) doo else re))
     instance.onKey({
       case 'q' => play(doo)
@@ -313,9 +333,10 @@ object Main {
       case _ =>
     })
 
-    val output = instance( /*args*/ ("up=0" :: "down=0" :: "octave=0" :: "recent=\"\"" :: "clear=0" :: "pedal=0" :: "filename=\"myfile\"" :: Nil).toArray)
+    val output = instance( /*args*/ ("up=0" :: "down=0" :: "octave=0" :: "recent=\"\"" :: "clear=0" :: "pedal=0" :: "filename=\"myfile\"" :: "rhythmchoice=0" :: Nil).toArray)
 
     synth.close
+    seqer.close
     println(output)
 
     //    def wait(time: Double) = Thread.sleep((250 * time).toInt)

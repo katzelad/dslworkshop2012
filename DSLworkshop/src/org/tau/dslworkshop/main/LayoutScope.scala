@@ -41,6 +41,8 @@ import org.tau.workshop2011.parser.AST.Literal
 import org.tau.workshop2011.parser.AST.Variable
 import org.eclipse.swt.events.MouseAdapter
 import org.eclipse.swt.events.MouseEvent
+import org.eclipse.swt.events.KeyAdapter
+import org.eclipse.swt.events.KeyEvent
 
 class LayoutScope(widgetsMap: Map[String, Widget], extensions: TExtensions) {
 
@@ -698,7 +700,7 @@ class LayoutScope(widgetsMap: Map[String, Widget], extensions: TExtensions) {
             heightVal = Some(label.computeSize(SWT.DEFAULT, SWT.DEFAULT).y)*/
           label
         case "textbox" => // dynamic change of checkbox alignment not included due to lack of SWT support
-          val textbox = new Text(parent, SWT.WRAP | hAlign)
+          val textbox = new Text(parent, SWT.WRAP | SWT.V_SCROLL | hAlign)
           textbox setText text
           textbox.addSelectionListener(new WidgetSelectionAdapter[String]("text", () => textbox.getText(), env.changeVarLTR))
           changeAttRTL("text", expr => textbox.setText(env.evalString(expr)))
@@ -765,6 +767,11 @@ class LayoutScope(widgetsMap: Map[String, Widget], extensions: TExtensions) {
           label
         case "combo" =>
           val combo = new Combo(parent, SWT.DROP_DOWN | SWT.READ_ONLY)
+          combo.addKeyListener(new KeyAdapter {
+            override def keyPressed(event: KeyEvent) {
+              event.doit = false
+            }
+          })
           combo setItems text.split(",")
           value match {
             case Some(v) => combo select v

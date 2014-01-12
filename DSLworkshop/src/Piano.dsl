@@ -27,7 +27,7 @@ main_window <-
   (
 	(RecentlyplayedLangAbout:?x160)
 	---
-	(PianoRythmNowplayngRecord:?x320)
+	(PianoRhythmNowplayngRecord:?x320)
 	---
 	(BOTTOM:?x10)
 	---
@@ -92,11 +92,11 @@ main_window <-
   )
  
   
-  PianoRythmNowplayngRecord<-
+  PianoRhythmNowplayngRecord<-
   (
   ((Piano:550x230)|(Nowplaying:180x?)|(Spacer))
   ---
-  ((Rythm)|(Record))
+  ((Rhythm)|(Record))
   )
    
   Piano <-
@@ -125,11 +125,11 @@ main_window <-
 	)
   )
   
-  Rythm <-
+  Rhythm <-
   (
-		((label:80x40)[text={is_eng=>"Choose Rythm:", is_deu=>"Rhythmus Selektieren:", otherwise "Choose Rythm:"}, bgcolor=regbgcolor, fgcolor=regfgcolor, font=regfont]|(Spacer))
+		((label:80x40)[text={is_eng=>"Choose Rhythm:", is_deu=>"Rhythmus Selektieren:", otherwise "Choose Rhythm:"}, bgcolor=regbgcolor, fgcolor=regfgcolor, font=regfont]|(Spacer))
 		---
-		(combo:80x20 )[text = "rythm1,rythm2",enabled = true, bgcolor = regbgcolor, fgcolor = 0x000000]
+		(combo:80x20 )[text = "None,Jazz,Rock",enabled = true, bgcolor = regbgcolor, fgcolor = 0x000000, value=rhythmchoice]
 		---
 		((label:20x?)[text="slow"]|(slider:?x20)[maxvalue=120, minvalue =0 , value=10]|(:20x?)[bgcolor = regbgcolor]|(label:20x?)[text="fast"])
 		---
