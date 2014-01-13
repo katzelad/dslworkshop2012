@@ -216,16 +216,16 @@ object Main {
       //PIANO
       Source.fromFile("src\\Piano.dsl").mkString
 
+    //TODO filename textbox focus (eclipse reported issue) requires handling, probably with dummy button
     //todo make initheight/width work
     //todo piano notes play by coordinates
     //TODO mute disables volume feature (using another var)
-    //TODO octave up/down disabled after a few clicks feature
     //todo about button
     //todo record button
     //todo get rid of titlebgcolor/font/fgcolor etc if unused
     //TODO all the rest
     //TODO make sure window resizes nicely/make sure dummy widgets with fixed size for spacing works
-    //TODO perhaps add languages
+    //optionally add languages
     //TODO catch exceptions
     //TODO debug parameters list
 
@@ -244,6 +244,7 @@ object Main {
     var pedal = false
     var filename = ""
     val (doo, doodiez, re, rediez, mi, fa, fadiez, sol, soldiez, la, ladiez, si) = (60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71)
+
     def noteToString(note: Int) = note % 12 + 60 match {
       case `doo` => "C"
       case `doodiez` => "C#"
@@ -258,20 +259,53 @@ object Main {
       case `ladiez` => "A#"
       case `si` => "B"
     }
+
+    def keyToNote(key: Char) = key match {
+      case 'q' => doo
+      case 'w' => re
+      case 'e' => mi
+      case 'r' => fa
+      case 't' => sol
+      case 'y' => la
+      case 'u' => si
+      case 'i' => doo + 12
+      case 'z' => doo - 12
+      case 'x' => re - 12
+      case 'c' => mi - 12
+      case 'v' => fa - 12
+      case 'b' => sol - 12
+      case 'n' => la - 12
+      case 'm' => si - 12
+      case ',' => doo
+      case '2' => doodiez
+      case '3' => rediez
+      case '5' => fadiez
+      case '6' => soldiez
+      case '7' => ladiez
+      case 's' => doodiez - 12
+      case 'd' => rediez - 12
+      case 'g' => fadiez - 12
+      case 'h' => soldiez - 12
+      case 'j' => ladiez - 12
+      case _ => -1
+    }
+
     val synth = MidiSystem.getSynthesizer()
     synth.open
-    val pianoChannel = synth.getChannels()(0)
+    val mainChannel = synth.getChannels()(0)
+
     def play(note: Int) {
       if (!pedal)
-        pianoChannel.allNotesOff()
-      pianoChannel.noteOn(note + octave * 12, vol)
+        mainChannel.allNotesOff
+      mainChannel.noteOn(note + octave * 12, vol)
       recent = recent + noteToString(note) + ' '
       instance.set("recent", recent)
     }
-    
+
     val seqer = MidiSystem.getSequencer
     seqer.open
     seqer.setLoopCount(Sequencer.LOOP_CONTINUOUSLY)
+    seqer.setTempoFactor(math.pow(2, 0.5).toFloat)
 
     def playRhythm(rhythm: Int, prev: Int) {
       if (prev != 0)
@@ -284,6 +318,18 @@ object Main {
         seqer.setSequence(MidiSystem.getSequence(new File("Audio\\" + rhythmName + ".mid")))
         seqer.start
       }
+    }
+
+    def changeInstrument(instrument: Int) {
+      val instIndex = instrument match { //todo update match
+        case 0 => 0
+        case 1 => 40
+        case 2 => 0
+        case 3 => 0
+        case 4 => 56
+        case _ => 0
+      } //TODO change to match
+      mainChannel.programChange(synth.getDefaultSoundbank.getInstruments()(instIndex).getPatch.getProgram)
     }
 
     instance.when_changed("vol", (_, newer) => vol = newer.asInstanceOf[Int])
@@ -302,38 +348,22 @@ object Main {
     instance.when_changed("filename", (_, newer) => filename = newer.asInstanceOf[String])
     instance.when_changed("pedal", (_, newer) => pedal = newer.asInstanceOf[Boolean])
     instance.when_changed("rhythmchoice", (old, newer) => playRhythm(newer.asInstanceOf[Int], old.asInstanceOf[Int]))
+    instance.when_changed("tempo", (old, newer) => seqer.setTempoFactor(math.pow(2, (newer.asInstanceOf[Int] - 1) / 4.0).toFloat))
+    instance.when_changed("instrument", (old, newer) => changeInstrument(newer.asInstanceOf[Int]))
+
     instance.bind("play", (x: Int, y: Int) => play(if (x < 250) doo else re))
-    instance.onKey({
-      case 'q' => play(doo)
-      case 'w' => play(re)
-      case 'e' => play(mi)
-      case 'r' => play(fa)
-      case 't' => play(sol)
-      case 'y' => play(la)
-      case 'u' => play(si)
-      case 'i' => play(doo + 12)
-      case 'z' => play(doo - 12)
-      case 'x' => play(re - 12)
-      case 'c' => play(mi - 12)
-      case 'v' => play(fa - 12)
-      case 'b' => play(sol - 12)
-      case 'n' => play(la - 12)
-      case 'm' => play(si - 12)
-      case ',' => play(doo)
-      case '2' => play(doodiez)
-      case '3' => play(rediez)
-      case '5' => play(fadiez)
-      case '6' => play(soldiez)
-      case '7' => play(ladiez)
-      case 's' => play(doodiez - 12)
-      case 'd' => play(rediez - 12)
-      case 'g' => play(fadiez - 12)
-      case 'h' => play(soldiez - 12)
-      case 'j' => play(ladiez - 12)
-      case _ =>
+
+    instance.onKeyPress(key => {
+      val note = keyToNote(key)
+      if (note != -1)
+        play(note)
+    })
+    instance.onKeyRelease(key => {
+      if (!pedal && keyToNote(key) != -1)
+        mainChannel.allNotesOff
     })
 
-    val output = instance( /*args*/ ("up=0" :: "down=0" :: "octave=0" :: "recent=\"\"" :: "clear=0" :: "pedal=0" :: "filename=\"myfile\"" :: "rhythmchoice=0" :: Nil).toArray)
+    val output = instance( /*args*/ ("up=0" :: "down=0" :: "octave=0" :: "recent=\"\"" :: "clear=0" :: "pedal=0" :: "filename=\"myfile\"" :: "rhythmchoice=0" :: "tempo=3" :: Nil).toArray)
 
     synth.close
     seqer.close
@@ -346,7 +376,7 @@ object Main {
     //    print(synth.isSoundbankSupported(synth.getDefaultSoundbank()))
     //    //      for (i <- s.getDefaultSoundbank().getInstruments())
     //    //        println(i)
-    //    //      pianoChannel.programChange(s.getDefaultSoundbank().getInstruments()(16).getPatch().getProgram())
+    //    //      pianoChannel.programChange(s.getDefaultSoundbank.getInstruments()(16).getPatch.getProgram)
     //    def play(note: Int, drop: Boolean = false) = { if (drop) pianoChannel.allNotesOff(); pianoChannel.noteOn(note, vol) }
     //    //    pianoChannel.
     //

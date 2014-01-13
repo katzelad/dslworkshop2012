@@ -42,6 +42,8 @@ class DSLProgram(code: String) {
 
     private var extensions: TExtensions = Map()
 
+    private val keyMap = new mutableMap[Char, Boolean]()
+
     private val widget = widgetsMap get name match {
       case Some(widget) => widget
       case None => throw new Exception("Error: " + name + " not found.")
@@ -60,11 +62,23 @@ class DSLProgram(code: String) {
       extensions += varName -> action
     }
 
-    def onKey(action: Char => Unit) {
+    def onKeyPress(action: Char => Unit) {
       display.addFilter(SWT.KeyDown, new Listener {
         override def handleEvent(event: Event) {
-          if (!event.widget.isInstanceOf[Text]) 
+          if (!event.widget.isInstanceOf[Text] && (!keyMap.contains(event.character) || !keyMap(event.character))) {
             action(event.character)
+            keyMap(event.character) = true
+          }
+        }
+      })
+    }
+
+    def onKeyRelease(action: Char => Unit) {
+      display.addFilter(SWT.KeyUp, new Listener {
+        override def handleEvent(event: Event) {
+          if (!event.widget.isInstanceOf[Text])
+            action(event.character)
+          keyMap(event.character) = false
         }
       })
     }

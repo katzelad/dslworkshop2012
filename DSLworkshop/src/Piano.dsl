@@ -7,10 +7,11 @@ main_window <-
 	---
 	(Upmargin)
 	---
-	((Leftmargin)|(Controls:200x?)|(Leftmargin)|(RightHandArea))
+	((Leftmargin)|(Controls:200x?)|(Leftmargin)|(MiddleArea)|(LangAbout))
   )[is_eng=langchoice=0, is_deu=langchoice=1, instrument = ?(0),
 	titlebgcolor = 0xFFFFFF, titlefgcolor = 0xFF2B39, titlefont = ("arial", 12, bold),
-	regbgcolor = 0xFFFFFF, regfgcolor = 0xFF6A26, regfont = ("arial", 10, bold)]
+	regbgcolor = 0xFFFFFF, regfgcolor = 0xFF6A26, regfont = ("arial", 10, bold),
+	controlsbgcolor = 0xD6FCFF, controlsfgcolor = 0xFF6A26, controlsfont = ("arial", 10, bold)]
   
   Leftmargin<-
   (:20x?)[bgcolor = regbgcolor]
@@ -23,24 +24,27 @@ main_window <-
   
   ProgramTitle <- (label)[text="TAU PIANO", bgcolor = 0xFFA528, fgcolor = 0xffffff, font = ("arial", 16, bold)]
 
-  RightHandArea<-
+		  
+	LangAbout <-
+	(
+		((Lang:250x75)
+		---
+		(About))
+		|
+		(Spacer)
+	)
+	
+MiddleArea<-
   (
-	(RecentlyplayedLangAbout:?x160)
+	(Recentlyplayed:?x?)
 	---
-	(PianoRhythmNowplayngRecord:?x320)
+	(RhythmRecord:?x?)
 	---
-	(BOTTOM:?x10)
-	---
-	(Spacer)
+	(PianoRhythmNowplayingRecord:?x320)
   )
  
-  
-  RecentlyplayedLangAbout<-
-  (
-	(Recentlyplayed)|((Lang:250x75)
-									---
-								(About))
-  )
+  RhythmRecord<-
+  ((Rhythm:200x?)|(Record))
   
   Recentlyplayed<-
   (
@@ -92,11 +96,9 @@ main_window <-
   )
  
   
-  PianoRhythmNowplayngRecord<-
+  PianoRhythmNowplayingRecord<-
   (
   ((Piano:550x230)|(Nowplaying:180x?)|(Spacer))
-  ---
-  ((Rhythm)|(Record))
   )
    
   Piano <-
@@ -131,7 +133,7 @@ main_window <-
 		---
 		(combo:80x20 )[text = "None,Jazz,Rock",enabled = true, bgcolor = regbgcolor, fgcolor = 0x000000, value=rhythmchoice]
 		---
-		((label:20x?)[text="slow"]|(slider:?x20)[maxvalue=120, minvalue =0 , value=10]|(:20x?)[bgcolor = regbgcolor]|(label:20x?)[text="fast"])
+		((label:20x?)[text="slow"]|(scale:180x20)[maxvalue=5, minvalue =1 , value=tempo]|(:20x?)[bgcolor = regbgcolor]|(label:20x?)[text="fast"])
 		---
 		(Spacer)
 	)
@@ -141,21 +143,21 @@ main_window <-
 	(Upmargin)
 	---
 	(
-			(Leftmargin)|
+		(Leftmargin)|
+		(
 			(
-					(
-							(label:100x?)[text={is_eng=>"Choose Audio File Name:", is_deu=>"Gib einen Audio dateinamen:", otherwise "Choose Audio File Name:"}, bgcolor=regbgcolor, fgcolor=regfgcolor, font=regfont]|
-							(textbox:100x?)[text=filename, enabled = true, bgcolor = 0xFFFF00, fgcolor = regfgcolor, font = regfont]
-					)
-					---
-					(		(label:100x?)[text={is_eng=>"Recording Duration:", is_deu=>"Aufzeichnungsdauer:", otherwise "Recording Duration:"}, bgcolor=regbgcolor, fgcolor=regfgcolor, font=regfont]
-							---
-							(combo:80x20 )[value=2, text ="10,15,30",enabled = true, bgcolor = regbgcolor, fgcolor = 0x000000]
-					)
-			)|
-			(:20x33)[bgcolor=regbgcolor]|
-			(button:60x30)[text={is_eng=>"Record", is_deu=>"Rekord", otherwise "Record"}, bgcolor=0x0000FF, fgcolor=regfgcolor, font=regfont]|
-			(Spacer)
+					(label:100x40)[text={is_eng=>"Choose Audio File Name:", is_deu=>"Gib einen Audio dateinamen:", otherwise "Choose Audio File Name:"}, bgcolor=regbgcolor, fgcolor=regfgcolor, font=regfont]|
+					(textbox:100x?)[text=filename, enabled = true, bgcolor = 0xFFFF00, fgcolor = regfgcolor, font = regfont]
+			)
+			---
+			(		(label:100x40)[text={is_eng=>"Recording Duration:", is_deu=>"Aufzeichnungsdauer:", otherwise "Recording Duration:"}, bgcolor=regbgcolor, fgcolor=regfgcolor, font=regfont]|
+					(combo:80x20 )[value=2, text ="10,15,30",enabled = true, bgcolor = regbgcolor, fgcolor = 0x000000]|
+					(Spacer)
+			)
+		)|
+		(:20x33)[bgcolor=regbgcolor]|
+		((button:60x30)[text={is_eng=>"Record", is_deu=>"Rekord", otherwise "Record"}, bgcolor=0x0000FF, fgcolor=regfgcolor, font=regfont]---(Spacer))|
+		(Spacer)
 	)
 	---
 	(Spacer)
@@ -165,7 +167,7 @@ main_window <-
   
   Controls <-
   (
-		(label:?x20)[text={is_eng=>"Controls", is_deu=>"Kontrol", otherwise "Controls"}, bgcolor = titlebgcolor, fgcolor = titlefgcolor, font = titlefont]
+		(label:?x20)[text={is_eng=>"Controls", is_deu=>"Kontrol", otherwise "Controls"}, bgcolor = controlsbgcolor, fgcolor = controlsfgcolor, font = controlsfont]
 		---
 		(Upmargin)
 		---
@@ -218,8 +220,8 @@ main_window <-
   
   PEDAL<-
   (
-		(checkbox:20x20)[checked = pedal, bgcolor=regbgcolor] |
-		(label:40x?)[text={is_eng=>"Pedal", is_deu=>"Pedal", otherwise "Pedal"}, bgcolor=regbgcolor, fgcolor=regfgcolor, font=regfont]|
+		(checkbox:20x20)[checked = pedal, bgcolor=regbgcolor, enabled = instrument = 0] |
+		(label:40x?)[text={is_eng=>"Pedal", is_deu=>"Pedal", otherwise "Pedal"}, bgcolor=regbgcolor, fgcolor=regfgcolor, font=regfont, enabled = instrument = 0]|
 		(Spacer)
   ) [pedal = ?(false)]
 			

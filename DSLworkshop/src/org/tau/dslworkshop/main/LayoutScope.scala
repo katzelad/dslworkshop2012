@@ -43,6 +43,7 @@ import org.eclipse.swt.events.MouseAdapter
 import org.eclipse.swt.events.MouseEvent
 import org.eclipse.swt.events.KeyAdapter
 import org.eclipse.swt.events.KeyEvent
+import org.eclipse.swt.widgets.Scale
 
 class LayoutScope(widgetsMap: Map[String, Widget], extensions: TExtensions) {
 
@@ -791,6 +792,17 @@ class LayoutScope(widgetsMap: Map[String, Widget], extensions: TExtensions) {
           changeAttRTL("minvalue", expr => slider.setMinimum(env.evalInt(expr)))
           changeAttRTL("value", expr => slider.setSelection(env.evalInt(expr)))
           slider
+       case "scale" =>
+          val scale = new Scale(parent, SWT.HORIZONTAL)
+          scale setMaximum maxValue
+          scale setMinimum minValue
+          scale.setIncrement(1)
+          scale setSelection value.getOrElse(0)
+          scale.addSelectionListener(new WidgetSelectionAdapter[Int]("value", () => scale.getSelection(), env.changeVarLTR))
+          changeAttRTL("maxvalue", expr => scale.setMaximum(env.evalInt(expr)))
+          changeAttRTL("minvalue", expr => scale.setMinimum(env.evalInt(expr)))
+          changeAttRTL("value", expr => scale.setSelection(env.evalInt(expr)))
+          scale
         case s =>
           val scrolledComposite = new ScrolledComposite(parent, SWT.H_SCROLL | SWT.V_SCROLL)
           scrolledComposite setLayout new FillLayout

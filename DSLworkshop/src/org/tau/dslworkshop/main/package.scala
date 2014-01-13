@@ -17,6 +17,8 @@ package object main {
   type TEvalNodeReturn = (Int, Int, Boolean, Boolean, TChangeSize)
   
   type TExtensions = Map[String, (Any, Any) => Unit]
+  
+  type mutableMap[K, V] = scala.collection.mutable.HashMap[K, V]
 
   val SASH_WIDTH = 5
 
