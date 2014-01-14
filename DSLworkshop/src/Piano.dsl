@@ -5,9 +5,7 @@ main_window <-
   (
 	(ProgramTitle:?x33)
 	---
-	(Upmargin)
-	---
-	((Leftmargin)|(Controls:200x?)|(Leftmargin)|(MiddleArea)|(LangAbout))
+	((Controls:200x?)|(MiddleArea)|(LangAbout))
   )[is_eng=langchoice=0, is_deu=langchoice=1, instrument = ?(0),
 	titlebgcolor = 0xFFFFFF, titlefgcolor = 0xFF2B39, titlefont = ("arial", 12, bold),
 	regbgcolor = 0xFFFFFF, regfgcolor = 0xFF6A26, regfont = ("arial", 10, bold),
@@ -16,31 +14,55 @@ main_window <-
   Leftmargin<-
   (:20x?)[bgcolor = regbgcolor]
   
+  LeftmarginControls<-
+  (:20x?)[bgcolor = controlsbgcolor]
+
+  Rightmargin<-
+  (:20x?)[bgcolor = regbgcolor]
+
+  RightmarginControls<-
+  (:20x?)[bgcolor = controlsbgcolor]
+				  
   Upmargin<-
   (:?x15)[bgcolor = regbgcolor]
   
+  UpmarginControls<-
+  (:?x15)[bgcolor = controlsbgcolor]
+				  
   Spacer<-
   ()[bgcolor=regbgcolor]
+
+  SpacerControls<-
+  ()[bgcolor=controlsbgcolor]
   
   ProgramTitle <- (label)[text="TAU PIANO", bgcolor = 0xFFA528, fgcolor = 0xffffff, font = ("arial", 16, bold)]
 
 		  
 	LangAbout <-
 	(
-		((Lang:250x75)
-		---
-		(About))
-		|
+		(Leftmargin)|
+		(
+			(Upmargin)
+			---
+			((Lang:250x75)
+			---
+			(About))
+		)|
 		(Spacer)
 	)
 	
 MiddleArea<-
   (
-	(Recentlyplayed:?x?)
-	---
-	(RhythmRecord:?x?)
-	---
-	(PianoRhythmNowplayingRecord:?x320)
+	(Leftmargin) |
+	(
+		(Upmargin)
+		---
+		(Recentlyplayed:?x?)
+		---
+		(RhythmRecord:?x?)
+		---
+		(PianoRhythmNowplayingRecord:?x320)
+	)
   )
  
   RhythmRecord<-
@@ -129,11 +151,20 @@ MiddleArea<-
   
   Rhythm <-
   (
-		((label:80x40)[text={is_eng=>"Choose Rhythm:", is_deu=>"Rhythmus Selektieren:", otherwise "Choose Rhythm:"}, bgcolor=regbgcolor, fgcolor=regfgcolor, font=regfont]|(Spacer))
+		(
+				(label:80x40)[text={is_eng=>"Choose Rhythm:", is_deu=>"Rhythmus Selektieren:", otherwise "Choose Rhythm:"}, bgcolor=regbgcolor, fgcolor=regfgcolor, font=regfont]|
+				(:20x?)[bgcolor=regbgcolor]|
+				(combo:63x20 )[text = "None,Jazz,Rock",enabled = true, bgcolor = regbgcolor, fgcolor = 0x000000, value=rhythmchoice]|
+				(Spacer)
+		)
 		---
-		(combo:80x20 )[text = "None,Jazz,Rock",enabled = true, bgcolor = regbgcolor, fgcolor = 0x000000, value=rhythmchoice]
-		---
-		((label:20x?)[text="slow"]|(scale:180x20)[maxvalue=5, minvalue =1 , value=tempo]|(:20x?)[bgcolor = regbgcolor]|(label:20x?)[text="fast"])
+		(
+				(label:20x?)[text="slow"]|
+				(:4x?)[bgcolor = regbgcolor]|
+				(scale:115x20)[maxvalue=5, minvalue =1 , value=tempo]|
+				(:4x?)[bgcolor = regbgcolor]|
+				(label:20x?)[text="fast"]
+		)
 		---
 		(Spacer)
 	)
@@ -167,49 +198,55 @@ MiddleArea<-
   
   Controls <-
   (
-		(label:?x20)[text={is_eng=>"Controls", is_deu=>"Kontrol", otherwise "Controls"}, bgcolor = controlsbgcolor, fgcolor = controlsfgcolor, font = controlsfont]
-		---
-		(Upmargin)
-		---
-		(VOLUME:?x?)
-		---
-		(Upmargin)
-		---
-		(INSTRUMENT)
-		---
-		(Upmargin)
-		---
-    	(PEDAL)
-		---
-		(OCTAVE)
-      	---
-    	(Spacer)
+		(LeftmarginControls)|
+		(
+				(UpmarginControls)
+				---
+				(label:?x20)[text={is_eng=>"Controls", is_deu=>"Kontrol", otherwise "Controls"}, bgcolor = controlsbgcolor, fgcolor = controlsfgcolor, font = controlsfont]
+				---
+				(UpmarginControls)
+				---
+				(VOLUME:?x?)
+				---
+				(UpmarginControls)
+				---
+				(INSTRUMENT)
+				---
+				(UpmarginControls)
+				---
+				(PEDAL)
+				---
+				(OCTAVE)
+				---
+				(SpacerControls)
+    	)|
+    	(RightmarginControls)
   )
   
   VOLUME<-
   (
-		(label:?x20)[text={is_eng=>"Volume:", is_deu=>"Volumen", otherwise "Volume"}, bgcolor = regbgcolor, fgcolor = regfgcolor, font = regfont]
+		(label:?x20)[text={is_eng=>"Volume:", is_deu=>"Volumen", otherwise "Volume"}, bgcolor = controlsbgcolor, fgcolor = controlsfgcolor, font = controlsfont]
 		---
-		((slider:?x20) [maxvalue=120, minvalue =0 , value=vol]|(:20x?)[bgcolor = regbgcolor])
+		((slider:?x20) [maxvalue=120, minvalue =0 , value=vol]|(:20x?)[bgcolor = controlsbgcolor])
 		---
-    	(checkbox:20x20)[checked=(vol=0), bgcolor = regbgcolor, fgcolor = regfgcolor, font = regfont] |
-		(label:50x?)[text={is_eng=>"Mute", is_deu=>"Dampfen", otherwise "Mute"}, bgcolor = regbgcolor, fgcolor = regfgcolor, font = regfont]|
-		(Spacer)
+    	(checkbox:20x20)[checked=(vol=0), bgcolor = controlsbgcolor, fgcolor = controlsfgcolor, font = controlsfont] |
+		(label:50x?)[text={is_eng=>"Mute", is_deu=>"Dampfen", otherwise "Mute"}, bgcolor = controlsbgcolor, fgcolor = controlsfgcolor, font = controlsfont]|
+		(SpacerControls)
   ) [mute=1]
 	
   
   INSTRUMENT<-
   (
-		(label:?x20)[text={is_eng=>"Instrument:", is_deu=>"Instrument", otherwise "Instrument"}, bgcolor = regbgcolor, fgcolor = regfgcolor, font = regfont]
+		(label:?x20)[text={is_eng=>"Instrument:", is_deu=>"Instrument", otherwise "Instrument"}, bgcolor = controlsbgcolor, fgcolor = controlsfgcolor, font = controlsfont]
 		---
 		(
-			(( (radio:20x20) [checked= instrument = i, bgcolor = regbgcolor] | (label)[text = Instruments[i], bgcolor = regbgcolor, fgcolor=regfgcolor,font = regfont] )
+			(( (radio:20x20) [checked= instrument = i, bgcolor = controlsbgcolor] | (label)[text = Instruments[i], bgcolor = controlsbgcolor, fgcolor = controlsfgcolor, font = controlsfont] )
 	     	*---*
 	     	[i=0...4,Instruments={piano, violin, drums, guitar, trumpet}])
 			|
 			(image:100x100)[filename={instrument=0=>"Graphics\\piano.png", instrument=1=>"Graphics\\violin.png",
 						instrument=2=>"Graphics\\drums.png",instrument=3=>"Graphics\\guitar.png",instrument=4=>"Graphics\\trumpet.png",otherwise ""},
-						bgcolor = regbgcolor]
+						bgcolor = controlsbgcolor]
 		)
   )[piano={is_eng=>"Piano", is_deu=>"Klavier", otherwise "Piano"},
 	guitar={is_eng=>"Guitar", is_deu=>"Gitarre", otherwise "Guitar"},
@@ -220,29 +257,29 @@ MiddleArea<-
   
   PEDAL<-
   (
-		(checkbox:20x20)[checked = pedal, bgcolor=regbgcolor, enabled = instrument = 0] |
-		(label:40x?)[text={is_eng=>"Pedal", is_deu=>"Pedal", otherwise "Pedal"}, bgcolor=regbgcolor, fgcolor=regfgcolor, font=regfont, enabled = instrument = 0]|
-		(Spacer)
+		(checkbox:20x20)[checked = pedal, bgcolor = controlsbgcolor, enabled = instrument = 0] |
+		(label:40x?)[text={is_eng=>"Pedal", is_deu=>"Pedal", otherwise "Pedal"}, bgcolor = controlsbgcolor, fgcolor=regfgcolor, font=regfont, enabled = instrument = 0]|
+		(SpacerControls)
   ) [pedal = ?(false)]
 			
   
   OCTAVE<-
   (
 		(
-				(:?x30)[bgcolor=regbgcolor]
+				(:?x30)[bgcolor = controlsbgcolor]
 				---
-				(label)[text={is_eng=>"Octave", is_deu=>"Octave", otherwise "Octave"}, bgcolor=regbgcolor, fgcolor=regfgcolor, font=regfont]
+				(label)[text={is_eng=>"Octave", is_deu=>"Octave", otherwise "Octave"}, bgcolor = controlsbgcolor, fgcolor = controlsfgcolor, font = controlsfont]
 		)|
     	(image:46x106)[filename={octave=1=>"Graphics\\sol8.png",octave=0=>"Graphics\\sol.png",octave=-1=>"Graphics\\fa.png",octave=-2=>"Graphics\\fa8.png", otherwise "Graphics\\sol.png"}]|
     	(
-    		(:?x30)[bgcolor=regbgcolor]
+    		(:?x30)[bgcolor = controlsbgcolor]
     		---
     		(button:50x20)[text={is_eng=>"Up", is_deu=>"Herauf", otherwise "Up"}, checked = up, enabled=!(octave=1) ]
     		---
-    		(:?x6)[bgcolor=regbgcolor]
+    		(:?x6)[bgcolor = controlsbgcolor]
     		---
     		(button:?x20)[text={is_eng=>"Down", is_deu=>"Hinab", otherwise "Down"}, checked = down, enabled=!(octave=-2)]
     		---
-    		(Spacer)
+    		(SpacerControls)
     	)
   )

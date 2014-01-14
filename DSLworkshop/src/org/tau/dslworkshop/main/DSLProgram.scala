@@ -42,7 +42,7 @@ class DSLProgram(code: String) {
 
     private var extensions: TExtensions = Map()
 
-    private val keyMap = new mutableMap[Char, Boolean]()
+    private val keyMap = new mutableHashMap[Char, Boolean]()
 
     private val widget = widgetsMap get name match {
       case Some(widget) => widget

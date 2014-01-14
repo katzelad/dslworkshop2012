@@ -18,7 +18,7 @@ package object main {
   
   type TExtensions = Map[String, (Any, Any) => Unit]
   
-  type mutableMap[K, V] = scala.collection.mutable.HashMap[K, V]
+  type mutableHashMap[K, V] = scala.collection.mutable.HashMap[K, V]
 
   val SASH_WIDTH = 5
 
