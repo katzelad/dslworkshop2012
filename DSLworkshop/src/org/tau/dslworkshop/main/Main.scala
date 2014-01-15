@@ -216,16 +216,14 @@ object Main {
       //PIANO
       Source.fromFile("src\\Piano.dsl").mkString
 
-    //TODO filename textbox focus (eclipse reported issue) requires handling, probably with dummy button
+    //todo conditioned enable to filenames (text/audio) textboxes (dummy buttons etc)
     //todo make initheight/width work
     //todo piano notes play by coordinates
     //TODO mute disables volume feature (using another var)
     //todo about button
     //todo record button
     //todo get rid of titlebgcolor/font/fgcolor etc if unused
-    //TODO all the rest
     //TODO make sure window resizes nicely/make sure dummy widgets with fixed size for spacing works
-    //optionally add languages
     //TODO catch exceptions
     //TODO debug parameters list
 
@@ -363,7 +361,7 @@ object Main {
         mainChannel.allNotesOff
     })
 
-    val output = instance( /*args*/ ("up=0" :: "down=0" :: "octave=0" :: "recent=\"\"" :: "clear=0" :: "pedal=0" :: "filename=\"myfile\"" :: "rhythmchoice=0" :: "tempo=3" :: Nil).toArray)
+    val output = instance( /*args*/ ("up=0" :: "down=0" :: "octave=0" :: "recent=\"\"" :: "clear=0" :: "pedal=0" :: "filename=\"MySong\"" :: "rhythmchoice=0" :: "tempo=3" :: "renamingtextfile=0" :: "renamingaudiofile=0" :: Nil).toArray)
 
     synth.close
     seqer.close

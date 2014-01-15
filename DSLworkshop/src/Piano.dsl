@@ -36,10 +36,9 @@ main_window <-
   ()[bgcolor=controlsbgcolor]
   
   ProgramTitle <- (label)[text="TAU PIANO", bgcolor = 0xFFA528, fgcolor = 0xffffff, font = ("arial", 16, bold)]
-
 		  
-	LangAbout <-
-	(
+  LangAbout <-
+  (
 		(Leftmargin)|
 		(
 			(Upmargin)
@@ -49,7 +48,7 @@ main_window <-
 			(About))
 		)|
 		(Spacer)
-	)
+  )
 	
 MiddleArea<-
   (
@@ -57,28 +56,88 @@ MiddleArea<-
 	(
 		(Upmargin)
 		---
-		(Recentlyplayed:?x?)
+		(RecentlyplayedSavetext:?x?)
 		---
 		(RhythmRecord:?x?)
 		---
-		(PianoRhythmNowplayingRecord:?x320)
+		(PianoNowplaying:?x320)
 	)
   )
  
   RhythmRecord<-
-  ((Rhythm:200x?)|(Record))
+  (
+		  (
+					(Upmargin)
+					---
+					(
+						(
+								(label:80x40)[text={is_eng=>"Choose Rhythm:", is_deu=>"Rhythmus Selektieren:", otherwise "Choose Rhythm:"}, bgcolor=regbgcolor, fgcolor=regfgcolor, font=regfont]|
+								(:20x?)[bgcolor=regbgcolor]|
+								((combo:63x20 )[text = "None,Jazz,Rock",enabled = true, bgcolor = regbgcolor, fgcolor = 0x000000, value=rhythmchoice]---(Spacer))|
+								(Spacer)
+						)
+						---
+						(
+								(label:20x?)[text="slow", bgcolor = regbgcolor]|
+								(:4x?)[bgcolor = regbgcolor]|
+								(scale:115x20)[maxvalue=5, minvalue =1 , value=tempo, bgcolor = regbgcolor]|
+								(:4x?)[bgcolor = regbgcolor]|
+								(label:20x?)[text="fast", bgcolor = regbgcolor]
+						)
+						---
+						(Spacer)
+					  )
+					)
+	|
+		  
+	(
+			(Upmargin)
+			---
+			(
+				(Leftmargin)|(Leftmargin)|(Leftmargin)|
+				(
+					(
+							(label:100x80)[text={is_eng=>"Choose Audio File Name:", is_deu=>"Gib einen Audio dateinamen:", otherwise "Choose Audio File Name:"}, bgcolor=regbgcolor, fgcolor=regfgcolor, font=regfont]|
+							(
+									(textbox:140x?)[text=filename, enabled = renamingaudiofile, bgcolor = 0xFFFF00, fgcolor = regfgcolor, font = regfont]
+									---
+									((button:70x32)[text={is_eng=>"Rename", is_deu=>"Umbenennen", otherwise "Rename"}, enabled=!renamingaudiofile]
+									|
+									(button:70x32)[text={is_eng=>"Done Renaming", is_deu=>"Getan Umbenennung", otherwise "Done Renaming"}, enabled=renamingaudiofile])
+							)
+					)
+					---
+					(		(label:100x40)[text={is_eng=>"Recording Duration:", is_deu=>"Aufzeichnungsdauer:", otherwise "Recording Duration:"}, bgcolor=regbgcolor, fgcolor=regfgcolor, font=regfont]|
+							((:?x2)[bgcolor=regbgcolor]---((combo:63x22)[value=2, text ="10,15,30",enabled = true, bgcolor = regbgcolor, fgcolor = 0x000000])---(Spacer))|
+							(Spacer)
+					)
+				)|
+				(:20x?)[bgcolor=regbgcolor]|
+				((button:60x30)[text={is_eng=>"Record", is_deu=>"Rekord", otherwise "Record"}, bgcolor=0x0000FF, fgcolor=regfgcolor, font=regfont]---(Spacer))|
+				(Spacer)
+			)
+			---
+			(Spacer)
+		  )	  
+  )
   
-  Recentlyplayed<-
+  RecentlyplayedSavetext<-
   (
 		(
 			(label:80x?)[text={is_eng=>"Recently Played:", is_deu=>"Zuletzt gespielt:", otherwise "Recently Played:"}, bgcolor=regbgcolor, fgcolor=regfgcolor, font=regfont]|
 			(:20x?)[bgcolor=regbgcolor]|
-			(button:63x33)[text={is_eng=>"Clear", is_deu=>"Klar", otherwise "Clear"}, checked=clear]|
-			(:40x33)[bgcolor=regbgcolor]|
-			(label:100x?)[text={is_eng=>"Choose Text File Name:", is_deu=>"Gib einen Textdateinamen:", otherwise "Choose Text File Name:"}, bgcolor=regbgcolor, fgcolor=regfgcolor, font=regfont]|
-			(textbox:100x?)[text=filename, enabled = true, bgcolor = 0xFFFF00, fgcolor = regfgcolor, font = regfont]|
-			(:20x33)[bgcolor=regbgcolor]|
-			(button:63x33)[text={is_eng=>"Save to Text File", is_deu=>"Speichern als Textdatei", otherwise "Save to Text File"}]|
+			((button:63x33)[text={is_eng=>"Clear", is_deu=>"Klar", otherwise "Clear"}, checked=clear]---(Spacer))|
+			(Leftmargin)|(Leftmargin)|(Leftmargin)|
+			(label:100x80)[text={is_eng=>"Choose Text File Name:", is_deu=>"Gib einen Textdateinamen:", otherwise "Choose Text File Name:"}, bgcolor=regbgcolor, fgcolor=regfgcolor, font=regfont]|
+			(
+					(textbox:140x?)[text=filename, enabled = renamingtextfile = false 	, bgcolor = 0xFFFF00, fgcolor = regfgcolor, font = regfont]
+					---
+					((button:70x32)[text={is_eng=>"Rename", is_deu=>"Umbenennen", otherwise "Rename"}, enabled=!renamingtextfile]
+					|
+					(button:70x32)[text={is_eng=>"Done Renaming", is_deu=>"Getan Umbenennung", otherwise "Done Renaming"}, enabled=renamingtextfile])
+			)|
+			(:20x?)[bgcolor=regbgcolor]|
+			((button:63x33)[text={is_eng=>"Save to Text File", is_deu=>"Speichern als Textdatei", otherwise "Save to Text File"}]---(Spacer))|
 			(Spacer)
 		)
 		---
@@ -118,9 +177,11 @@ MiddleArea<-
   )
  
   
-  PianoRhythmNowplayingRecord<-
+  PianoNowplaying<-
   (
   ((Piano:550x230)|(Nowplaying:180x?)|(Spacer))
+  ---
+  (Spacer)
   )
    
   Piano <-
@@ -147,51 +208,6 @@ MiddleArea<-
 		---
 		(Spacer)
 	)
-  )
-  
-  Rhythm <-
-  (
-		(
-				(label:80x40)[text={is_eng=>"Choose Rhythm:", is_deu=>"Rhythmus Selektieren:", otherwise "Choose Rhythm:"}, bgcolor=regbgcolor, fgcolor=regfgcolor, font=regfont]|
-				(:20x?)[bgcolor=regbgcolor]|
-				(combo:63x20 )[text = "None,Jazz,Rock",enabled = true, bgcolor = regbgcolor, fgcolor = 0x000000, value=rhythmchoice]|
-				(Spacer)
-		)
-		---
-		(
-				(label:20x?)[text="slow"]|
-				(:4x?)[bgcolor = regbgcolor]|
-				(scale:115x20)[maxvalue=5, minvalue =1 , value=tempo]|
-				(:4x?)[bgcolor = regbgcolor]|
-				(label:20x?)[text="fast"]
-		)
-		---
-		(Spacer)
-	)
-  
-  Record <-
-  (
-	(Upmargin)
-	---
-	(
-		(Leftmargin)|
-		(
-			(
-					(label:100x40)[text={is_eng=>"Choose Audio File Name:", is_deu=>"Gib einen Audio dateinamen:", otherwise "Choose Audio File Name:"}, bgcolor=regbgcolor, fgcolor=regfgcolor, font=regfont]|
-					(textbox:100x?)[text=filename, enabled = true, bgcolor = 0xFFFF00, fgcolor = regfgcolor, font = regfont]
-			)
-			---
-			(		(label:100x40)[text={is_eng=>"Recording Duration:", is_deu=>"Aufzeichnungsdauer:", otherwise "Recording Duration:"}, bgcolor=regbgcolor, fgcolor=regfgcolor, font=regfont]|
-					(combo:80x20 )[value=2, text ="10,15,30",enabled = true, bgcolor = regbgcolor, fgcolor = 0x000000]|
-					(Spacer)
-			)
-		)|
-		(:20x33)[bgcolor=regbgcolor]|
-		((button:60x30)[text={is_eng=>"Record", is_deu=>"Rekord", otherwise "Record"}, bgcolor=0x0000FF, fgcolor=regfgcolor, font=regfont]---(Spacer))|
-		(Spacer)
-	)
-	---
-	(Spacer)
   )
   
   BOTTOM<-(label)[text="bottom placeholder"]
