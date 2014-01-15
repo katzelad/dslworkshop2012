@@ -73,30 +73,16 @@ MiddleArea<-
 					---
 					(
 						(
-								(label:80x40)[text=
-
-{is_eng=>"Choose Rhythm:", is_deu=>"Rhythmus Selektieren:", otherwise "Choose Rhythm:"}, bgcolor=regbgcolor, 
-
-fgcolor=regfgcolor, font=regfont]|
+								(label:80x40)[text={is_eng=>"Choose Rhythm:", is_deu=>"Rhythmus Selektieren:", otherwise "Choose Rhythm:"}, bgcolor=regbgcolor, fgcolor=regfgcolor, font=regfont]|
 								(:20x?)[bgcolor=regbgcolor]|
-								((combo:63x20 )[text = 
-
-"None,Jazz,Rock, Country, Funk",enabled = true, bgcolor = regbgcolor, fgcolor = 0x000000, value=rhythmchoice]---
-
-(Spacer))|
+								((combo:63x20 )[text = "None,Jazz,Rock, Country, Funk",enabled = true, bgcolor = regbgcolor, fgcolor = 0x000000, value=rhythmchoice]---(Spacer))|
 								(Spacer)
 						)
 						---
 						(
-								(label:25x?)[text="slow", bgcolor = 
-
-regbgcolor]|
-								(scale:115x16)[maxvalue=5, 
-
-minvalue =1 , value=tempo, bgcolor = regbgcolor]|
-								(label:25x?)[text="fast", bgcolor = 
-
-regbgcolor]
+								(label:25x?)[text="slow", bgcolor = regbgcolor]|
+								(scale:115x16)[maxvalue=5, minvalue =1 , value=tempo, bgcolor = regbgcolor]|
+								(label:25x?)[text="fast", bgcolor = regbgcolor]
 						)
 						---
 						(Spacer)
@@ -111,43 +97,23 @@ regbgcolor]
 				(Leftmargin)|(Leftmargin)|(Leftmargin)|
 				(
 					(
-							(label:100x80)[text={is_eng=>"Choose Audio 
-
-File Name:", is_deu=>"Gib einen Audio dateinamen:", otherwise "Choose Audio File Name:"}, bgcolor=regbgcolor, 
-
-fgcolor=regfgcolor, font=regfont]|
+							(label:100x80)[text={is_eng=>"Choose Audio File Name:", is_deu=>"Gib einen Audio dateinamen:", otherwise "Choose Audio File Name:"}, bgcolor=regbgcolor, fgcolor=regfgcolor, font=regfont]|
 							(
-									(textbox:140x?)
-
-[text=filename, enabled = renamingaudiofile, bgcolor = 0xFFFF00, fgcolor = regfgcolor, font = regfont]
+									(textbox:140x?)[text=filename, enabled = renamingaudiofile, bgcolor = 0xFFFF00, fgcolor = regfgcolor, font = regfont]
 									---
-									((button:70x32)[text=
-
-{is_eng=>"Rename", is_deu=>"Umbenennen", otherwise "Rename"}, enabled=!renamingaudiofile]
+									((button:70x32)[text={is_eng=>"Rename", is_deu=>"Umbenennen", otherwise "Rename"}, enabled=!renamingaudiofile]
 									|
-									(button:70x32)[text=
-
-{is_eng=>"Done Renaming", is_deu=>"Getan Umbenennung", otherwise "Done Renaming"}, 
-
-enabled=renamingaudiofile])
+									(button:70x32)[text={is_eng=>"Done Renaming", is_deu=>"Getan Umbenennung", otherwise "Done Renaming"}, enabled=renamingaudiofile])
 							)
 					)
 					---
-					(		(label:100x40)[text={is_eng=>"Recording 
-
-Duration:", is_deu=>"Aufzeichnungsdauer:", otherwise "Recording Duration:"}, bgcolor=regbgcolor, 
-
-fgcolor=regfgcolor, font=regfont]|
-							((:?x2)[bgcolor=regbgcolor]---
-
-((combo:63x25)[value=2, text ="10,15,30",enabled = true, bgcolor = regbgcolor, fgcolor = 0x000000])---(Spacer))|
+					(		(label:100x40)[text={is_eng=>"Recording Duration:", is_deu=>"Aufzeichnungsdauer:", otherwise "Recording Duration:"}, bgcolor=regbgcolor, fgcolor=regfgcolor, font=regfont]|
+							((:?x2)[bgcolor=regbgcolor]---((combo:63x25)[value=2, text ="10,15,30",enabled = true, bgcolor = regbgcolor, fgcolor = 0x000000])---(Spacer))|
 							(Spacer)
 					)
 				)|
 				(:20x?)[bgcolor=regbgcolor]|
-				((button:60x30)[text={is_eng=>"Record", is_deu=>"Rekord", otherwise 
-
-"Record"}, bgcolor=0x0000FF, fgcolor=regfgcolor, font=regfont]---(Spacer))|
+				((button:60x30)[text={is_eng=>"Record", is_deu=>"Rekord", otherwise "Record"}, bgcolor=0x0000FF, fgcolor=regfgcolor, font=regfont]---(Spacer))|
 				(Spacer)
 			)
 			---
@@ -158,42 +124,26 @@ fgcolor=regfgcolor, font=regfont]|
   RecentlyplayedSavetext<-
   (
 		(
-			(label:80x?)[text={is_eng=>"Recently Played:", is_deu=>"Zuletzt gespielt:", otherwise 
-
-"Recently Played:"}, bgcolor=regbgcolor, fgcolor=regfgcolor, font=regfont]|
+			(label:80x?)[text={is_eng=>"Recently Played:", is_deu=>"Zuletzt gespielt:", otherwise "Recently Played:"}, bgcolor=regbgcolor, fgcolor=regfgcolor, font=regfont]|
 			(:20x?)[bgcolor=regbgcolor]|
-			((button:63x33)[text={is_eng=>"Clear", is_deu=>"Klar", otherwise "Clear"}, 
-
-checked=clear]---(Spacer))|
+			((button:63x33)[text={is_eng=>"Clear", is_deu=>"Klar", otherwise "Clear"}, checked=clear]---(Spacer))|
 			(Leftmargin)|(Leftmargin)|(Leftmargin)|
-			(label:100x80)[text={is_eng=>"Choose Text File Name:", is_deu=>"Gib einen 
-
-Textdateinamen:", otherwise "Choose Text File Name:"}, bgcolor=regbgcolor, fgcolor=regfgcolor, font=regfont]|
+			(label:100x80)[text={is_eng=>"Choose Text File Name:", is_deu=>"Gib einen Textdateinamen:", otherwise "Choose Text File Name:"}, bgcolor=regbgcolor, fgcolor=regfgcolor, font=regfont]|
 			(
-					(textbox:140x?)[text=filename, enabled = renamingtextfile = false 	
-
-, bgcolor = 0xFFFF00, fgcolor = regfgcolor, font = regfont]
+					(textbox:140x?)[text=filename, enabled = renamingtextfile = false 	, bgcolor = 0xFFFF00, fgcolor = regfgcolor, font = regfont]
 					---
-					((button:70x32)[text={is_eng=>"Rename", 
-
-is_deu=>"Umbenennen", otherwise "Rename"}, enabled=!renamingtextfile]
+					((button:70x32)[text={is_eng=>"Rename", is_deu=>"Umbenennen", otherwise "Rename"}, enabled=!renamingtextfile]
 					|
-					(button:70x32)[text={is_eng=>"Done Renaming", is_deu=>"Getan 
-
-Umbenennung", otherwise "Done Renaming"}, enabled=renamingtextfile])
+					(button:70x32)[text={is_eng=>"Done Renaming", is_deu=>"Getan Umbenennung", otherwise "Done Renaming"}, enabled=renamingtextfile])
 			)|
 			(:20x?)[bgcolor=regbgcolor]|
-			((button:63x33)[text={is_eng=>"Save to Text File", is_deu=>"Speichern als Textdatei", 
-
-otherwise "Save to Text File"}]---(Spacer))|
+			((button:63x33)[text={is_eng=>"Save to Text File", is_deu=>"Speichern als Textdatei", otherwise "Save to Text File"}]---(Spacer))|
 			(Spacer)
 		)
 		---
 		(Upmargin)
 		---
-		(textbox)[text=recent, enabled = false, bgcolor = 0xFFAA00, fgcolor = regfgcolor, font = regfont, 
-
-halign = center]
+		(textbox)[text=recent, enabled = false, bgcolor = 0xFFAA00, fgcolor = regfgcolor, font = regfont, halign = center]
 		---
 		(Upmargin)
   )
@@ -203,22 +153,16 @@ halign = center]
 	(Leftmargin)
 	|
 	(
-		((label:80x20)[text={is_eng=>"Language:", is_deu=>"Sprache:", otherwise "Language:"}, 
-
-bgcolor=regbgcolor, fgcolor=regfgcolor, font=regfont]|(Spacer))
+		((label:80x20)[text={is_eng=>"Language:", is_deu=>"Sprache:", otherwise "Language:"}, bgcolor=regbgcolor, fgcolor=regfgcolor, font=regfont]|(Spacer))
 		---
-		(combo:80x20 )[value=langchoice, text ="En,De",enabled = true, bgcolor = regbgcolor, fgcolor = 
-
-0x000000]
+		(combo:80x20 )[value=langchoice, text ="En,De",enabled = true, bgcolor = regbgcolor, fgcolor = 0x000000]
 		---
 		(Spacer)
 	)
 	|
 	(Leftmargin)
 	|
-	((image:60x40)[filename={is_eng=>"Graphics\\UKFlag.png", is_deu=>"Graphics\\GermanyFlag.png", 
-
-otherwise "Graphics\\UKFlag.png"},bgcolor = regbgcolor]---(Spacer))
+	((image:60x40)[filename={is_eng=>"Graphics\\UKFlag.png", is_deu=>"Graphics\\GermanyFlag.png", otherwise "Graphics\\UKFlag.png"},bgcolor = regbgcolor]---(Spacer))
 	|
 	(Spacer)
   )
@@ -227,9 +171,7 @@ otherwise "Graphics\\UKFlag.png"},bgcolor = regbgcolor]---(Spacer))
   (
 	(Upmargin)
 	---
-	((Leftmargin)|(button:60x30)[text={is_eng=>"About", is_deu=>"Informationen", otherwise "About"}, 
-
-bgcolor=regbgcolor, fgcolor=regfgcolor, font=regfont]|(Spacer))
+	((Leftmargin)|(button:60x30)[text={is_eng=>"About", is_deu=>"Informationen", otherwise "About"}, bgcolor=regbgcolor, fgcolor=regfgcolor, font=regfont]|(Spacer))
 	---
 	(Spacer)
   )
@@ -256,16 +198,10 @@ bgcolor=regbgcolor, fgcolor=regfgcolor, font=regfont]|(Spacer))
 	(
 		(Upmargin)
 		---
-		((label:150x20)[text={is_eng=>"Now Playing:", is_deu=>"Jetzt Spielen:", otherwise "Now 
-
-Playing:"}, bgcolor=regbgcolor, fgcolor=regfgcolor, font=regfont]|(Spacer))
+		((label:150x20)[text={is_eng=>"Now Playing:", is_deu=>"Jetzt Spielen:", otherwise "Now Playing:"}, bgcolor=regbgcolor, fgcolor=regfgcolor, font=regfont]|(Spacer))
 		---
-		((image:30x30)[filename={instrument=0=>"Graphics\\piano.png", instrument=1=>"Graphics\
-
-\violin.png",
-						instrument=2=>"Graphics\
-
-\drums.png",instrument=3=>"Graphics\\guitar.png",instrument=4=>"Graphics\\trumpet.png",otherwise ""},
+		((image:30x30)[filename={instrument=0=>"Graphics\\piano.png", instrument=1=>"Graphics\\violin.png",
+						instrument=2=>"Graphics\\drums.png",instrument=3=>"Graphics\\guitar.png",instrument=4=>"Graphics\\trumpet.png",otherwise ""},
 						bgcolor = regbgcolor]
 		 |(Spacer)
 		)
@@ -282,9 +218,7 @@ Playing:"}, bgcolor=regbgcolor, fgcolor=regfgcolor, font=regfont]|(Spacer))
 		(
 				(UpmarginControls)
 				---
-				(label:?x20)[text={is_eng=>"Controls", is_deu=>"Kontrol", otherwise 
-
-"Controls"}, bgcolor = controlsbgcolor, fgcolor = controlsfgcolor, font = controlsfont]
+				(label:?x20)[text={is_eng=>"Controls", is_deu=>"Kontrol", otherwise "Controls"}, bgcolor = controlsbgcolor, fgcolor = controlsfgcolor, font = controlsfont]
 				---
 				(UpmarginControls)
 				---
@@ -307,39 +241,27 @@ Playing:"}, bgcolor=regbgcolor, fgcolor=regfgcolor, font=regfont]|(Spacer))
   
   VOLUME<-
   (
-		(label:?x20)[text={is_eng=>"Volume:", is_deu=>"Volumen", otherwise "Volume"}, bgcolor = 
-
-controlsbgcolor, fgcolor = controlsfgcolor, font = controlsfont]
+		(label:?x20)[text={is_eng=>"Volume:", is_deu=>"Volumen", otherwise "Volume"}, bgcolor = controlsbgcolor, fgcolor = controlsfgcolor, font = controlsfont]
 		---
 		((slider:?x20) [maxvalue=120, minvalue =0 , value=vol]|(:20x?)[bgcolor = controlsbgcolor])
 		---
     	(checkbox:20x20)[checked=(vol=0), bgcolor = controlsbgcolor, fgcolor = controlsfgcolor, font = controlsfont] |
-		(label:50x?)[text={is_eng=>"Mute", is_deu=>"Dampfen", otherwise "Mute"}, bgcolor = 
-
-controlsbgcolor, fgcolor = controlsfgcolor, font = controlsfont]|
+		(label:50x?)[text={is_eng=>"Mute", is_deu=>"Dampfen", otherwise "Mute"}, bgcolor = controlsbgcolor, fgcolor = controlsfgcolor, font = controlsfont]|
 		(SpacerControls)
   ) [mute=1]
 	
   
   INSTRUMENT<-
   (
-		(label:?x20)[text={is_eng=>"Instrument:", is_deu=>"Instrument", otherwise "Instrument"}, bgcolor 
-
-= controlsbgcolor, fgcolor = controlsfgcolor, font = controlsfont]
+		(label:?x20)[text={is_eng=>"Instrument:", is_deu=>"Instrument", otherwise "Instrument"}, bgcolor = controlsbgcolor, fgcolor = controlsfgcolor, font = controlsfont]
 		---
 		(
-			(( (radio:20x20) [checked= instrument = i, bgcolor = controlsbgcolor] | (label)[text = 
-
-Instruments[i], bgcolor = controlsbgcolor, fgcolor = controlsfgcolor, font = controlsfont] )
+			(( (radio:20x20) [checked= instrument = i, bgcolor = controlsbgcolor] | (label)[text = Instruments[i], bgcolor = controlsbgcolor, fgcolor = controlsfgcolor, font = controlsfont] )
 	     	*---*
 	     	[i=0...4,Instruments={piano, violin, drums, guitar, trumpet}])
 			|
-			(image:100x100)[filename={instrument=0=>"Graphics\\piano.png", 
-
-instrument=1=>"Graphics\\violin.png",
-						instrument=2=>"Graphics\
-
-\drums.png",instrument=3=>"Graphics\\guitar.png",instrument=4=>"Graphics\\trumpet.png",otherwise ""},
+			(image:100x100)[filename={instrument=0=>"Graphics\\piano.png", instrument=1=>"Graphics\\violin.png",
+						instrument=2=>"Graphics\\drums.png",instrument=3=>"Graphics\\guitar.png",instrument=4=>"Graphics\\trumpet.png",otherwise ""},
 						bgcolor = controlsbgcolor]
 		)
   )[piano={is_eng=>"Piano", is_deu=>"Klavier", otherwise "Piano"},
@@ -352,9 +274,7 @@ instrument=1=>"Graphics\\violin.png",
   PEDAL<-
   (
 		(checkbox:20x20)[checked = pedal, bgcolor = controlsbgcolor, enabled = instrument = 0] |
-		(label:40x?)[text={is_eng=>"Pedal", is_deu=>"Pedal", otherwise "Pedal"}, bgcolor = 
-
-controlsbgcolor, fgcolor=regfgcolor, font=regfont, enabled = instrument = 0]|
+		(label:40x?)[text={is_eng=>"Pedal", is_deu=>"Pedal", otherwise "Pedal"}, bgcolor = controlsbgcolor, fgcolor=regfgcolor, font=regfont, enabled = instrument = 0]|
 		(SpacerControls)
   ) [pedal = ?(false)]
 			
@@ -364,25 +284,17 @@ controlsbgcolor, fgcolor=regfgcolor, font=regfont, enabled = instrument = 0]|
 		(
 				(:?x30)[bgcolor = controlsbgcolor]
 				---
-				(label)[text={is_eng=>"Octave", is_deu=>"Octave", otherwise "Octave"}, 
-
-bgcolor = controlsbgcolor, fgcolor = controlsfgcolor, font = controlsfont]
+				(label)[text={is_eng=>"Octave", is_deu=>"Octave", otherwise "Octave"}, bgcolor = controlsbgcolor, fgcolor = controlsfgcolor, font = controlsfont]
 		)|
-    	(image:46x106)[filename={octave=1=>"Graphics\\sol8.png",octave=0=>"Graphics\\sol.png",octave=-
-
-1=>"Graphics\\fa.png",octave=-2=>"Graphics\\fa8.png", otherwise "Graphics\\sol.png"}]|
+    	(image:46x106)[filename={octave=1=>"Graphics\\sol8.png",octave=0=>"Graphics\\sol.png",octave=-1=>"Graphics\\fa.png",octave=-2=>"Graphics\\fa8.png", otherwise "Graphics\\sol.png"}]|
     	(
     		(:?x30)[bgcolor = controlsbgcolor]
     		---
-    		(button:50x20)[text={is_eng=>"Up", is_deu=>"Herauf", otherwise "Up"}, checked = up, enabled=!
-
-(octave=1) ]
+    		(button:50x20)[text={is_eng=>"Up", is_deu=>"Herauf", otherwise "Up"}, checked = up, enabled=!(octave=1) ]
     		---
     		(:?x6)[bgcolor = controlsbgcolor]
     		---
-    		(button:?x20)[text={is_eng=>"Down", is_deu=>"Hinab", otherwise "Down"}, checked = down, 
-
-enabled=!(octave=-2)]
+    		(button:?x20)[text={is_eng=>"Down", is_deu=>"Hinab", otherwise "Down"}, checked = down, enabled=!(octave=-2)]
     		---
     		(SpacerControls)
     	)
