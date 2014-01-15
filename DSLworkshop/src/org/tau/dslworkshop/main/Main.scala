@@ -312,6 +312,8 @@ object Main {
         val rhythmName = rhythm match {
           case 1 => "Jazz"
           case 2 => "Rock"
+          case 3 => "Country"
+          case 4 => "Funk"
         }
         seqer.setSequence(MidiSystem.getSequence(new File("Audio\\" + rhythmName + ".mid")))
         seqer.start

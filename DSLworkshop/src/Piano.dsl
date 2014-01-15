@@ -73,15 +73,14 @@ MiddleArea<-
 						(
 								(label:80x40)[text={is_eng=>"Choose Rhythm:", is_deu=>"Rhythmus Selektieren:", otherwise "Choose Rhythm:"}, bgcolor=regbgcolor, fgcolor=regfgcolor, font=regfont]|
 								(:20x?)[bgcolor=regbgcolor]|
-								((combo:63x20 )[text = "None,Jazz,Rock",enabled = true, bgcolor = regbgcolor, fgcolor = 0x000000, value=rhythmchoice]---(Spacer))|
+								((combo:63x20 )[text = "None,Jazz,Rock, Country, Funk",enabled = true, bgcolor = regbgcolor, fgcolor = 0x000000, value=rhythmchoice]---(Spacer))|
 								(Spacer)
 						)
 						---
 						(
-								(label:20x?)[text="slow", bgcolor = regbgcolor]|
-								(:4x?)[bgcolor = regbgcolor]|
+								(label:22x?)[text="slow", bgcolor = regbgcolor]|
+								(:2x?)[bgcolor = regbgcolor]|
 								(scale:115x20)[maxvalue=5, minvalue =1 , value=tempo, bgcolor = regbgcolor]|
-								(:4x?)[bgcolor = regbgcolor]|
 								(label:20x?)[text="fast", bgcolor = regbgcolor]
 						)
 						---
@@ -108,7 +107,7 @@ MiddleArea<-
 					)
 					---
 					(		(label:100x40)[text={is_eng=>"Recording Duration:", is_deu=>"Aufzeichnungsdauer:", otherwise "Recording Duration:"}, bgcolor=regbgcolor, fgcolor=regfgcolor, font=regfont]|
-							((:?x2)[bgcolor=regbgcolor]---((combo:63x22)[value=2, text ="10,15,30",enabled = true, bgcolor = regbgcolor, fgcolor = 0x000000])---(Spacer))|
+							((:?x2)[bgcolor=regbgcolor]---((combo:63x25)[value=2, text ="10,15,30",enabled = true, bgcolor = regbgcolor, fgcolor = 0x000000])---(Spacer))|
 							(Spacer)
 					)
 				)|
