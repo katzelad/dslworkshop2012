@@ -351,7 +351,33 @@ object Main {
     instance.when_changed("tempo", (old, newer) => seqer.setTempoFactor(math.pow(2, (newer.asInstanceOf[Int] - 1) / 4.0).toFloat))
     instance.when_changed("instrument", (old, newer) => changeInstrument(newer.asInstanceOf[Int]))
 
-    instance.bind("play", (x: Int, y: Int) => play(if (x < 250) doo else re))
+    instance.bind("play", (x: Int, y: Int) =>
+      play((x, y) match {
+        case _ if x > 20 && x < 44 && y < 153 => doodiez
+        case _ if x > 62 && x < 86 && y < 153 => rediez
+        case _ if x > 126 && x < 150 && y < 153 => fadiez
+        case _ if x > 168 && x < 192 && y < 153 => soldiez
+        case _ if x > 208 && x < 232 && y < 153 => ladiez
+        case _ if x > 20 + 252 && x < 44 + 252 && y < 153 => doodiez + 12
+        case _ if x > 62 + 252 && x < 86 + 252 && y < 153 => rediez + 12
+        case _ if x > 126 + 252 && x < 150 + 252 && y < 153 => fadiez + 12
+        case _ if x > 168 + 252 && x < 192 + 252 && y < 153 => soldiez + 12
+        case _ if x > 208 + 252 && x < 232 + 252 && y < 153 => ladiez + 12
+        case _ if x < 36 => doo
+        case _ if x < 72 => re
+        case _ if x < 108 => mi
+        case _ if x < 144 => fa
+        case _ if x < 180 => sol
+        case _ if x < 216 => la
+        case _ if x < 252 => si
+        case _ if x < 288 => doo + 12
+        case _ if x < 324 => re + 12
+        case _ if x < 360 => mi + 12
+        case _ if x < 396 => fa + 12
+        case _ if x < 432 => sol + 12
+        case _ if x < 468 => la + 12
+        case _ if x < 504 => si + 12
+      }))
 
     instance.onKeyPress(key => {
       val note = keyToNote(key)

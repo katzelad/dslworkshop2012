@@ -1,4 +1,4 @@
-main_window <-
+  main_window <-
   (inner_main_window)[vol=?(60), langchoice=?(0)]
   
   inner_main_window <-
@@ -45,9 +45,11 @@ main_window <-
 			---
 			(Lang:250x75)
 			---
-			(Nowplaying)
+			(Upmargin)
 			---
 			(About)
+			---
+			(Nowplaying)
 		)|
 		(Spacer)
   )
@@ -179,7 +181,7 @@ MiddleArea<-
   
   WrappedPiano<-
   (
-  ((Piano:550x230)|(Spacer))
+  ((Piano:504x232)|(Spacer))
   ---
   (Spacer)
   )
@@ -193,20 +195,20 @@ MiddleArea<-
   
   Nowplaying<-
   (
-	(Leftmargin)
-	|
 	(
-		(Upmargin)
-		---
 		((label:150x20)[text={is_eng=>"Now Playing:", is_deu=>"Jetzt Spielen:", otherwise "Now Playing:"}, bgcolor=regbgcolor, fgcolor=regfgcolor, font=regfont]|(Spacer))
 		---
-		((image:30x30)[filename={instrument=0=>"Graphics\\piano.png", instrument=1=>"Graphics\\violin.png",
+		(
+				(image:?x?)[filename={instrument=0=>"Graphics\\piano.png", instrument=1=>"Graphics\\violin.png",
 						instrument=2=>"Graphics\\drums.png",instrument=3=>"Graphics\\guitar.png",instrument=4=>"Graphics\\trumpet.png",otherwise ""},
 						bgcolor = regbgcolor]
-		 |(Spacer)
 		)
 		---
-		(Spacer)
+		(Upmargin)
+		---
+		(Upmargin)
+		---
+		(Upmargin)
 	)
   )
   
