@@ -3,7 +3,7 @@
 	(ProgramTitle:?x33)
 	---
 	((Controls:200x?)|(MiddleArea)|(LangAboutNowPlaying))
-  )[vol=?(60), is_eng=langchoice=0, is_deu=langchoice=1, instrument = ?(0), tempo=?(3), renamingtextfile=?(false), renamingaudiofile=?(false),
+  )[vol=?(60), is_eng=langchoice=0, is_deu=langchoice=1, instrument = ?(0), tempo=?(3), renamingaudiofile=?(false),
     up=?(0), down=?(0), clear=?(false), pedal=?(false), filename=?("MySong"), rhythmchoice=?(0),
 	titlebgcolor = 0xFFFFFF, titlefgcolor = 0xFF2B39, titlefont = ("arial", 12, bold), 
 	regbgcolor = 0xFFFFFF, regfgcolor = 0xFF6A26, regfont = ("arial", 10, bold),
@@ -74,7 +74,7 @@ MiddleArea<-
 					(
 						(
 								(label:80x40)[text={is_eng=>"Choose Rhythm:", is_deu=>"Rhythmus Selektieren:", otherwise "Choose Rhythm:"}, bgcolor=regbgcolor, fgcolor=regfgcolor, font=regfont]|
-								(:20x?)[bgcolor=regbgcolor]|
+								(:30x?)[bgcolor=regbgcolor]|
 								((combo:63x20 )[text = "None,Jazz,Rock, Country, Funk",enabled = true, bgcolor = regbgcolor, fgcolor = 0x000000, value=rhythmchoice]---(Spacer))|
 								(Spacer)
 						)
@@ -94,16 +94,18 @@ MiddleArea<-
 			(Upmargin)
 			---
 			(
-				(Leftmargin)|(Leftmargin)|(Leftmargin)|
+				(Leftmargin)|(Leftmargin)|
 				(
 					(
 							(label:100x80)[text={is_eng=>"Choose Audio File Name:", is_deu=>"Gib einen Audio dateinamen:", otherwise "Choose Audio File Name:"}, bgcolor=regbgcolor, fgcolor=regfgcolor, font=regfont]|
 							(
-									(textbox:140x?)[text=filename, enabled = renamingaudiofile, bgcolor = 0xFFFF00, fgcolor = regfgcolor, font = regfont]
+									(textbox:140x30)[text=filename, enabled = renamingaudiofile, bgcolor = 0xFFFF00, fgcolor = regfgcolor, font = regfont]
 									---
 									((button:70x32)[text={is_eng=>"Rename", is_deu=>"Umbenennen", otherwise "Rename"}, enabled=!renamingaudiofile]
 									|
 									(button:70x32)[text={is_eng=>"Done Renaming", is_deu=>"Getan Umbenennung", otherwise "Done Renaming"}, enabled=renamingaudiofile])
+									---
+									(Spacer)
 							)
 					)
 					---
@@ -126,19 +128,8 @@ MiddleArea<-
 		(
 			(label:80x?)[text={is_eng=>"Recently Played:", is_deu=>"Zuletzt gespielt:", otherwise "Recently Played:"}, bgcolor=regbgcolor, fgcolor=regfgcolor, font=regfont]|
 			(:20x?)[bgcolor=regbgcolor]|
-			((button:63x33)[text={is_eng=>"Clear", is_deu=>"Klar", otherwise "Clear"}, checked=clear]---(Spacer))|
-			(Leftmargin)|(Leftmargin)|(Leftmargin)|
-			(label:100x80)[text={is_eng=>"Choose Text File Name:", is_deu=>"Gib einen Textdateinamen:", otherwise "Choose Text File Name:"}, bgcolor=regbgcolor, fgcolor=regfgcolor, font=regfont]|
-			(
-					(textbox:140x?)[text=filename, enabled = renamingtextfile = false 	, bgcolor = 0xFFFF00, fgcolor = regfgcolor, font = regfont]
-					---
-					((button:70x32)[text={is_eng=>"Rename", is_deu=>"Umbenennen", otherwise "Rename"}, enabled=!renamingtextfile]
-					|
-					(button:70x32)[text={is_eng=>"Done Renaming", is_deu=>"Getan Umbenennung", otherwise "Done Renaming"}, enabled=renamingtextfile])
-			)|
-			(:20x?)[bgcolor=regbgcolor]|
-			((button:63x33)[text={is_eng=>"Save to Text File", is_deu=>"Speichern als Textdatei", otherwise "Save to Text File"}]---(Spacer))|
-			(Spacer)
+			(Spacer)|
+			((button:63x33)[text={is_eng=>"Clear", is_deu=>"Klar", otherwise "Clear"}, checked=clear])
 		)
 		---
 		(Upmargin)
@@ -171,7 +162,7 @@ MiddleArea<-
   (
 	(Upmargin)
 	---
-	((Leftmargin)|(button:60x30)[text={is_eng=>"About", is_deu=>"Informationen", otherwise "About"}, bgcolor=regbgcolor, fgcolor=regfgcolor, font=regfont]|(Spacer))
+	((Leftmargin)|(button:100x30)[text={is_eng=>"About", is_deu=>"Informationen", otherwise "About"}, bgcolor=regbgcolor, fgcolor=regfgcolor, font=regfont]|(Spacer))
 	---
 	(Spacer)
   )
@@ -179,9 +170,9 @@ MiddleArea<-
   
   WrappedPiano<-
   (
-  ((Piano:504x232)|(Spacer))
-  ---
-  (Spacer)
+	  ((Leftmargin)|(Piano:504x232)|(Spacer))
+	  ---
+	  (Spacer)
   )
    
   Piano <-
@@ -197,7 +188,7 @@ MiddleArea<-
 		((label:150x20)[text={is_eng=>"Now Playing:", is_deu=>"Jetzt Spielen:", otherwise "Now Playing:"}, bgcolor=regbgcolor, fgcolor=regfgcolor, font=regfont]|(Spacer))
 		---
 		(
-				(image:?x?)[filename={instrument=0=>"Graphics\\piano.png", instrument=1=>"Graphics\\violin.png",
+				(image:100x100)[filename={instrument=0=>"Graphics\\piano.png", instrument=1=>"Graphics\\violin.png",
 						instrument=2=>"Graphics\\drums.png",instrument=3=>"Graphics\\guitar.png",instrument=4=>"Graphics\\trumpet.png",otherwise ""},
 						bgcolor = regbgcolor]
 		)
