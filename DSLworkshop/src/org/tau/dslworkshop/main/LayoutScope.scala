@@ -53,20 +53,20 @@ class LayoutScope(widgetsMap: Map[String, Widget], extensions: TExtensions) {
 
   def getParams = params
 
-  private def isReservedAtrribute(att: String) = att match {
-    case "halign" => true
-    case "text" => true
-    case "checked" => true
-    case "filename" => true
-    case "value" => true
-    case "maxvalue" => true
-    case "minvalue" => true
-    case "enabled" => true
-    case "fgcolor" => true
-    case "bgcolor" => true
-    case "font" => true
-    case _ => false
-  }
+//  private def isReservedAtrribute(att: String) = att match {
+//    case "halign" => true
+//    case "text" => true
+//    case "checked" => true
+//    case "filename" => true
+//    case "value" => true
+//    case "maxvalue" => true
+//    case "minvalue" => true
+//    case "enabled" => true
+//    case "fgcolor" => true
+//    case "bgcolor" => true
+//    case "font" => true
+//    case _ => false
+//  }
 
   private def createSash(parent: Composite, direction: Int) = new Sash(parent, direction | SWT.SMOOTH | SWT.BORDER)
 
