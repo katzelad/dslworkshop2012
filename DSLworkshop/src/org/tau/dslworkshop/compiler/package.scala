@@ -6,7 +6,7 @@ import org.eclipse.swt.graphics.{ Color => swtColor }
 import org.eclipse.swt.graphics.{ Font => swtFont }
 import org.eclipse.swt.SWT
 
-package object main {
+package object compiler {
 
   type TEvaluatedVarMap = ScopingMap[String, Any]
 
@@ -20,7 +20,7 @@ package object main {
   
   type mutableHashMap[K, V] = scala.collection.mutable.HashMap[K, V]
 
-  val SASH_WIDTH = 5
+  val SASH_WIDTH = 7
 
   val INITIAL_ATT_FLAG = () => {}
 
@@ -39,5 +39,5 @@ package object main {
     case HAlign.center => SWT.CENTER
     case HAlign.right => SWT.RIGHT
   }
-
+  
 }

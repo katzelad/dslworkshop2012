@@ -1,4 +1,4 @@
-package org.tau.dslworkshop.main
+package org.tau.dslworkshop.compiler.exceptions
 
 import org.tau.workshop2011.expressions.Type
 import org.tau.workshop2011.parser.AST.Expr

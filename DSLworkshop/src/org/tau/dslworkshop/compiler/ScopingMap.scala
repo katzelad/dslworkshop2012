@@ -1,4 +1,6 @@
-package org.tau.dslworkshop.main
+package org.tau.dslworkshop.compiler
+
+import org.tau.dslworkshop.compiler.exceptions.VariableNotFound
 
 class ScopingMap[K, V](parent: ScopingMap[K, V] = null) extends scala.collection.mutable.HashMap[K, V] {
   override def apply(key: K) =

@@ -1,4 +1,4 @@
-package org.tau.dslworkshop.main
+package org.tau.dslworkshop.compiler
 
 import scala.collection.immutable.HashSet
 import org.eclipse.swt.widgets.Display
@@ -20,6 +20,7 @@ import org.eclipse.swt.widgets.Listener
 import org.eclipse.swt.widgets.Event
 import org.eclipse.swt.widgets.Text
 import org.eclipse.swt.events.MouseEvent
+import org.tau.dslworkshop.compiler.exceptions.ParsingError
 
 class DSLProgram(code: String) {
 

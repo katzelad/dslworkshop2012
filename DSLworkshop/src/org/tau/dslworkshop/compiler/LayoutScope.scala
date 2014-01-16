@@ -1,4 +1,4 @@
-package org.tau.dslworkshop.main
+package org.tau.dslworkshop.compiler
 
 import scala.collection.mutable.{ Buffer => mutableBuffer }
 import scala.collection.mutable.{ Map => mutableMap }

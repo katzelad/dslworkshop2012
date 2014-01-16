@@ -1,13 +1,14 @@
   main_window <-
-  (inner_main_window)[vol=?(60), langchoice=?(0)]
+  (inner_main_window)[vol=?(60)]
   
   inner_main_window <-
   (
 	(ProgramTitle:?x33)
 	---
 	((Controls:200x?)|(MiddleArea)|(LangAboutNowPlaying))
-  )[is_eng=langchoice=0, is_deu=langchoice=1, instrument = ?(0),
-	titlebgcolor = 0xFFFFFF, titlefgcolor = 0xFF2B39, titlefont = ("arial", 12, bold),
+  )[is_eng=langchoice=0, is_deu=langchoice=1, instrument = ?(0), tempo=?(3), renamingtextfile=?(false), renamingaudiofile=?(false),
+    up=?(0), down=?(0), octave=?(0), recent=?(""), clear=?(false), pedal=?(false), filename=?("MySong"), rhythmchoice=?(0),
+	titlebgcolor = 0xFFFFFF, titlefgcolor = 0xFF2B39, titlefont = ("arial", 12, bold), 
 	regbgcolor = 0xFFFFFF, regfgcolor = 0xFF6A26, regfont = ("arial", 10, bold),
 	controlsbgcolor = 0xD6FCFF, controlsfgcolor = 0xFF6A26, controlsfont = ("arial", 10, bold)]
   
@@ -82,9 +83,9 @@ MiddleArea<-
 						)
 						---
 						(
-								(label:25x?)[text="slow", bgcolor = regbgcolor]|
-								(scale:115x16)[maxvalue=5, minvalue =1 , value=tempo, bgcolor = regbgcolor]|
-								(label:25x?)[text="fast", bgcolor = regbgcolor]
+								(label:40x?)[text="Slower ", bgcolor = regbgcolor]|
+								(scale:100x70)[maxvalue=5, minvalue =1 , value=tempo, bgcolor = regbgcolor]|
+								(label:40x?)[text=" Faster", bgcolor = regbgcolor]
 						)
 						---
 						(Spacer)

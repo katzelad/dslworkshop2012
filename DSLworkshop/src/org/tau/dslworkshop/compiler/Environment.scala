@@ -1,7 +1,8 @@
-package org.tau.dslworkshop.main
+package org.tau.dslworkshop.compiler
 
 import org.tau.workshop2011.parser.AST._
 import org.tau.workshop2011.expressions._
+import org.tau.dslworkshop.compiler.exceptions.TypeMismatch
 
 class Environment(var evaluatedVarMap: TEvaluatedVarMap, var unevaluatedVarMap: TUnevaluatedVarMap) {
   
