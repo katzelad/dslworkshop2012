@@ -182,7 +182,7 @@ object Piano {
         mainChannel.allNotesOff
     })
 
-    val output = instance(Array("langchoice=0"))
+    val output = instance(Array("langchoice=0", "recent=\"\"", "octave=0"))
 
     synth.close
     seqer.close

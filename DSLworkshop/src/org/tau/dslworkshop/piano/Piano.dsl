@@ -1,13 +1,10 @@
   main_window <-
-  (inner_main_window)[vol=?(60)]
-  
-  inner_main_window <-
   (
 	(ProgramTitle:?x33)
 	---
 	((Controls:200x?)|(MiddleArea)|(LangAboutNowPlaying))
-  )[is_eng=langchoice=0, is_deu=langchoice=1, instrument = ?(0), tempo=?(3), renamingtextfile=?(false), renamingaudiofile=?(false),
-    up=?(0), down=?(0), octave=?(0), recent=?(""), clear=?(false), pedal=?(false), filename=?("MySong"), rhythmchoice=?(0),
+  )[vol=?(60), is_eng=langchoice=0, is_deu=langchoice=1, instrument = ?(0), tempo=?(3), renamingtextfile=?(false), renamingaudiofile=?(false),
+    up=?(0), down=?(0), clear=?(false), pedal=?(false), filename=?("MySong"), rhythmchoice=?(0),
 	titlebgcolor = 0xFFFFFF, titlefgcolor = 0xFF2B39, titlefont = ("arial", 12, bold), 
 	regbgcolor = 0xFFFFFF, regfgcolor = 0xFF6A26, regfont = ("arial", 10, bold),
 	controlsbgcolor = 0xD6FCFF, controlsfgcolor = 0xFF6A26, controlsfont = ("arial", 10, bold)]
@@ -262,10 +259,6 @@ MiddleArea<-
 			(( (radio:20x20) [checked= instrument = i, bgcolor = controlsbgcolor] | (label)[text = Instruments[i], bgcolor = controlsbgcolor, fgcolor = controlsfgcolor, font = controlsfont] )
 	     	*---*
 	     	[i=0...4,Instruments={piano, violin, drums, guitar, trumpet}])
-			|
-			(image:100x100)[filename={instrument=0=>"Graphics\\piano.png", instrument=1=>"Graphics\\violin.png",
-						instrument=2=>"Graphics\\drums.png",instrument=3=>"Graphics\\guitar.png",instrument=4=>"Graphics\\trumpet.png",otherwise ""},
-						bgcolor = controlsbgcolor]
 		)
   )[piano={is_eng=>"Piano", is_deu=>"Klavier", otherwise "Piano"},
 	guitar={is_eng=>"Guitar", is_deu=>"Gitarre", otherwise "Guitar"},
