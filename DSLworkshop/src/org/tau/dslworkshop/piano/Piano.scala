@@ -27,11 +27,10 @@ object Piano {
     //TODO debug parameters list
 
     val instance = new DSLProgram(code)(
-        name = "main_window",
-        icon = "Graphics\\Icon.png",
-        isMaximized = true,
-        title = "The Maestro"
-          )
+      name = "main_window",
+      icon = "Graphics\\Icon.png",
+      isMaximized = true,
+      title = "The Maestro")
     println(args.mkString("{", " ", "}"))
 
     var vol = 50
@@ -119,18 +118,26 @@ object Piano {
     }
 
     def changeInstrument(instrument: Int) {
-      val instIndex = instrument match { //todo update match
+      mainChannel.programChange(instrument match {
         case 0 => 0
         case 1 => 40
-        case 2 => 0
-        case 3 => 0
+        case 2 => 65
+        case 3 => 24
         case 4 => 56
+        case 5 => 6
         case _ => 0
-      }
-      mainChannel.programChange(synth.getDefaultSoundbank.getInstruments()(instIndex).getPatch.getProgram)
+      })
+      //      mainChannel.programChange(synth.getDefaultSoundbank.getInstruments()(instIndex).getPatch.getProgram)
     }
 
-    instance.when_changed("vol", (_, newer) => vol = newer.asInstanceOf[Int])
+    instance.when_changed("vol", (_, newer) => {
+      vol = newer.asInstanceOf[Int]
+      if (seqer.getSequence != null) {
+        val tracks = seqer.getSequence.getTracks
+        for (i <- 0 until tracks.length)
+          tracks(i).add(new MidiEvent(new ShortMessage(ShortMessage.CONTROL_CHANGE, i, 7, vol), 0))
+      }
+    })
     instance.when_changed("up", (_, _) => {
       octave = octave + 1
       instance.set("octave", octave)
