@@ -1,11 +1,11 @@
   main_window <-
   (
-	(ProgramTitle:?x33)
+	(ProgramTitle:?x40)
 	---
 	((Controls:200x?)|(MiddleArea)|(LangAboutNowPlaying:300x?))
   )[vol=?(60), is_eng=langchoice=0, is_deu=langchoice=1, instrument = ?(0), tempo=?(3), renamingaudiofile=?(false),
     up=?(0), down=?(0), clear=?(false), pedal=?(false), filename=?("MySong"), rhythmchoice=?(0),
-	titlebgcolor = 0xFFFFFF, titlefgcolor = 0xFF2B39, titlefont = ("arial", 12, bold), 
+	titlebgcolor = 0xFFFFFF, titlefgcolor = 0x2FA1E2, titlefont = ("arial", 12, bold), 
 	regbgcolor = 0xFFFFFF, regfgcolor = 0xFF6A26, regfont = ("arial", 10, bold),
 	controlsbgcolor = 0xD6FCFF, controlsfgcolor = 0xFF6A26, controlsfont = ("arial", 10, bold)]
   
@@ -33,7 +33,12 @@
   SpacerControls<-
   ()[bgcolor=controlsbgcolor]
   
-  ProgramTitle <- (label)[text="TAU PIANO", bgcolor = 0xFFA528, fgcolor = 0xffffff, font = ("arial", 16, bold)]
+  ProgramTitle <- 
+  (
+		  (label)[text="The Maestro", bgcolor = 0xC64F1F, fgcolor = 0xffffff, font = ("Monotype Corsiva", 24, bold)]
+		  ---
+		  (:?x8)[bgcolor = 0xC64F1F]
+  )
 		  
   LangAboutNowPlaying <-
   (
@@ -100,7 +105,7 @@ MiddleArea<-
 					(
 							(label:100x80)[text={is_eng=>"Choose Audio File Name:", is_deu=>"Gib einen Audio dateinamen:", otherwise "Choose Audio File Name:"}, bgcolor=regbgcolor, fgcolor=regfgcolor, font=regfont]|
 							(
-									(textbox:140x30)[text=filename, enabled = renamingaudiofile, bgcolor = 0xFFFF00, fgcolor = regfgcolor, font = regfont]
+									(textbox:140x30)[text=filename, enabled = renamingaudiofile, bgcolor = 0x7CC8FF, fgcolor = regfgcolor, font = regfont]
 									---
 									((button:70x32)[text={is_eng=>"Rename", is_deu=>"Umbenenn", otherwise "Rename"}, enabled=!renamingaudiofile]
 									|
@@ -135,7 +140,7 @@ MiddleArea<-
 		---
 		(Upmargin)
 		---
-		(textbox)[text=recent, enabled = false, bgcolor = 0xFFAA00, fgcolor = regfgcolor, font = regfont, halign = center]
+		(textbox)[text=recent, enabled = false, bgcolor = 0xFFEBD6, fgcolor = regfgcolor, font = regfont, halign = center]
 		---
 		(Upmargin)
   )
@@ -192,7 +197,7 @@ MiddleArea<-
 		---
 		(
 				(image:100x100)[filename={instrument=0=>"Graphics\\piano.png", instrument=1=>"Graphics\\violin.png",
-						instrument=2=>"Graphics\\drums.png",instrument=3=>"Graphics\\guitar.png",instrument=4=>"Graphics\\trumpet.png",otherwise ""},
+						instrument=2=>"Graphics\\saxophone.png",instrument=3=>"Graphics\\guitar.png",instrument=4=>"Graphics\\trumpet.png",instrument=5=>"Graphics\\harp.png",otherwise ""},
 						bgcolor = regbgcolor]|
 				(Spacer)
 		)
@@ -253,13 +258,14 @@ MiddleArea<-
 		(
 			(( (radio:20x20) [checked= instrument = i, bgcolor = controlsbgcolor] | (label)[text = Instruments[i], bgcolor = controlsbgcolor, fgcolor = controlsfgcolor, font = controlsfont] )
 	     	*---*
-	     	[i=0...4,Instruments={piano, violin, drums, guitar, trumpet}])
+	     	[i=0...5,Instruments={piano, violin, saxophone, guitar, trumpet, harp}])
 		)
   )[piano={is_eng=>"Piano", is_deu=>"Klavier", otherwise "Piano"},
-	guitar={is_eng=>"Guitar", is_deu=>"Gitarre", otherwise "Guitar"},
 	violin={is_eng=>"Violin", is_deu=>"Violine", otherwise "Violin"},
+	saxophone={is_eng=>"Saxophone", is_deu=>"Saxophon", otherwise "Saxophone"},
+	guitar={is_eng=>"Guitar", is_deu=>"Gitarre", otherwise "Guitar"},
 	trumpet={is_eng=>"Trumpet", is_deu=>"Trompete", otherwise "Trumpet"},
-	drums={is_eng=>"Drums", is_deu=>"Schlagzeug", otherwise "Drums"}]
+	harp={is_eng=>"Harp", is_deu=>"Harfe", otherwise "Harp"}]
 	
   
   PEDAL<-
