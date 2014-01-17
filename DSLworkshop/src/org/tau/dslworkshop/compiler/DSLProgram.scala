@@ -21,6 +21,7 @@ import org.eclipse.swt.widgets.Event
 import org.eclipse.swt.widgets.Text
 import org.eclipse.swt.events.MouseEvent
 import org.tau.dslworkshop.compiler.exceptions.ParsingError
+import org.eclipse.swt.graphics.Image
 
 class DSLProgram(code: String) {
 
@@ -33,7 +34,7 @@ class DSLProgram(code: String) {
     case LayoutParser.NoSuccess(msg, nextInput) => throw new ParsingError(msg, nextInput.pos.line, nextInput.pos.column)
   }
 
-  class DSLObject protected[DSLProgram] (name: String) {
+  class DSLObject protected[DSLProgram] (name: String, title: String, icon: String, isMaximized: Boolean, defaultWidth: Int, defaultHeight: Int) {
 
     private val window = new Shell(display)
 
@@ -96,10 +97,15 @@ class DSLProgram(code: String) {
         InitialAttribute(argName, argValue)
       }), None, None)
       val scope = new LayoutScope(widgetsMap, extensions)
-      val (width, height, isWidthQM, isHeightQM, changeWindowSize) = scope.evalNode(mainWidget, window, new Environment(evaluatedVarMap, unevaluatedVarMap))
+      val (width, height, isWidthQM, isHeightQM, changeWindowSize) =
+        scope.evalNode(mainWidget, window, new Environment(evaluatedVarMap, unevaluatedVarMap))
       window setLayout new FillLayout
-      window.getChildren()(0).setSize(width, height) // TODO add code to handle limitation on window size when not '?'
+      window.getChildren()(0).setSize(if (isWidthQM) defaultWidth else width, if (isHeightQM) defaultHeight else height) // TODO add code to handle limitation on window size when not '?'
       window.pack
+      window.setMaximized(isMaximized)
+      window.setText(title)
+      if (icon != null)
+        window.setImage(new Image(display, icon))
       window.open
       while (!window.isDisposed) {
         if (!display.readAndDispatch) {
@@ -112,6 +118,7 @@ class DSLProgram(code: String) {
 
   }
 
-  def apply(name: String) = new DSLObject(name)
+  def apply(name: String, title: String = "", icon: String = null, isMaximized: Boolean = false, defaultWidth: Int = 500, defaultHeight: Int = 500) =
+    new DSLObject(name, title, icon, isMaximized, defaultWidth, defaultHeight)
 
 }

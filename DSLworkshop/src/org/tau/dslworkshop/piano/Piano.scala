@@ -26,7 +26,12 @@ object Piano {
     //TODO catch exceptions
     //TODO debug parameters list
 
-    val instance = new DSLProgram(code)("main_window")
+    val instance = new DSLProgram(code)(
+        name = "main_window",
+        icon = "Graphics\\Icon.png",
+        isMaximized = true,
+        title = "The Maestro"
+          )
     println(args.mkString("{", " ", "}"))
 
     var vol = 50
@@ -182,7 +187,7 @@ object Piano {
         mainChannel.allNotesOff
     })
 
-    val output = instance(Array("langchoice=0", "recent=\"\"", "octave=0"))
+    val output = instance(args = Array("langchoice=0", "recent=\"\"", "octave=0"))
 
     synth.close
     seqer.close

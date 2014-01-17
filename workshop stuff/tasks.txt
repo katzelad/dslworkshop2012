@@ -1,0 +1,27 @@
+evalexpr...
+
+duplicate names
+type checking
+error messages
+
+add linear case to changeVarLTR - options:
+completely ignore
+only basic ("flat") case
+general linear case
+
+rtl runtime evaluation for variables?
+
+ltr evaluations for more attributes
+
+---
+
+dsl code
+
+
+
+=====
+notes regarding handledynamic...:
+
+(width/2 - 30)x(height/2) | (width/2)x50 | 30x?
+height = maximal constant height
+width = sum of constant widths

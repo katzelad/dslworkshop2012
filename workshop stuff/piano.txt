@@ -1,0 +1,9 @@
+title <- 
+keyboard <- (image:1500x300)[code = 
+volume_control <-
+		(label)[text = "Volume:"]
+			---
+		(slider)[value = ?(50), minvalue = 0, maxvalue = 100]
+			---
+		(checkbox)[checked = ?(false)] | (label)[text = "Mute"]
+main_window <- 

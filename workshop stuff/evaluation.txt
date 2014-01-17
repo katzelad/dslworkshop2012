@@ -1,0 +1,15 @@
+checked = v = 5
+checked = v = 0xFF0000
+checked = v = "shir"
+
+changedVarRTL(v = 5, true)
+changedVarRTL(v, 5)
+
+				v = a			v = ?(a)	v = ?
+				checked = v		checked = v	checked = v
+initial value			a			a		input parameter
+change from right		yes			no		no
+				(change of a
+				will change checked
+				and v)
+change from left		yes (both v&a)		yes		yes

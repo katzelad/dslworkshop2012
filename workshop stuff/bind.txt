@@ -1,0 +1,12 @@
+DSL: l <- (button)[code = "click(v)"] | (slider)[value=v]
+
+Scala:
+l.bind(click, print("elad " + _))
+
+----------------------------------------
+
+DSL: l <- (button)[code = "click()"] | (slider)[value=v]
+
+Scala:
+l.when_changed("v", volume = v)
+l.bind(click, print("elad " + volume))

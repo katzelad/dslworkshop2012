@@ -1,0 +1,239 @@
+piano - 0
+violin - 40
+trumpet - 56
+
+Instrument: Piano 1      bank #0 preset #0
+Instrument: Piano 2      bank #0 preset #1
+Instrument: Piano 3      bank #0 preset #2
+Instrument: Honky-tonk   bank #0 preset #3
+Instrument: E.Piano 1    bank #0 preset #4
+Instrument: E.Piano 2    bank #0 preset #5
+Instrument: Harpsichord  bank #0 preset #6
+Instrument: Clav.        bank #0 preset #7
+Instrument: Celesta      bank #0 preset #8
+Instrument: Glockenspiel bank #0 preset #9
+Instrument: Music Box    bank #0 preset #10
+Instrument: Vibraphone   bank #0 preset #11
+Instrument: Marimba      bank #0 preset #12
+Instrument: Xylophone    bank #0 preset #13
+Instrument: Tubular-bell bank #0 preset #14
+Instrument: Santur       bank #0 preset #15
+Instrument: Organ 1      bank #0 preset #16
+Instrument: Organ 2      bank #0 preset #17
+Instrument: Organ 3      bank #0 preset #18
+Instrument: Church Org.1 bank #0 preset #19
+Instrument: Reed Organ   bank #0 preset #20
+Instrument: Accordion Fr bank #0 preset #21
+Instrument: Harmonica    bank #0 preset #22
+Instrument: Bandoneon    bank #0 preset #23
+Instrument: Nylon-str.Gt bank #0 preset #24
+Instrument: Steel-str.Gt bank #0 preset #25
+Instrument: Jazz Gt.     bank #0 preset #26
+Instrument: Clean Gt.    bank #0 preset #27
+Instrument: Muted Gt.    bank #0 preset #28
+Instrument: Overdrive Gt bank #0 preset #29
+Instrument: DistortionGt bank #0 preset #30
+Instrument: Gt.Harmonics bank #0 preset #31
+Instrument: Acoustic Bs. bank #0 preset #32
+Instrument: Fingered Bs. bank #0 preset #33
+Instrument: Picked Bs.   bank #0 preset #34
+Instrument: Fretless Bs. bank #0 preset #35
+Instrument: Slap Bass 1  bank #0 preset #36
+Instrument: Slap Bass 2  bank #0 preset #37
+Instrument: Synth Bass 1 bank #0 preset #38
+Instrument: Synth Bass 2 bank #0 preset #39
+Instrument: Violin       bank #0 preset #40
+Instrument: Viola        bank #0 preset #41
+Instrument: Cello        bank #0 preset #42
+Instrument: Contrabass   bank #0 preset #43
+Instrument: Tremolo Str  bank #0 preset #44
+Instrument: PizzicatoStr bank #0 preset #45
+Instrument: Harp         bank #0 preset #46
+Instrument: Timpani      bank #0 preset #47
+Instrument: Strings      bank #0 preset #48
+Instrument: Slow Strings bank #0 preset #49
+Instrument: Syn.Strings1 bank #0 preset #50
+Instrument: Syn.Strings2 bank #0 preset #51
+Instrument: Choir Aahs   bank #0 preset #52
+Instrument: Voice Oohs   bank #0 preset #53
+Instrument: SynVox       bank #0 preset #54
+Instrument: OrchestraHit bank #0 preset #55
+Instrument: Trumpet      bank #0 preset #56
+Instrument: Trombone     bank #0 preset #57
+Instrument: Tuba         bank #0 preset #58
+Instrument: MutedTrumpet bank #0 preset #59
+Instrument: French Horns bank #0 preset #60
+Instrument: Brass 1      bank #0 preset #61
+Instrument: Synth Brass1 bank #0 preset #62
+Instrument: Synth Brass2 bank #0 preset #63
+Instrument: Soprano Sax  bank #0 preset #64
+Instrument: Alto Sax     bank #0 preset #65
+Instrument: Tenor Sax    bank #0 preset #66
+Instrument: Baritone Sax bank #0 preset #67
+Instrument: Oboe         bank #0 preset #68
+Instrument: English Horn bank #0 preset #69
+Instrument: Bassoon      bank #0 preset #70
+Instrument: Clarinet     bank #0 preset #71
+Instrument: Piccolo      bank #0 preset #72
+Instrument: Flute        bank #0 preset #73
+Instrument: Recorder     bank #0 preset #74
+Instrument: Pan Flute    bank #0 preset #75
+Instrument: Bottle Blow  bank #0 preset #76
+Instrument: Shakuhachi   bank #0 preset #77
+Instrument: Whistle      bank #0 preset #78
+Instrument: Ocarina      bank #0 preset #79
+Instrument: Square Wave  bank #0 preset #80
+Instrument: Saw Wave     bank #0 preset #81
+Instrument: Syn.Calliope bank #0 preset #82
+Instrument: Chiffer Lead bank #0 preset #83
+Instrument: Charang      bank #0 preset #84
+Instrument: Solo Vox     bank #0 preset #85
+Instrument: 5th Saw Wave bank #0 preset #86
+Instrument: Bass & Lead  bank #0 preset #87
+Instrument: Fantasia     bank #0 preset #88
+Instrument: Warm Pad     bank #0 preset #89
+Instrument: Polysynth    bank #0 preset #90
+Instrument: Space Voice  bank #0 preset #91
+Instrument: Bowed Glass  bank #0 preset #92
+Instrument: Metal Pad    bank #0 preset #93
+Instrument: Halo Pad     bank #0 preset #94
+Instrument: Sweep Pad    bank #0 preset #95
+Instrument: Ice Rain     bank #0 preset #96
+Instrument: Soundtrack   bank #0 preset #97
+Instrument: Crystal      bank #0 preset #98
+Instrument: Atmosphere   bank #0 preset #99
+Instrument: Brightness   bank #0 preset #100
+Instrument: Goblin       bank #0 preset #101
+Instrument: Echo Drops   bank #0 preset #102
+Instrument: Star Theme   bank #0 preset #103
+Instrument: Sitar        bank #0 preset #104
+Instrument: Banjo        bank #0 preset #105
+Instrument: Shamisen     bank #0 preset #106
+Instrument: Koto         bank #0 preset #107
+Instrument: Kalimba      bank #0 preset #108
+Instrument: Bagpipe      bank #0 preset #109
+Instrument: Fiddle       bank #0 preset #110
+Instrument: Shanai       bank #0 preset #111
+Instrument: Tinkle Bell  bank #0 preset #112
+Instrument: Agogo        bank #0 preset #113
+Instrument: Steel Drums  bank #0 preset #114
+Instrument: Woodblock    bank #0 preset #115
+Instrument: Taiko        bank #0 preset #116
+Instrument: Melo. Tom 1  bank #0 preset #117
+Instrument: Synth Drum   bank #0 preset #118
+Instrument: Reverse Cym. bank #0 preset #119
+Instrument: Gt.FretNoise bank #0 preset #120
+Instrument: Breath Noise bank #0 preset #121
+Instrument: Seashore     bank #0 preset #122
+Instrument: Bird         bank #0 preset #123
+Instrument: Telephone 1  bank #0 preset #124
+Instrument: Helicopter   bank #0 preset #125
+Instrument: Applause     bank #0 preset #126
+Instrument: Gun Shot     bank #0 preset #127
+Instrument: SynthBass101 bank #128 preset #38
+Instrument: Trombone 2   bank #128 preset #57
+Instrument: Fr.Horn 2    bank #128 preset #60
+Instrument: Square       bank #128 preset #80
+Instrument: Saw          bank #128 preset #81
+Instrument: Syn Mallet   bank #128 preset #98
+Instrument: Echo Bell    bank #128 preset #102
+Instrument: Sitar 2      bank #128 preset #104
+Instrument: Gt.Cut Noise bank #128 preset #120
+Instrument: Fl.Key Click bank #128 preset #121
+Instrument: Rain         bank #128 preset #122
+Instrument: Dog          bank #128 preset #123
+Instrument: Telephone 2  bank #128 preset #124
+Instrument: Car-Engine   bank #128 preset #125
+Instrument: Laughing     bank #128 preset #126
+Instrument: Machine Gun  bank #128 preset #127
+Instrument: Echo Pan     bank #256 preset #102
+Instrument: String Slap  bank #256 preset #120
+Instrument: Thunder      bank #256 preset #122
+Instrument: Horse-Gallop bank #256 preset #123
+Instrument: DoorCreaking bank #256 preset #124
+Instrument: Car-Stop     bank #256 preset #125
+Instrument: Screaming    bank #256 preset #126
+Instrument: Lasergun     bank #256 preset #127
+Instrument: Wind         bank #384 preset #122
+Instrument: Bird 2       bank #384 preset #123
+Instrument: Door         bank #384 preset #124
+Instrument: Car-Pass     bank #384 preset #125
+Instrument: Punch        bank #384 preset #126
+Instrument: Explosion    bank #384 preset #127
+Instrument: Stream       bank #512 preset #122
+Instrument: Scratch      bank #512 preset #124
+Instrument: Car-Crash    bank #512 preset #125
+Instrument: Heart Beat   bank #512 preset #126
+Instrument: Bubble       bank #640 preset #122
+Instrument: Wind Chimes  bank #640 preset #124
+Instrument: Siren        bank #640 preset #125
+Instrument: Footsteps    bank #640 preset #126
+Instrument: Train        bank #768 preset #125
+Instrument: Jetplane     bank #896 preset #125
+Instrument: Piano 1      bank #1024 preset #0
+Instrument: Piano 2      bank #1024 preset #1
+Instrument: Piano 3      bank #1024 preset #2
+Instrument: Honky-tonk   bank #1024 preset #3
+Instrument: Detuned EP 1 bank #1024 preset #4
+Instrument: Detuned EP 2 bank #1024 preset #5
+Instrument: Coupled Hps. bank #1024 preset #6
+Instrument: Vibraphone   bank #1024 preset #11
+Instrument: Marimba      bank #1024 preset #12
+Instrument: Church Bell  bank #1024 preset #14
+Instrument: Detuned Or.1 bank #1024 preset #16
+Instrument: Detuned Or.2 bank #1024 preset #17
+Instrument: Church Org.2 bank #1024 preset #19
+Instrument: Accordion It bank #1024 preset #21
+Instrument: Ukulele      bank #1024 preset #24
+Instrument: 12-str.Gt    bank #1024 preset #25
+Instrument: Hawaiian Gt. bank #1024 preset #26
+Instrument: Chorus Gt.   bank #1024 preset #27
+Instrument: Funk Gt.     bank #1024 preset #28
+Instrument: Feedback Gt. bank #1024 preset #30
+Instrument: Gt. Feedback bank #1024 preset #31
+Instrument: Synth Bass 3 bank #1024 preset #38
+Instrument: Synth Bass 4 bank #1024 preset #39
+Instrument: Slow Violin  bank #1024 preset #40
+Instrument: Orchestra    bank #1024 preset #48
+Instrument: Syn.Strings3 bank #1024 preset #50
+Instrument: Brass 2      bank #1024 preset #61
+Instrument: Synth Brass3 bank #1024 preset #62
+Instrument: Synth Brass4 bank #1024 preset #63
+Instrument: Sine Wave    bank #1024 preset #80
+Instrument: Doctor Solo  bank #1024 preset #81
+Instrument: Taisho Koto  bank #1024 preset #107
+Instrument: Castanets    bank #1024 preset #115
+Instrument: Concert BD   bank #1024 preset #116
+Instrument: Melo. Tom 2  bank #1024 preset #117
+Instrument: 808 Tom      bank #1024 preset #118
+Instrument: Starship     bank #1024 preset #125
+Instrument: Carillon     bank #1152 preset #14
+Instrument: Elec Perc.   bank #1152 preset #118
+Instrument: Burst Noise  bank #1152 preset #125
+Instrument: Piano 1d     bank #2048 preset #0
+Instrument: E.Piano 1v   bank #2048 preset #4
+Instrument: E.Piano 2v   bank #2048 preset #5
+Instrument: Harpsichord  bank #2048 preset #6
+Instrument: 60's Organ 1 bank #2048 preset #16
+Instrument: Church Org.3 bank #2048 preset #19
+Instrument: Nylon Gt.o   bank #2048 preset #24
+Instrument: Mandolin     bank #2048 preset #25
+Instrument: Funk Gt.2    bank #2048 preset #28
+Instrument: Rubber Bass  bank #2048 preset #39
+Instrument: AnalogBrass1 bank #2048 preset #62
+Instrument: AnalogBrass2 bank #2048 preset #63
+Instrument: 60's E.Piano bank #3072 preset #4
+Instrument: Harpsi.o     bank #3072 preset #6
+Instrument: Organ 4      bank #4096 preset #16
+Instrument: Organ 5      bank #4096 preset #17
+Instrument: Nylon Gt.2   bank #4096 preset #24
+Instrument: Choir Aahs 2 bank #4096 preset #52
+Drumkit: Standard     bank #0 preset #0
+Drumkit: Room         bank #0 preset #8
+Drumkit: Power        bank #0 preset #16
+Drumkit: Electronic   bank #0 preset #24
+Drumkit: TR-808       bank #0 preset #25
+Drumkit: Jazz         bank #0 preset #32
+Drumkit: Brush        bank #0 preset #40
+Drumkit: Orchestra    bank #0 preset #48
+Drumkit: SFX          bank #0 preset #56

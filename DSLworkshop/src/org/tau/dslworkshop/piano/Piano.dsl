@@ -102,9 +102,9 @@ MiddleArea<-
 							(
 									(textbox:140x30)[text=filename, enabled = renamingaudiofile, bgcolor = 0xFFFF00, fgcolor = regfgcolor, font = regfont]
 									---
-									((button:70x32)[text={is_eng=>"Rename", is_deu=>"Umbenennen", otherwise "Rename"}, enabled=!renamingaudiofile]
+									((button:70x32)[text={is_eng=>"Rename", is_deu=>"Umbenenn", otherwise "Rename"}, enabled=!renamingaudiofile]
 									|
-									(button:70x32)[text={is_eng=>"Done Renaming", is_deu=>"Getan Umbenennung", otherwise "Done Renaming"}, enabled=renamingaudiofile])
+									(button:70x32)[text={is_eng=>"Done Renaming", is_deu=>"Getan", otherwise "Done Renaming"}, enabled=renamingaudiofile])
 									---
 									(Spacer)
 							)
@@ -187,6 +187,8 @@ MiddleArea<-
   (
 	(
 		((label:150x20)[text={is_eng=>"Now Playing:", is_deu=>"Jetzt Spielen:", otherwise "Now Playing:"}, bgcolor=regbgcolor, fgcolor=regfgcolor, font=regfont]|(Spacer))
+		---
+		(Upmargin)
 		---
 		(
 				(image:100x100)[filename={instrument=0=>"Graphics\\piano.png", instrument=1=>"Graphics\\violin.png",
@@ -275,7 +277,7 @@ MiddleArea<-
 				---
 				(label)[text={is_eng=>"Octave", is_deu=>"Octave", otherwise "Octave"}, bgcolor = controlsbgcolor, fgcolor = controlsfgcolor, font = controlsfont]
 		)|
-    	(image:46x106)[filename={octave=1=>"Graphics\\sol8.png",octave=0=>"Graphics\\sol.png",octave=-1=>"Graphics\\fa.png",octave=-2=>"Graphics\\fa8.png", otherwise "Graphics\\sol.png"}]|
+    	(image:46x106)[filename={octave=1=>"Graphics\\sol8.png",octave=0=>"Graphics\\sol.png",octave=-1=>"Graphics\\fa.png",octave=-2=>"Graphics\\fa8.png", otherwise "Graphics\\sol.png"}, bgcolor = controlsbgcolor]|
     	(
     		(:?x30)[bgcolor = controlsbgcolor]
     		---

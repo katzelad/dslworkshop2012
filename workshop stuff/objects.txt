@@ -1,0 +1,12 @@
+object Program extends Application
+{
+	val l = new L()
+	l. when_changed ('v',
+		(lambda (old new) (println ("v: " + old + " -> " + new))))
+	l()
+}
+
+val l = evalCode('L')
+l.set(..)
+l.when_changed(...)
+l.bind(...)
