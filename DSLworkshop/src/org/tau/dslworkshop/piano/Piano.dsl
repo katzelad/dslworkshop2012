@@ -2,7 +2,7 @@
   (
 	(ProgramTitle:?x33)
 	---
-	((Controls:200x?)|(MiddleArea)|(LangAboutNowPlaying))
+	((Controls:200x?)|(MiddleArea)|(LangAboutNowPlaying:300x?))
   )[vol=?(60), is_eng=langchoice=0, is_deu=langchoice=1, instrument = ?(0), tempo=?(3), renamingaudiofile=?(false),
     up=?(0), down=?(0), clear=?(false), pedal=?(false), filename=?("MySong"), rhythmchoice=?(0),
 	titlebgcolor = 0xFFFFFF, titlefgcolor = 0xFF2B39, titlefont = ("arial", 12, bold), 
@@ -63,7 +63,8 @@ MiddleArea<-
 		(RhythmRecord:?x140)
 		---
 		(WrappedPiano:?x?)
-	)
+	) |
+	(Leftmargin)
   )
  
   RhythmRecord<-
@@ -190,14 +191,15 @@ MiddleArea<-
 		(
 				(image:100x100)[filename={instrument=0=>"Graphics\\piano.png", instrument=1=>"Graphics\\violin.png",
 						instrument=2=>"Graphics\\drums.png",instrument=3=>"Graphics\\guitar.png",instrument=4=>"Graphics\\trumpet.png",otherwise ""},
-						bgcolor = regbgcolor]
+						bgcolor = regbgcolor]|
+				(Spacer)
 		)
 		---
-		(Upmargin)
-		---
-		(Upmargin)
-		---
-		(Upmargin)
+		(
+				(Upmargin)
+				*---*
+				[i=0...2]
+		)
 	)
   )
   
