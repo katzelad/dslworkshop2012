@@ -34,9 +34,9 @@ class DSLProgram(code: String) {
     case LayoutParser.NoSuccess(msg, nextInput) => throw new ParsingError(msg, nextInput.pos.line, nextInput.pos.column)
   }
 
-  class DSLObject protected[DSLProgram] (name: String, title: String, icon: String, isMaximized: Boolean, defaultWidth: Int, defaultHeight: Int) {
+  class DSLObject protected[DSLProgram] (name: String, title: String, icon: String, isDialog: Boolean, isMaximized: Boolean, defaultWidth: Int, defaultHeight: Int) {
 
-    private val window = new Shell(display)
+    private val window = new Shell(display, if (isDialog) SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL else SWT.SHELL_TRIM)
 
     private var evaluatedVarMap = new TEvaluatedVarMap()
 
@@ -100,7 +100,8 @@ class DSLProgram(code: String) {
       val (width, height, isWidthQM, isHeightQM, changeWindowSize) =
         scope.evalNode(mainWidget, window, new Environment(evaluatedVarMap, unevaluatedVarMap))
       window setLayout new FillLayout
-      window.getChildren()(0).setSize(if (isWidthQM) defaultWidth else width, if (isHeightQM) defaultHeight else height) // TODO add code to handle limitation on window size when not '?'
+      println(width, height, defaultWidth, defaultHeight)
+      window.getChildren()(0).setSize(if (isWidthQM) defaultWidth else width, if (isHeightQM) defaultHeight else height)
       window.pack
       window.setMaximized(isMaximized)
       window.setText(title)
@@ -112,13 +113,16 @@ class DSLProgram(code: String) {
           display.sleep
         }
       }
-      display.dispose
       mainWidget.attributes.map(att => att.getName + "=" + scope.getParams(att.getName)).mkString(" ")
     }
 
   }
 
-  def apply(name: String, title: String = "", icon: String = null, isMaximized: Boolean = false, defaultWidth: Int = 500, defaultHeight: Int = 500) =
-    new DSLObject(name, title, icon, isMaximized, defaultWidth, defaultHeight)
+  def apply(name: String, title: String = "", icon: String = null, isDialog: Boolean = false, isMaximized: Boolean = false, defaultWidth: Int = 500, defaultHeight: Int = 500) =
+    new DSLObject(name, title, icon, isDialog, isMaximized, defaultWidth, defaultHeight)
+
+  override def finalize {
+    display.dispose
+  }
 
 }

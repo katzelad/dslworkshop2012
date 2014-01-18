@@ -15,18 +15,14 @@ object Piano {
 
     val code = Source.fromFile("src\\org\\tau\\dslworkshop\\piano\\Piano.dsl").mkString
 
-    //todo conditioned enable to filenames (text/audio) textboxes (dummy buttons etc)
-    //todo make initheight/width work
-    //todo piano notes play by coordinates
+
     //TODO mute disables volume feature (using another var)
-    //todo about button
     //todo record button
     //todo get rid of titlebgcolor/font/fgcolor etc if unused
-    //TODO make sure window resizes nicely/make sure dummy widgets with fixed size for spacing works
     //TODO catch exceptions
-    //TODO debug parameters list
 
-    val instance = new DSLProgram(code)(
+    val program = new DSLProgram(code)
+    val instance = program(
       name = "main_window",
       icon = "Graphics\\Icon.png",
       isMaximized = true,
@@ -97,10 +93,15 @@ object Piano {
       instance.set("recent", recent)
     }
 
-    val seqer = MidiSystem.getSequencer
+    val recv = MidiSystem.getReceiver
+
+    val seqer = MidiSystem.getSequencer(false)
     seqer.open
     seqer.setLoopCount(Sequencer.LOOP_CONTINUOUSLY)
     seqer.setTempoFactor(math.pow(2, 0.5).toFloat)
+    seqer.getTransmitter.setReceiver(recv)
+    
+//    seqer.startRecording
 
     def playRhythm(rhythm: Int, prev: Int) {
       if (prev != 0)
@@ -127,16 +128,12 @@ object Piano {
         case 5 => 6
         case _ => 0
       })
-      //      mainChannel.programChange(synth.getDefaultSoundbank.getInstruments()(instIndex).getPatch.getProgram)
     }
 
     instance.when_changed("vol", (_, newer) => {
       vol = newer.asInstanceOf[Int]
-      if (seqer.getSequence != null) {
-        val tracks = seqer.getSequence.getTracks
-        for (i <- 0 until tracks.length)
-          tracks(i).add(new MidiEvent(new ShortMessage(ShortMessage.CONTROL_CHANGE, i, 7, vol), 0))
-      }
+      for (i <- 0 until 16)
+        recv.send(new ShortMessage(ShortMessage.CONTROL_CHANGE, i, 7, vol), -1)
     })
     instance.when_changed("up", (_, _) => {
       octave = octave + 1
@@ -150,11 +147,20 @@ object Piano {
       recent = ""
       instance.set("recent", "")
     })
+    instance.when_changed("about", (_, _) => {
+      program(
+        name = "AboutContent",
+        title = "About",
+        icon = "Graphics\\Icon.png",
+        isDialog = true,
+        defaultWidth = 350,
+        defaultHeight = 250)(Array())
+    })
     instance.when_changed("filename", (_, newer) => filename = newer.asInstanceOf[String])
     instance.when_changed("pedal", (_, newer) => pedal = newer.asInstanceOf[Boolean])
     instance.when_changed("rhythmchoice", (old, newer) => playRhythm(newer.asInstanceOf[Int], old.asInstanceOf[Int]))
-    instance.when_changed("tempo", (old, newer) => seqer.setTempoFactor(math.pow(2, (newer.asInstanceOf[Int] - 1) / 4.0).toFloat))
-    instance.when_changed("instrument", (old, newer) => changeInstrument(newer.asInstanceOf[Int]))
+    instance.when_changed("tempo", (_, newer) => seqer.setTempoFactor(math.pow(2, (newer.asInstanceOf[Int] - 1) / 4.0).toFloat))
+    instance.when_changed("instrument", (_, newer) => changeInstrument(newer.asInstanceOf[Int]))
 
     instance.bind("play", (x: Int, y: Int) =>
       play((x, y) match {
@@ -195,9 +201,13 @@ object Piano {
     })
 
     val output = instance(args = Array("langchoice=0", "recent=\"\"", "octave=0"))
+    
+//    seqer.stopRecording()
+//    MidiSystem.write(seqer.getSequence, 1, new File("Audio\\recording.mid"))
 
     synth.close
     seqer.close
+    recv.close
     println(output)
 
     //    def wait(time: Double) = Thread.sleep((250 * time).toInt)

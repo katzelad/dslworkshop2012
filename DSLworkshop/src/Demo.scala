@@ -1,4 +1,4 @@
-
+package org.tau.dslworkshop
 
 import org.tau.workshop2011.parser.AST.AtomicWidget
 import org.tau.workshop2011.parser.AST.Program
@@ -78,13 +78,13 @@ object VSplitWithScroll {
     """
 }
 
-object Subprograms {
+object Subprograms { // changed the names of the image files
   def apply() = """L <- (
       (label)[text="Do you like?"]
       ----------------------------
       (radio)[checked=v] | (label)[text="Yes"] | (radio)[checked=!v] | (label)[text="No"]
     )
-    I <- (image:32x32)[filename={v=>"like.png", otherwise "dislike.png"}]
+    I <- (image:32x32)[filename={v=>"examples\\like.jpg", otherwise "examples\\dislike.jpg"}]
     main_window <- ((L) | (I))[v=?(0)]
     """
 }

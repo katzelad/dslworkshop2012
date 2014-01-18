@@ -4,7 +4,7 @@
 	---
 	((Controls:200x?)|(MiddleArea)|(LangAboutNowPlaying:300x?))
   )[vol=?(60), is_eng=langchoice=0, is_deu=langchoice=1, instrument = ?(0), tempo=?(3), renamingaudiofile=?(false),
-    up=?(0), down=?(0), clear=?(false), pedal=?(false), filename=?("MySong"), rhythmchoice=?(0),
+    up=?(false), down=?(false), clear=?(false), pedal=?(false), filename=?("MySong"), rhythmchoice=?(0), about=?(false),
 	titlebgcolor = 0xFFFFFF, titlefgcolor = 0x2FA1E2, titlefont = ("arial", 12, bold), 
 	regbgcolor = 0xFFFFFF, regfgcolor = 0xFF6A26, regfont = ("arial", 10, bold),
 	controlsbgcolor = 0xD6FCFF, controlsfgcolor = 0xFF6A26, controlsfont = ("arial", 10, bold)]
@@ -35,7 +35,7 @@
   
   ProgramTitle <- 
   (
-		  (label)[text="The Maestro", bgcolor = 0xC64F1F, fgcolor = 0xffffff, font = ("Monotype Corsiva", 24, bold)]
+		  (label)[text="The Maestro", bgcolor = 0xC64F1F, fgcolor = 0xffffff, font = ("Monotype Corsiva", 24, bold), halign=center]
 		  ---
 		  (:?x8)[bgcolor = 0xC64F1F]
   )
@@ -79,7 +79,7 @@ MiddleArea<-
 					---
 					(
 						(
-								(label:80x40)[text={is_eng=>"Choose Rhythm:", is_deu=>"Rhythmus Selektieren:", otherwise "Choose Rhythm:"}, bgcolor=regbgcolor, fgcolor=regfgcolor, font=regfont]|
+								(label:80x40)[text={is_eng=>"Choose Beat:", is_deu=>"Rhythmus Selektieren:", otherwise "Choose Beat:"}, bgcolor=regbgcolor, fgcolor=regfgcolor, font=regfont]|
 								(:30x?)[bgcolor=regbgcolor]|
 								((combo:63x20 )[text = "None,Jazz,Rock, Country, Funk",enabled = true, bgcolor = regbgcolor, fgcolor = 0x000000, value=rhythmchoice]---(Spacer))|
 								(Spacer)
@@ -168,7 +168,7 @@ MiddleArea<-
   (
 	(Upmargin)
 	---
-	((Leftmargin)|(button:100x30)[text={is_eng=>"About", is_deu=>"Informationen", otherwise "About"}, bgcolor=regbgcolor, fgcolor=regfgcolor, font=regfont]|(Spacer))
+	((Leftmargin)|(button:100x30)[checked=about, text={is_eng=>"About", is_deu=>"Informationen", otherwise "About"}, bgcolor=regbgcolor, fgcolor=regfgcolor, font=regfont]|(Spacer))
 	---
 	(Spacer)
   )
@@ -180,25 +180,33 @@ MiddleArea<-
 	(
 		(Leftmargin)|
 		(
-			((label)[text={is_eng=>"Welcome to The Maestro!", is_deu=>"Willkommen bei The Maestro!", otherwise "Welcome to The Maestro!"}, bgcolor=regbgcolor, fgcolor=regfgcolor, font=regfont]|(Spacer))
+			(label:330x20)[text={is_eng=>"Welcome to The Maestro!", is_deu=>"Willkommen bei The Maestro!", otherwise "Welcome to The Maestro!"}, bgcolor=regbgcolor, fgcolor=regfgcolor, font=regfont]
 			---
-			((label)[text={is_eng=>"Use the mouse or the keyboard to play.", is_deu=>"Mit der Maus oder der Tastatur zu spielen.", otherwise "Use the mouse or the keyboard to play."}, bgcolor=regbgcolor, fgcolor=regfgcolor, font=regfont]|(Spacer))
+			(label:?x20)[text={is_eng=>"Use the mouse or the keyboard to play.", is_deu=>"Mit der Maus oder der Tastatur zu spielen.", otherwise "Use the mouse or the keyboard to play."}, bgcolor=regbgcolor, fgcolor=regfgcolor, font=regfont]
 			---
-			((label)[text={is_eng=>"Use the mouse to personalize the various settings.", is_deu=>"Benutzen Sie die Maus, um die verschiedenen Einstellungen personalisieren.", otherwise "Use the mouse to personalize the various settings."}, bgcolor=regbgcolor, fgcolor=regfgcolor, font=regfont]|(Spacer))
+			(label:?x20)[text={is_eng=>"Use the mouse to personalize the various settings.", is_deu=>"Benutzen Sie die Maus, um die verschiedenen Einstellungen personalisieren.", otherwise "Use the mouse to personalize the various settings."}, bgcolor=regbgcolor, fgcolor=regfgcolor, font=regfont]
 			---
-			((image:80x?)[filename="Graphics\\Keyboard.png"]|(image:20x?)[filename="Graphics\\Mouse.png"]|(Spacer))
+			(
+					(image:250x120)[filename="Graphics\\Keyboard.png", bgcolor=regbgcolor]|
+					(
+							(image:50x100)[filename="Graphics\\Mouse.png", bgcolor=regbgcolor]
+							---
+							(Spacer)
+					)|
+					(Spacer)
+			)
 			---
-			((label)[text={is_eng=>"DSL Workshop, TAU", is_deu=>"DSL Werkstatt, TAU", otherwise "DSL Workshop, TAU"}, bgcolor=regbgcolor, fgcolor=regfgcolor, font=regfont]|(Spacer))
+			(label:?x20)[text={is_eng=>"DSL Workshop, Tel-Aviv University", is_deu=>"DSL Werkstatt, TAU", otherwise "DSL Workshop, TAU"}, bgcolor=regbgcolor, fgcolor=regfgcolor, font=regfont]
 			---
-			((label)[text={is_eng=>"Guided by: Mooly Sagiv, Shahar Itzhaki", is_deu=>"Gefuhrt von: Mooly Sagiv, Shahar Itzhaki", otherwise "Guided by: Mooly Sagiv, Shahar Itzhaki"}, bgcolor=regbgcolor, fgcolor=regfgcolor, font=regfont]|(Spacer))
+			(label:?x20)[text={is_eng=>"Guided by: Prof. Mooly Sagiv, T.A. Shahar Itzhaki", is_deu=>"Gefuhrt von: Mooly Sagiv, Shahar Itzhaki", otherwise "Guided by: Mooly Sagiv, Shahar Itzhaki"}, bgcolor=regbgcolor, fgcolor=regfgcolor, font=regfont]
 			---	
-			((label)[text={is_eng=>"Created by: Elad Katz, Shir Sofer", is_deu=>"Erstellt von: Elad Katz, Shir Sofer", otherwise "Created by: Elad Katz, Shir Sofer"}, bgcolor=regbgcolor, fgcolor=regfgcolor, font=regfont]|(Spacer))
+			(label:?x20)[text={is_eng=>"Created by: Elad Katz, Shir Sofer", is_deu=>"Erstellt von: Elad Katz, Shir Sofer", otherwise "Created by: Elad Katz, Shir Sofer"}, bgcolor=regbgcolor, fgcolor=regfgcolor, font=regfont]
 		)|
 		(Spacer)
 	)
 	---
 	(Spacer)
-  )
+  )[regbgcolor=0xFFFFFF, regfgcolor=0xFF6A26, regfont=("arial", 10, bold), is_eng=?(true), is_deu=?(false)]
   
   WrappedPiano<-
   (
