@@ -173,6 +173,32 @@ MiddleArea<-
 	(Spacer)
   )
  
+  AboutContent <-
+  (
+	(Upmargin)
+	---
+	(
+		(Leftmargin)|
+		(
+			((label)[text={is_eng=>"Welcome to The Maestro!", is_deu=>"Willkommen bei The Maestro!", otherwise "Welcome to The Maestro!"}, bgcolor=regbgcolor, fgcolor=regfgcolor, font=regfont]|(Spacer))
+			---
+			((label)[text={is_eng=>"Use the mouse or the keyboard to play.", is_deu=>"Mit der Maus oder der Tastatur zu spielen.", otherwise "Use the mouse or the keyboard to play."}, bgcolor=regbgcolor, fgcolor=regfgcolor, font=regfont]|(Spacer))
+			---
+			((label)[text={is_eng=>"Use the mouse to personalize the various settings.", is_deu=>"Benutzen Sie die Maus, um die verschiedenen Einstellungen personalisieren.", otherwise "Use the mouse to personalize the various settings."}, bgcolor=regbgcolor, fgcolor=regfgcolor, font=regfont]|(Spacer))
+			---
+			((image:80x?)[filename="Graphics\\Keyboard.png"]|(image:20x?)[filename="Graphics\\Mouse.png"]|(Spacer))
+			---
+			((label)[text={is_eng=>"DSL Workshop, TAU", is_deu=>"DSL Werkstatt, TAU", otherwise "DSL Workshop, TAU"}, bgcolor=regbgcolor, fgcolor=regfgcolor, font=regfont]|(Spacer))
+			---
+			((label)[text={is_eng=>"Guided by: Mooly Sagiv, Shahar Itzhaki", is_deu=>"Gefuhrt von: Mooly Sagiv, Shahar Itzhaki", otherwise "Guided by: Mooly Sagiv, Shahar Itzhaki"}, bgcolor=regbgcolor, fgcolor=regfgcolor, font=regfont]|(Spacer))
+			---	
+			((label)[text={is_eng=>"Created by: Elad Katz, Shir Sofer", is_deu=>"Erstellt von: Elad Katz, Shir Sofer", otherwise "Created by: Elad Katz, Shir Sofer"}, bgcolor=regbgcolor, fgcolor=regfgcolor, font=regfont]|(Spacer))
+		)|
+		(Spacer)
+	)
+	---
+	(Spacer)
+  )
   
   WrappedPiano<-
   (
