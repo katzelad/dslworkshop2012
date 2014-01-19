@@ -1,8 +1,14 @@
 package org.tau.dslworkshop.piano
-import javax.sound.midi._
-import scala.io.Source
+
 import java.io.File
+
+import scala.io.Source
+
 import org.tau.dslworkshop.compiler.DSLProgram
+
+import javax.sound.midi.MidiSystem
+import javax.sound.midi.Sequencer
+import javax.sound.midi.ShortMessage
 
 object Piano {
 

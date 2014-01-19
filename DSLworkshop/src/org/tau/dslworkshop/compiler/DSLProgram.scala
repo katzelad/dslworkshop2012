@@ -1,27 +1,19 @@
 package org.tau.dslworkshop.compiler
 
-import scala.collection.immutable.HashSet
-import org.eclipse.swt.widgets.Display
-import org.eclipse.swt.widgets.Shell
-import org.tau.workshop2011.parser.LayoutParser
-import org.tau.workshop2011.parser.AST.AtomicWidget
-import org.eclipse.swt.layout.FillLayout
-import org.eclipse.swt.events.ControlAdapter
-import org.eclipse.swt.events.ControlEvent
-import org.eclipse.swt.events.MouseAdapter
-import org.eclipse.swt.widgets.Button
 import org.eclipse.swt.SWT
-import org.tau.workshop2011.parser.AST.InitialAttribute
-import org.tau.workshop2011.parser.AST.Variable
-import org.tau.workshop2011.parser.AST.Literal
-import org.eclipse.swt.events.KeyAdapter
-import org.eclipse.swt.events.KeyEvent
-import org.eclipse.swt.widgets.Listener
-import org.eclipse.swt.widgets.Event
-import org.eclipse.swt.widgets.Text
-import org.eclipse.swt.events.MouseEvent
-import org.tau.dslworkshop.compiler.exceptions.ParsingError
 import org.eclipse.swt.graphics.Image
+import org.eclipse.swt.layout.FillLayout
+import org.eclipse.swt.widgets.Display
+import org.eclipse.swt.widgets.Event
+import org.eclipse.swt.widgets.Listener
+import org.eclipse.swt.widgets.Shell
+import org.eclipse.swt.widgets.Text
+import org.tau.dslworkshop.compiler.exceptions.ParsingError
+import org.tau.workshop2011.parser.AST.AtomicWidget
+import org.tau.workshop2011.parser.AST.InitialAttribute
+import org.tau.workshop2011.parser.AST.Literal
+import org.tau.workshop2011.parser.AST.Variable
+import org.tau.workshop2011.parser.LayoutParser
 
 class DSLProgram(code: String) {
 

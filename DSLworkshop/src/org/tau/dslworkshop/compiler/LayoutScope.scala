@@ -1,49 +1,42 @@
 package org.tau.dslworkshop.compiler
 
-import scala.collection.mutable.{ Buffer => mutableBuffer }
-import scala.collection.mutable.{ Map => mutableMap }
+import scala.collection.mutable.{Buffer => mutableBuffer}
+import scala.collection.mutable.{Map => mutableMap}
+
 import org.eclipse.swt.SWT
 import org.eclipse.swt.custom.ScrolledComposite
 import org.eclipse.swt.events.ControlAdapter
 import org.eclipse.swt.events.ControlEvent
+import org.eclipse.swt.events.KeyAdapter
+import org.eclipse.swt.events.KeyEvent
+import org.eclipse.swt.events.MouseAdapter
+import org.eclipse.swt.events.MouseEvent
 import org.eclipse.swt.events.SelectionAdapter
 import org.eclipse.swt.events.SelectionEvent
-import org.eclipse.swt.graphics.{ Color => swtColor }
-import org.eclipse.swt.graphics.{ Font => swtFont }
 import org.eclipse.swt.graphics.Image
+import org.eclipse.swt.graphics.ImageData
 import org.eclipse.swt.layout.FillLayout
 import org.eclipse.swt.widgets.Button
 import org.eclipse.swt.widgets.Combo
 import org.eclipse.swt.widgets.Composite
-import org.eclipse.swt.widgets.Event
+import org.eclipse.swt.widgets.Group
 import org.eclipse.swt.widgets.Label
-import org.eclipse.swt.widgets.Listener
 import org.eclipse.swt.widgets.Sash
+import org.eclipse.swt.widgets.Scale
 import org.eclipse.swt.widgets.Slider
 import org.eclipse.swt.widgets.Text
-import org.tau.workshop2011.expressions.Color
-import org.tau.workshop2011.expressions.Font
-import org.tau.workshop2011.expressions.HAlign
-import org.tau.workshop2011.expressions.TextStyle
 import org.tau.workshop2011.expressions.Type
 import org.tau.workshop2011.parser.AST.ASTNode
 import org.tau.workshop2011.parser.AST.AtomicWidget
 import org.tau.workshop2011.parser.AST.Container
+import org.tau.workshop2011.parser.AST.Expr
 import org.tau.workshop2011.parser.AST.ExpressionAttribute
 import org.tau.workshop2011.parser.AST.InitialAttribute
 import org.tau.workshop2011.parser.AST.IterationMacro
-import org.tau.workshop2011.parser.AST.PropertyScope
-import org.tau.workshop2011.parser.AST.Widget
-import org.tau.workshop2011.parser.AST.Expr
-import org.eclipse.swt.widgets.Group
-import org.eclipse.swt.graphics.ImageData
 import org.tau.workshop2011.parser.AST.Literal
+import org.tau.workshop2011.parser.AST.PropertyScope
 import org.tau.workshop2011.parser.AST.Variable
-import org.eclipse.swt.events.MouseAdapter
-import org.eclipse.swt.events.MouseEvent
-import org.eclipse.swt.events.KeyAdapter
-import org.eclipse.swt.events.KeyEvent
-import org.eclipse.swt.widgets.Scale
+import org.tau.workshop2011.parser.AST.Widget
 
 class LayoutScope(widgetsMap: Map[String, Widget], extensions: TExtensions) {
 
