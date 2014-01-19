@@ -231,7 +231,7 @@ MiddleArea<-
 		---
 		(
 				(image:100x100)[filename={instrument=0=>"Graphics\\piano.png", instrument=1=>"Graphics\\violin.png",
-						instrument=2=>"Graphics\\saxophone.png",instrument=3=>"Graphics\\guitar.png",instrument=4=>"Graphics\\trumpet.png",instrument=5=>"Graphics\\harp.png",otherwise ""},
+						instrument=2=>"Graphics\\saxophone.png",instrument=3=>"Graphics\\guitar.png",instrument=4=>"Graphics\\trumpet.png",instrument=5=>"Graphics\\harp.png",instrument=6=>"Graphics\\drums.png",instrument=7=>"Graphics\\bird.png",otherwise ""},
 						bgcolor = regbgcolor]|
 				(Spacer)
 		)
@@ -292,14 +292,16 @@ MiddleArea<-
 		(
 			(( (radio:20x20) [checked= instrument = i, bgcolor = controlsbgcolor] | (label)[text = Instruments[i], bgcolor = controlsbgcolor, fgcolor = controlsfgcolor, font = controlsfont] )
 	     	*---*
-	     	[i=0...5,Instruments={piano, violin, saxophone, guitar, trumpet, harp}])
+	     	[i=0...7,Instruments={piano, violin, saxophone, guitar, trumpet, harp, drums, bird}])
 		)
   )[piano={is_eng=>"Piano", is_deu=>"Klavier", otherwise "Piano"},
 	violin={is_eng=>"Violin", is_deu=>"Violine", otherwise "Violin"},
 	saxophone={is_eng=>"Saxophone", is_deu=>"Saxophon", otherwise "Saxophone"},
 	guitar={is_eng=>"Guitar", is_deu=>"Gitarre", otherwise "Guitar"},
 	trumpet={is_eng=>"Trumpet", is_deu=>"Trompete", otherwise "Trumpet"},
-	harp={is_eng=>"Harp", is_deu=>"Harfe", otherwise "Harp"}]
+	harp={is_eng=>"Harp", is_deu=>"Harfe", otherwise "Harp"},
+	drums={is_eng=>"Drums", is_deu=>"Schlagzeug", otherwise "Drums"},
+	bird={is_eng=>"Bird", is_deu=>"Vogel", otherwise "Bird"}]
 	
   
   PEDAL<-
