@@ -86,9 +86,9 @@ MiddleArea<-
 						)
 						---
 						(
-								(label:40x?)[text="Slower ", bgcolor = regbgcolor]|
-								(scale:100x70)[maxvalue=5, minvalue =1 , value=tempo, bgcolor = regbgcolor]|
-								(label:40x?)[text=" Faster", bgcolor = regbgcolor]
+								(label:50x?)[text={is_eng=>"Slower", is_deu=>"Langsam", otherwise "Slower"}, bgcolor = regbgcolor]|
+								(scale:80x70)[maxvalue=5, minvalue =1 , value=tempo, bgcolor = regbgcolor]|
+								(label:50x?)[text={is_eng=>"Faster", is_deu=>"Schnell", otherwise "Faster"}, bgcolor = regbgcolor]
 						)
 						---
 						(Spacer)
@@ -294,14 +294,14 @@ MiddleArea<-
 	     	*---*
 	     	[i=0...7,Instruments={piano, violin, saxophone, guitar, trumpet, harp, drums, bird}])
 		)
-  )[piano={is_eng=>"Piano", is_deu=>"Klavier", otherwise "Piano"},
-	violin={is_eng=>"Violin", is_deu=>"Violine", otherwise "Violin"},
-	saxophone={is_eng=>"Saxophone", is_deu=>"Saxophon", otherwise "Saxophone"},
-	guitar={is_eng=>"Guitar", is_deu=>"Gitarre", otherwise "Guitar"},
-	trumpet={is_eng=>"Trumpet", is_deu=>"Trompete", otherwise "Trumpet"},
-	harp={is_eng=>"Harp", is_deu=>"Harfe", otherwise "Harp"},
-	drums={is_eng=>"Drums", is_deu=>"Schlagzeug", otherwise "Drums"},
-	bird={is_eng=>"Bird", is_deu=>"Vogel", otherwise "Bird"}]
+  )[piano={is_eng=>"Piano", is_deu=>"Klavier", otherwise "Klavier"},
+	violin={is_eng=>"Violin", is_deu=>"Violine", otherwise "Violine"},
+	saxophone={is_eng=>"Saxophone", is_deu=>"Saxophon", otherwise "Saxophon"},
+	guitar={is_eng=>"Guitar", is_deu=>"Gitarre", otherwise "Gitarre"},
+	trumpet={is_eng=>"Trumpet", is_deu=>"Trompete", otherwise "Trompete"},
+	harp={is_eng=>"Harp", is_deu=>"Harfe", otherwise "Harfe"},
+	drums={is_eng=>"Drums", is_deu=>"Schlagzeug", otherwise "Schlagzeug"},
+	bird={is_eng=>"Bird", is_deu=>"Vogel", otherwise "Vogel"}]
 	
   
   PEDAL<-

@@ -1,14 +1,12 @@
 package org.tau.dslworkshop.piano
 
 import java.io.File
-
 import scala.io.Source
-
 import org.tau.dslworkshop.compiler.DSLProgram
-
 import javax.sound.midi.MidiSystem
 import javax.sound.midi.Sequencer
 import javax.sound.midi.ShortMessage
+import javax.sound.midi.Sequence
 
 object Piano {
 
@@ -87,31 +85,44 @@ object Piano {
       case _ => -1
     }
 
+    //synth initialization
     val synth = MidiSystem.getSynthesizer()
     synth.open
     val mainChannel = synth.getChannels()(0)
+        
+    val synthrecv = MidiSystem.getReceiver
 
-    def play(note: Int) {
+    val rhythmsqr = MidiSystem.getSequencer(false)
+    rhythmsqr.open
+    rhythmsqr.setLoopCount(Sequencer.LOOP_CONTINUOUSLY)
+    rhythmsqr.setTempoFactor(math.pow(2, 0.5).toFloat)
+    rhythmsqr.getTransmitter.setReceiver(synthrecv)
+    
+//    val recordsqr = MidiSystem.getSequencer(false)
+//    recordsqr.open()
+//    val recordrecv = recordsqr.getReceiver()
+//    //synth.getTransmitter.setReceiver(recordrecv)
+//    rhythmsqr.getTransmitter.setReceiver(recordrecv) //
+//    val recordseq = new Sequence(Sequence.PPQ, 10);
+//    val track = recordseq.createTrack()
+//    recordsqr.setSequence(recordseq)
+//    recordsqr.recordEnable(track, -1)
+//    recordsqr.startRecording()
+  
+    
+//    seqer.startRecording
+
+        def play(note: Int) {
       if (!pedal)
         mainChannel.allNotesOff
       mainChannel.noteOn(note + octave * 12, vol)
       recent = recent + noteToString(note) + ' '
       instance.set("recent", recent)
     }
-
-    val recv = MidiSystem.getReceiver
-
-    val seqer = MidiSystem.getSequencer(false)
-    seqer.open
-    seqer.setLoopCount(Sequencer.LOOP_CONTINUOUSLY)
-    seqer.setTempoFactor(math.pow(2, 0.5).toFloat)
-    seqer.getTransmitter.setReceiver(recv)
     
-//    seqer.startRecording
-
     def playRhythm(rhythm: Int, prev: Int) {
       if (prev != 0)
-        seqer.stop
+        rhythmsqr.stop
       if (rhythm != 0) {
         val rhythmName = rhythm match {
           case 1 => "Jazz"
@@ -119,8 +130,8 @@ object Piano {
           case 3 => "Country"
           case 4 => "Funk"
         }
-        seqer.setSequence(MidiSystem.getSequence(new File("Audio\\" + rhythmName + ".mid")))
-        seqer.start
+        rhythmsqr.setSequence(MidiSystem.getSequence(new File("Audio\\" + rhythmName + ".mid")))
+        rhythmsqr.start
       }
     }
 
@@ -142,7 +153,7 @@ object Piano {
     instance.when_changed("vol", (_, newer) => {
       vol = newer.asInstanceOf[Int]
       for (i <- 0 until 16)
-        recv.send(new ShortMessage(ShortMessage.CONTROL_CHANGE, i, 7, vol), -1)
+        synthrecv.send(new ShortMessage(ShortMessage.CONTROL_CHANGE, i, 7, vol), -1)
     })
     instance.when_changed("up", (_, _) => {
       octave = octave + 1
@@ -168,7 +179,7 @@ object Piano {
     instance.when_changed("filename", (_, newer) => filename = newer.asInstanceOf[String])
     instance.when_changed("pedal", (_, newer) => pedal = newer.asInstanceOf[Boolean])
     instance.when_changed("rhythmchoice", (old, newer) => playRhythm(newer.asInstanceOf[Int], old.asInstanceOf[Int]))
-    instance.when_changed("tempo", (_, newer) => seqer.setTempoFactor(math.pow(2, (newer.asInstanceOf[Int] - 1) / 4.0).toFloat))
+    instance.when_changed("tempo", (_, newer) => rhythmsqr.setTempoFactor(math.pow(2, (newer.asInstanceOf[Int] - 1) / 4.0).toFloat))
     instance.when_changed("instrument", (_, newer) => changeInstrument(newer.asInstanceOf[Int]))
 
     instance.bind("play", (x: Int, y: Int) =>
@@ -211,133 +222,123 @@ object Piano {
 
     val output = instance(args = Array("langchoice=0", "recent=\"\"", "octave=0"))
     
-//    seqer.stopRecording()
-//    MidiSystem.write(seqer.getSequence, 1, new File("Audio\\recording.mid"))
 
+
+
+    
+//    recordsqr.stopRecording()
+//    MidiSystem.write(recordseq, 1, new File("Audio\\recording.mid"))
+        
     synth.close
-    seqer.close
-    recv.close
+    rhythmsqr.close
+    synthrecv.close
     println(output)
 
-    //    def wait(time: Double) = Thread.sleep((250 * time).toInt)
-    //    
-    //    synth.loadInstrument(synth.getDefaultSoundbank().getInstruments()(16))
-    //    val instruments = synth.getAvailableInstruments()
-    //    print(synth.isSoundbankSupported(synth.getDefaultSoundbank()))
-    //    //      for (i <- s.getDefaultSoundbank().getInstruments())
-    //    //        println(i)
-    //    //      pianoChannel.programChange(s.getDefaultSoundbank.getInstruments()(16).getPatch.getProgram)
-    //    def play(note: Int, drop: Boolean = false) = { if (drop) pianoChannel.allNotesOff(); pianoChannel.noteOn(note, vol) }
-    //    //    pianoChannel.
-    //
-    //    def furelise {
-    //      play(mi + 12)
-    //      wait(1)
-    //      play(re + 13)
-    //      wait(1)
-    //      play(mi + 12)
-    //      wait(1)
-    //      play(re + 13)
-    //      wait(1)
-    //      play(mi + 12)
-    //      wait(1)
-    //      play(si)
-    //      wait(1)
-    //      play(re + 12)
-    //      wait(1)
-    //      play(doo + 12)
-    //      wait(1)
-    //      play(la)
-    //      play(la - 24)
-    //      wait(1)
-    //      play(mi - 12)
-    //      wait(1)
-    //      play(la - 12)
-    //      wait(1)
-    //      play(doo)
-    //      wait(1)
-    //      play(mi)
-    //      wait(1)
-    //      play(la)
-    //      wait(1)
-    //      play(si)
-    //      play(mi - 24)
-    //      wait(1)
-    //      play(mi - 12)
-    //      wait(1)
-    //      play(sol - 11)
-    //      wait(1)
-    //      play(mi)
-    //      wait(1)
-    //      play(sol + 1)
-    //      wait(1)
-    //      play(si)
-    //      wait(1)
-    //      play(doo + 12)
-    //      play(la - 24)
-    //      wait(1)
-    //      play(mi - 12)
-    //      wait(1)
-    //      play(la - 12)
-    //      wait(1)
-    //      play(mi)
-    //      wait(1)
-    //
-    //      play(mi + 12)
-    //      wait(1)
-    //      play(re + 13)
-    //      wait(1)
-    //      play(mi + 12)
-    //      wait(1)
-    //      play(re + 13)
-    //      wait(1)
-    //      play(mi + 12)
-    //      wait(1)
-    //      play(si)
-    //      wait(1)
-    //      play(re + 12)
-    //      wait(1)
-    //      play(doo + 12)
-    //      wait(1)
-    //      play(la)
-    //      play(la - 24)
-    //      wait(1)
-    //      play(mi - 12)
-    //      wait(1)
-    //      play(la - 12)
-    //      wait(1)
-    //      play(doo)
-    //      wait(1)
-    //      play(mi)
-    //      wait(1)
-    //      play(la)
-    //      wait(1)
-    //      play(si)
-    //      play(mi - 24)
-    //      wait(1)
-    //      play(mi - 12)
-    //      wait(1)
-    //      play(sol - 11)
-    //      wait(1)
-    //      play(mi)
-    //      wait(1)
-    //      play(doo + 12)
-    //      wait(1)
-    //      play(si)
-    //      wait(1)
-    //      play(la)
-    //      play(la - 24)
-    //      wait(1)
-    //      play(mi - 12)
-    //      wait(1)
-    //      play(la - 12)
-    //      wait(1)
-    //      play(si)
-    //      wait(1)
-    //    }
-    //
-    //    //    furelise
-    //
-    //    synth.close
+    //TODO delete eventually
+        def furelise {
+          play(mi + 12)
+          wait(1)
+          play(re + 13)
+          wait(1)
+          play(mi + 12)
+          wait(1)
+          play(re + 13)
+          wait(1)
+          play(mi + 12)
+          wait(1)
+          play(si)
+          wait(1)
+          play(re + 12)
+          wait(1)
+          play(doo + 12)
+          wait(1)
+          play(la)
+          play(la - 24)
+          wait(1)
+          play(mi - 12)
+          wait(1)
+          play(la - 12)
+          wait(1)
+          play(doo)
+          wait(1)
+          play(mi)
+          wait(1)
+          play(la)
+          wait(1)
+          play(si)
+          play(mi - 24)
+          wait(1)
+          play(mi - 12)
+          wait(1)
+          play(sol - 11)
+          wait(1)
+          play(mi)
+          wait(1)
+          play(sol + 1)
+          wait(1)
+          play(si)
+          wait(1)
+          play(doo + 12)
+          play(la - 24)
+          wait(1)
+          play(mi - 12)
+          wait(1)
+          play(la - 12)
+          wait(1)
+          play(mi)
+          wait(1)
+    
+          play(mi + 12)
+          wait(1)
+          play(re + 13)
+          wait(1)
+          play(mi + 12)
+          wait(1)
+          play(re + 13)
+          wait(1)
+          play(mi + 12)
+          wait(1)
+          play(si)
+          wait(1)
+          play(re + 12)
+          wait(1)
+          play(doo + 12)
+          wait(1)
+          play(la)
+          play(la - 24)
+          wait(1)
+          play(mi - 12)
+          wait(1)
+          play(la - 12)
+          wait(1)
+          play(doo)
+          wait(1)
+          play(mi)
+          wait(1)
+          play(la)
+          wait(1)
+          play(si)
+          play(mi - 24)
+          wait(1)
+          play(mi - 12)
+          wait(1)
+          play(sol - 11)
+          wait(1)
+          play(mi)
+          wait(1)
+          play(doo + 12)
+          wait(1)
+          play(si)
+          wait(1)
+          play(la)
+          play(la - 24)
+          wait(1)
+          play(mi - 12)
+          wait(1)
+          play(la - 12)
+          wait(1)
+          play(si)
+          wait(1)
+        }
   }
 }
