@@ -18,11 +18,11 @@ object Main {
     instance.bind("EmailSubject", (_: Seq[Any]) => "Piggish slippers")
     instance.bind("EmailContent", (_: Seq[Any]) => "I WANT MY PIGGISH SLIPPERS")
 
-//    println(params.mkString("{", " ", "}"))
-//
-//    val output = instance(params)
-//
-//    println(output)
+    println(params.mkString("{", " ", "}"))
+
+    val output = instance(params)
+
+    println(output)
 
   }
 
