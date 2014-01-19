@@ -136,6 +136,7 @@ object Piano {
         case 7 => 123
         case _ => 0
       })
+      mainChannel.allNotesOff
     }
 
     instance.when_changed("vol", (_, newer) => {
