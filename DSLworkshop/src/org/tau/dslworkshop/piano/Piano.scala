@@ -132,6 +132,8 @@ object Piano {
         case 3 => 24
         case 4 => 56
         case 5 => 6
+        case 6 => 47
+        case 7 => 123
         case _ => 0
       })
     }

@@ -23,7 +23,9 @@
       //      l<-( label :100x? )[ text ="typicaltypicaltypical", enabled = true, bgcolor = 0x0000FF, fgcolor = 0xFF0000, font = ("times new roman", 14, bold), halign = left]
       //      x<-(y)[x=?(3)]
       //      m<-( label :20x20 )[ text =" typical "]""";
-
+      
+ 
+    
       //      // including complicated expression
       //    	"""main_window <- (( label :?x? )[ text ="label-typicaltypicaltypical", enabled = true, bgcolor = 0x00FF00, fgcolor = 0xFF0000, font = ("times new roman", 14, bold), halign = left] |
       //      ( textbox :?x70 )[ text ="textbox-eladeladeladeladeladeladeladelad", enabled = false, bgcolor = 0xAACC00, fgcolor = 0x00FF00, font = ("times new roman", 12, italic), halign = center] |
@@ -179,3 +181,54 @@
     //    instance.bind("EEbgcol", (_: Seq[Any]) => new Color("0x00FF00"))
     //    instance.bind("EmailSubject", (_: Seq[Any]) => "Piggish slippers")
     //    instance.bind("EmailContent", (_: Seq[Any]) => "I WANT MY PIGGISH SLIPPERS")
+    
+    
+    
+    
+    
+    
+       //Notepad
+      //button image supprt???
+      main_window <-
+      (
+      	((button:32x32)|(button:32x?)|
+      	(button:32x3?)|(:10x?)|
+      	(button:32x?)|(button:32x?)|())
+      	---
+      	(textbox)[text="Enter your text here", font=(arial, 16, bold)]
+      	---
+      	(label)[text="Status: ready"]|(buttom:40x20)
+      ) 
+      //300x200 ??
+      
+      
+      
+      //Steve Jobs
+      //??
+      main_window<-
+      (My-Team|((Picture|Profile)
+      				---
+      				(Projects)))
+      				
+      My-Team<-(label:?xX
+      				---
+      				() )
+      
+      Picture<- ( (:?xB)
+      				---
+      				((:Bx?)|image|(:Bx?))
+      				---
+      				(:Bx?)[bgcolor=ox00FF00 green] )
+      				
+      Profile <- ((label:?xX)[text=Profile]
+      				---
+      				(label:?x20)[Steve jobs
+      				---
+      				(label:?x20)[text=CEO]
+      				---
+      				(label:?x20)[text=Apple Corporation]
+      				---
+      				((image)[company.png]|()|(image)[flag.png])
+      			)
+      			
+      Projects <- (...Under COnstruction...)
