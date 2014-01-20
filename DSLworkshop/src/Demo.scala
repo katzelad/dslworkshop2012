@@ -105,9 +105,3 @@ object Notepad {
      main_window <-(Notepad: 300x200)
     """
 }
-
-object Test1 {
-  def apply() = """   
-     main_window <-(button:500x300)
-    """
-}

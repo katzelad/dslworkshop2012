@@ -27,7 +27,8 @@ object Piano {
       name = "main_window",
       icon = "Graphics\\Icon.png",
       isMaximized = true,
-      title = "The Maestro")
+      title = "The Maestro",
+      defaultWidth = 700)
     println(args.mkString("{", " ", "}"))
 
     var langchoice = if (args.length == 0) 0 else if (args(0) == "DE") 1 else 0

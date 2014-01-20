@@ -207,9 +207,13 @@
       //Steve Jobs
       //??
       main_window<-
-      (My-Team|((Picture|Profile)
+      ( My-Team|
+		(
+		  (Picture|Profile)
       				---
-      				(Projects)))
+      				(Projects)
+		)
+      )
       				
       My-Team<-(label:?xX
       				---
@@ -217,19 +221,24 @@
       
       Picture<- ( (:?xB)
       				---
-      				((:Bx?)|image|(:Bx?))
+      			  (
+		  			(:Bx?)|
+		  			image|
+		  			(:Bx?)
+		  		  )
       				---
-      				(:Bx?)[bgcolor=ox00FF00 green] )
+      			  (:Bx?)[bgcolor=ox00FF00 green]
+		  		)
       				
       Profile <- ((label:?xX)[text=Profile]
       				---
-      				(label:?x20)[Steve jobs
+      			  (label:?x20)[Steve jobs
       				---
-      				(label:?x20)[text=CEO]
+      			  (label:?x20)[text=CEO]
       				---
-      				(label:?x20)[text=Apple Corporation]
+      			  (label:?x20)[text=Apple Corporation]
       				---
-      				((image)[company.png]|()|(image)[flag.png])
-      			)
+      			  ((image)[company.png]|()|(image)[flag.png])
+      			 )
       			
       Projects <- (...Under COnstruction...)
