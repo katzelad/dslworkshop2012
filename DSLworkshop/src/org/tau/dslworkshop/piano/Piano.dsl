@@ -101,15 +101,15 @@ MiddleArea<-
 	(
 			(Upmargin)
 			---
-			((label:80x20)[text="Too Hard?", bgcolor = regbgcolor, fgcolor = regfgcolor, font = regfont]|(Spacer))
+			((label:120x20)[text={is_eng=>"Too Difficult?", is_deu=>"zu schwierig?", otherwise "Too Difficult?"}, bgcolor = regbgcolor, fgcolor = regfgcolor, font = regfont]|(Spacer))
 			---
 			(	     
-				(( (radio:20x20)[checked= hint = i, bgcolor = regbgcolor] | (label:120x?)[text = Hints[i], bgcolor = regbgcolor, fgcolor = regfgcolor, font = regfont] )	
+				(( (radio:20x20)[checked= hint = i, bgcolor = regbgcolor] | (label:140x?)[text = Hints[i], bgcolor = regbgcolor, fgcolor = regfgcolor, font = regfont] )	
 				*|*
 				[i=0...2,Hints={nohint, noteshint, keyboardhint}])
-				[ noteshint={is_eng=>"Music Notes Hints", is_deu=>"Tastatur Hinweise ", otherwise "Music Notes Hints"},
-				  keyboardhint={is_eng=>"Keyboard Hints", is_deu=>"Musiknoten Hinweise", otherwise "Keyboard Hints"},
-				  nohint={is_eng=>"No! No Hints", is_deu=>"Nein! Keine Hinweise", otherwise "No! No Hints"}
+				[ noteshint={is_eng=>"Music Notes Hints", is_deu=>"Tastatur Hinweise", otherwise "Tastatur Hinweise"},
+				  keyboardhint={is_eng=>"Keyboard Hints", is_deu=>"Musiknoten Hinweise", otherwise "Musiknoten Hinweise"},
+				  nohint={is_eng=>"No! No Hints", is_deu=>"Nein! Keine Hinweise", otherwise "Nein! Keine Hinweise"}
 				 ]|
 				(Spacer)
 			)
@@ -169,7 +169,7 @@ MiddleArea<-
 	(
 		(Leftmargin)|
 		(
-			((label:80x20)[text={is_eng=>"Welcome to ", is_deu=>"Willkommen bei ", otherwise "Welcome to "}, bgcolor=regbgcolor, fgcolor=regfgcolor, font=regfont]|(label:310x20)[text="The Maestro!", bgcolor=regbgcolor, fgcolor=regfgcolor, font = ("Monotype Corsiva", 11, bold)])
+			((label:80x20)[text={is_eng=>"Welcome to ", is_deu=>"Willkommen bei ", otherwise "Willkommen bei "}, bgcolor=regbgcolor, fgcolor=regfgcolor, font=regfont]|(label:310x20)[text="The Maestro!", bgcolor=regbgcolor, fgcolor=regfgcolor, font = ("Monotype Corsiva", 11, bold)])
 			---
 			(label:?x20)[text={is_eng=>"Use the mouse or the keyboard to play.", is_deu=>"Mit der Maus oder der Tastatur zu spielen.", otherwise "Use the mouse or the keyboard to play."}, bgcolor=regbgcolor, fgcolor=regfgcolor, font=regfont]
 			---
@@ -191,11 +191,11 @@ MiddleArea<-
 			---	
 			(label:?x20)[text={is_eng=>"Created by: Elad Katz, Shir Sofer", is_deu=>"Erstellt von: Elad Katz, Shir Sofer", otherwise "Created by: Elad Katz, Shir Sofer"}, bgcolor=regbgcolor, fgcolor=regfgcolor, font=regfont]
 		)|
-		(Spacer)
+		(Leftmargin)
 	)
 	---
-	(Spacer)
-  )[regbgcolor=0xFFFFFF, regfgcolor=0xFF6A26, regfont=("arial", 10, bold), is_eng=?(true), is_deu=?(false)]
+	(Upmargin)
+  )[regbgcolor=0xFFFFFF, regfgcolor=0xFF6A26, regfont=("arial", 10, bold)]
   
   WrappedPiano<-
   (

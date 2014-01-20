@@ -108,6 +108,6 @@ object Notepad {
 
 object Test1 {
   def apply() = """   
-     main_window <-(button:50x50)
+     main_window <-(button:500x300)
     """
 }

@@ -7,7 +7,7 @@ object Main {
 
   def main(args: Array[String]) = {
 
-    val code = org.tau.dslworkshop.Test1() // Source.fromFile(args(0)).mkString
+    val code = org.tau.dslworkshop.Notepad() // Source.fromFile(args(0)).mkString
 
     val params = args.drop(1)
     val instance = new DSLProgram(code)("main_window")

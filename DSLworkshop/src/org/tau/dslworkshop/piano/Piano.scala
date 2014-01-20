@@ -19,7 +19,6 @@ object Piano {
 
     val code = Source.fromFile("src\\org\\tau\\dslworkshop\\piano\\Piano.dsl").mkString
 
-
     //todo get rid of titlebgcolor/font/fgcolor etc if unused
     //TODO catch exceptions
 
@@ -31,6 +30,7 @@ object Piano {
       title = "The Maestro")
     println(args.mkString("{", " ", "}"))
 
+    var langchoice = if (args.length == 0) 0 else if (args(0) == "DE") 1 else 0
     var vol = 50
     var octave = 0
     var recent = ""
@@ -87,7 +87,7 @@ object Piano {
     val synth = MidiSystem.getSynthesizer()
     synth.open
     val mainChannel = synth.getChannels()(0)
-        
+
     val synthrecv = MidiSystem.getReceiver
 
     val rhythmsqr = MidiSystem.getSequencer(false)
@@ -95,29 +95,28 @@ object Piano {
     rhythmsqr.setLoopCount(Sequencer.LOOP_CONTINUOUSLY)
     rhythmsqr.setTempoFactor(math.pow(2, 0.5).toFloat)
     rhythmsqr.getTransmitter.setReceiver(synthrecv)
-    
-//    val recordsqr = MidiSystem.getSequencer(false)
-//    recordsqr.open()
-//    val recordrecv = recordsqr.getReceiver()
-//    //synth.getTransmitter.setReceiver(recordrecv)
-//    rhythmsqr.getTransmitter.setReceiver(recordrecv) //
-//    val recordseq = new Sequence(Sequence.PPQ, 10);
-//    val track = recordseq.createTrack()
-//    recordsqr.setSequence(recordseq)
-//    recordsqr.recordEnable(track, -1)
-//    recordsqr.startRecording()
-  
-    
-//    seqer.startRecording
 
-        def play(note: Int) {
+    //    val recordsqr = MidiSystem.getSequencer(false)
+    //    recordsqr.open()
+    //    val recordrecv = recordsqr.getReceiver()
+    //    //synth.getTransmitter.setReceiver(recordrecv)
+    //    rhythmsqr.getTransmitter.setReceiver(recordrecv) //
+    //    val recordseq = new Sequence(Sequence.PPQ, 10);
+    //    val track = recordseq.createTrack()
+    //    recordsqr.setSequence(recordseq)
+    //    recordsqr.recordEnable(track, -1)
+    //    recordsqr.startRecording()
+
+    //    seqer.startRecording
+
+    def play(note: Int) {
       if (!pedal)
         mainChannel.allNotesOff
       mainChannel.noteOn(note + octave * 12, vol)
       recent = recent + noteToString(note) + ' '
       instance.set("recent", recent)
     }
-    
+
     def playRhythm(rhythm: Int, prev: Int) {
       if (prev != 0)
         rhythmsqr.stop
@@ -148,7 +147,6 @@ object Piano {
       mainChannel.allNotesOff
     }
 
-        
     instance.when_changed("vol", (_, newer) => {
       vol = newer.asInstanceOf[Int]
       for (i <- 0 until 16)
@@ -171,16 +169,15 @@ object Piano {
         name = "AboutContent",
         title = "About",
         icon = "Graphics\\Icon.png",
-        isDialog = true,
-        defaultWidth = 350,
-        defaultHeight = 250)(Array())
+        isDialog = true)(Array("is_eng=" + (1 - langchoice), "is_deu=" + langchoice))
     })
     instance.when_changed("filename", (_, newer) => filename = newer.asInstanceOf[String])
     instance.when_changed("pedal", (_, newer) => pedal = newer.asInstanceOf[Boolean])
     instance.when_changed("rhythmchoice", (old, newer) => playRhythm(newer.asInstanceOf[Int], old.asInstanceOf[Int]))
     instance.when_changed("tempo", (_, newer) => rhythmsqr.setTempoFactor(math.pow(2, (newer.asInstanceOf[Int] - 1) / 4.0).toFloat))
     instance.when_changed("instrument", (_, newer) => changeInstrument(newer.asInstanceOf[Int]))
-    
+    instance.when_changed("langchoice", (_, newer) => langchoice = newer.asInstanceOf[Int])
+
     instance.bind("play", (x: Int, y: Int) =>
       play((x, y) match {
         case _ if x > 20 && x < 44 && y < 153 => doodiez
@@ -219,125 +216,121 @@ object Piano {
         mainChannel.allNotesOff
     })
 
-    val output = instance(args = Array("langchoice=0", "recent=\"\"", "octave=0"))
-    
+    val output = instance(args = Array(s"langchoice=$langchoice", "recent=\"\"", "octave=0"))
 
+    //    recordsqr.stopRecording()
+    //    MidiSystem.write(recordseq, 1, new File("Audio\\recording.mid"))
 
-
-    
-//    recordsqr.stopRecording()
-//    MidiSystem.write(recordseq, 1, new File("Audio\\recording.mid"))
-        
     synth.close
     rhythmsqr.close
     synthrecv.close
     println(output)
 
     //TODO delete eventually
-        def furelise {
-          play(mi + 12)
-          wait(1)
-          play(re + 13)
-          wait(1)
-          play(mi + 12)
-          wait(1)
-          play(re + 13)
-          wait(1)
-          play(mi + 12)
-          wait(1)
-          play(si)
-          wait(1)
-          play(re + 12)
-          wait(1)
-          play(doo + 12)
-          wait(1)
-          play(la)
-          play(la - 24)
-          wait(1)
-          play(mi - 12)
-          wait(1)
-          play(la - 12)
-          wait(1)
-          play(doo)
-          wait(1)
-          play(mi)
-          wait(1)
-          play(la)
-          wait(1)
-          play(si)
-          play(mi - 24)
-          wait(1)
-          play(mi - 12)
-          wait(1)
-          play(sol - 11)
-          wait(1)
-          play(mi)
-          wait(1)
-          play(sol + 1)
-          wait(1)
-          play(si)
-          wait(1)
-          play(doo + 12)
-          play(la - 24)
-          wait(1)
-          play(mi - 12)
-          wait(1)
-          play(la - 12)
-          wait(1)
-          play(mi)
-          wait(1)
-    
-          play(mi + 12)
-          wait(1)
-          play(re + 13)
-          wait(1)
-          play(mi + 12)
-          wait(1)
-          play(re + 13)
-          wait(1)
-          play(mi + 12)
-          wait(1)
-          play(si)
-          wait(1)
-          play(re + 12)
-          wait(1)
-          play(doo + 12)
-          wait(1)
-          play(la)
-          play(la - 24)
-          wait(1)
-          play(mi - 12)
-          wait(1)
-          play(la - 12)
-          wait(1)
-          play(doo)
-          wait(1)
-          play(mi)
-          wait(1)
-          play(la)
-          wait(1)
-          play(si)
-          play(mi - 24)
-          wait(1)
-          play(mi - 12)
-          wait(1)
-          play(sol - 11)
-          wait(1)
-          play(mi)
-          wait(1)
-          play(doo + 12)
-          wait(1)
-          play(si)
-          wait(1)
-          play(la)
-          play(la - 24)
-          wait(1)
-          play(mi - 12)
-          wait(1)
-          play(la - 12)
-          wait(1)
-          play(si)
-          wait(1)
-        }
+    def furelise {
+      play(mi + 12)
+      wait(1)
+      play(re + 13)
+      wait(1)
+      play(mi + 12)
+      wait(1)
+      play(re + 13)
+      wait(1)
+      play(mi + 12)
+      wait(1)
+      play(si)
+      wait(1)
+      play(re + 12)
+      wait(1)
+      play(doo + 12)
+      wait(1)
+      play(la)
+      play(la - 24)
+      wait(1)
+      play(mi - 12)
+      wait(1)
+      play(la - 12)
+      wait(1)
+      play(doo)
+      wait(1)
+      play(mi)
+      wait(1)
+      play(la)
+      wait(1)
+      play(si)
+      play(mi - 24)
+      wait(1)
+      play(mi - 12)
+      wait(1)
+      play(sol - 11)
+      wait(1)
+      play(mi)
+      wait(1)
+      play(sol + 1)
+      wait(1)
+      play(si)
+      wait(1)
+      play(doo + 12)
+      play(la - 24)
+      wait(1)
+      play(mi - 12)
+      wait(1)
+      play(la - 12)
+      wait(1)
+      play(mi)
+      wait(1)
+
+      play(mi + 12)
+      wait(1)
+      play(re + 13)
+      wait(1)
+      play(mi + 12)
+      wait(1)
+      play(re + 13)
+      wait(1)
+      play(mi + 12)
+      wait(1)
+      play(si)
+      wait(1)
+      play(re + 12)
+      wait(1)
+      play(doo + 12)
+      wait(1)
+      play(la)
+      play(la - 24)
+      wait(1)
+      play(mi - 12)
+      wait(1)
+      play(la - 12)
+      wait(1)
+      play(doo)
+      wait(1)
+      play(mi)
+      wait(1)
+      play(la)
+      wait(1)
+      play(si)
+      play(mi - 24)
+      wait(1)
+      play(mi - 12)
+      wait(1)
+      play(sol - 11)
+      wait(1)
+      play(mi)
+      wait(1)
+      play(doo + 12)
+      wait(1)
+      play(si)
+      wait(1)
+      play(la)
+      play(la - 24)
+      wait(1)
+      play(mi - 12)
+      wait(1)
+      play(la - 12)
+      wait(1)
+      play(si)
+      wait(1)
+    }
   }
 }

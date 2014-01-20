@@ -21,7 +21,7 @@ class DSLProgram(code: String) {
 
   private val widgetsMap = LayoutParser parseAll (LayoutParser.Program, code) match {
     case LayoutParser.Success(result, nextInput) =>
-      //      print(result)
+      // print(result)
       result.defs.toMap
     case LayoutParser.NoSuccess(msg, nextInput) => throw new ParsingError(msg, nextInput.pos.line, nextInput.pos.column)
   }
@@ -92,9 +92,9 @@ class DSLProgram(code: String) {
       val (width, height, isWidthQM, isHeightQM, changeWindowSize) =
         scope.evalNode(mainWidget, window, new Environment(evaluatedVarMap, unevaluatedVarMap))
       window setLayout new FillLayout
-      println(width, height, defaultWidth, defaultHeight)
       window.getChildren()(0).setSize(if (isWidthQM) defaultWidth else width, if (isHeightQM) defaultHeight else height)
       window.pack
+      window.setSize(window.getSize.x - 17, window.getSize.y - 17)
       window.setMaximized(isMaximized)
       window.setText(title)
       if (icon != null)

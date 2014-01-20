@@ -1,7 +1,7 @@
 package org.tau.dslworkshop.compiler
 
-import scala.collection.mutable.{Buffer => mutableBuffer}
-import scala.collection.mutable.{Map => mutableMap}
+import scala.collection.mutable.{ Buffer => mutableBuffer }
+import scala.collection.mutable.{ Map => mutableMap }
 
 import org.eclipse.swt.SWT
 import org.eclipse.swt.custom.ScrolledComposite
@@ -46,20 +46,20 @@ class LayoutScope(widgetsMap: Map[String, Widget], extensions: TExtensions) {
 
   def getParams = params
 
-//  private def isReservedAtrribute(att: String) = att match {
-//    case "halign" => true
-//    case "text" => true
-//    case "checked" => true
-//    case "filename" => true
-//    case "value" => true
-//    case "maxvalue" => true
-//    case "minvalue" => true
-//    case "enabled" => true
-//    case "fgcolor" => true
-//    case "bgcolor" => true
-//    case "font" => true
-//    case _ => false
-//  }
+  //  private def isReservedAtrribute(att: String) = att match {
+  //    case "halign" => true
+  //    case "text" => true
+  //    case "checked" => true
+  //    case "filename" => true
+  //    case "value" => true
+  //    case "maxvalue" => true
+  //    case "minvalue" => true
+  //    case "enabled" => true
+  //    case "fgcolor" => true
+  //    case "bgcolor" => true
+  //    case "font" => true
+  //    case _ => false
+  //  }
 
   private def createSash(parent: Composite, direction: Int) = new Sash(parent, direction | SWT.SMOOTH | SWT.BORDER)
 
@@ -218,7 +218,6 @@ class LayoutScope(widgetsMap: Map[String, Widget], extensions: TExtensions) {
                     (childInfo(i): @unchecked) match {
                       case (_, _, true, _, changeSize) => changeSize(leftSash.getBounds.x + SASH_WIDTH, leftSash.getBounds.y, rightBound, leftSash.getBounds.y + leftSash.getBounds.height)
                     }
-                    //println(currRight)
                     sashMap(leftSash) = (leftSash.getBounds.x - leftBound) * 1.0 / (sashRightBounds(leftSash) - sashLeftBounds(leftSash) - numWidth - sashes.length * SASH_WIDTH)
                     nextSashMap(leftSash) match {
                       case (Some(nextSash), _) => sashMap(nextSash) = (rightBound - leftSash.getBounds.x - SASH_WIDTH) * 1.0 / (sashRightBounds(leftSash) - sashLeftBounds(leftSash) - numWidth - sashes.length * SASH_WIDTH)
@@ -294,7 +293,6 @@ class LayoutScope(widgetsMap: Map[String, Widget], extensions: TExtensions) {
         val (prevSash, constMargin) = prevSashMap(sash)
         val leftMargin = (prevSash map (s => s.getBounds.x + s.getBounds.width) getOrElse left) + constMargin + sashMap(sash) * (right - left - totalWidth)
         sash.setBounds(leftMargin.toInt, top, SASH_WIDTH, bottom - top)
-        // println("sash", sash.getBounds)
       })
       changeSizes foreach {
         case (changeSize, Some(leftSash), Some(leftMargin), None, None, Some(width)) =>
@@ -475,7 +473,6 @@ class LayoutScope(widgetsMap: Map[String, Widget], extensions: TExtensions) {
                     (childInfo(i): @unchecked) match {
                       case (_, _, _, true, changeSize) => changeSize(topSash.getBounds.x, topSash.getBounds.y + SASH_WIDTH, topSash.getBounds.x + topSash.getBounds.width, bottomBound)
                     }
-                    //println(currRight)
                     sashMap(topSash) = (topSash.getBounds.y - topBound) * 1.0 / (sashBottomBounds(topSash) - sashTopBounds(topSash) - numHeight - sashes.length * SASH_WIDTH)
                     nextSashMap(topSash) match {
                       case (Some(nextSash), _) => sashMap(nextSash) = (bottomBound - topSash.getBounds.y - SASH_WIDTH) * 1.0 / (sashBottomBounds(topSash) - sashTopBounds(topSash) - numHeight - sashes.length * SASH_WIDTH)
@@ -551,7 +548,6 @@ class LayoutScope(widgetsMap: Map[String, Widget], extensions: TExtensions) {
         val (prevSash, constMargin) = prevSashMap(sash)
         val topMargin = (prevSash map (s => s.getBounds.y + s.getBounds.height) getOrElse top) + constMargin + sashMap(sash) * (bottom - top - totalHeight)
         sash.setBounds(left, topMargin.toInt, right - left, SASH_WIDTH) //left top width height
-        // println("sash", sash.getBounds)
       })
       changeSizes foreach {
         case (changeSize, Some(topSash), Some(topMargin), None, None, Some(height)) =>
@@ -785,7 +781,7 @@ class LayoutScope(widgetsMap: Map[String, Widget], extensions: TExtensions) {
           changeAttRTL("minvalue", expr => slider.setMinimum(env.evalInt(expr)))
           changeAttRTL("value", expr => slider.setSelection(env.evalInt(expr)))
           slider
-       case "scale" =>
+        case "scale" =>
           val scale = new Scale(parent, SWT.HORIZONTAL)
           scale setMaximum maxValue
           scale setMinimum minValue
