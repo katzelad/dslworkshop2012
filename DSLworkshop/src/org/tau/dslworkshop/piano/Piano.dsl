@@ -3,7 +3,7 @@
 	(ProgramTitle:?x40)
 	---
 	((Controls:200x?)|(MiddleArea)|(LangAboutNowPlaying:300x?))
-  )[vol=?(60), is_eng=langchoice=0, is_deu=langchoice=1, instrument = ?(0), tempo=?(3), renamingaudiofile=?(false),
+  )[vol=?(60), is_eng=langchoice=0, is_deu=langchoice=1, instrument = ?(0), tempo=?(3), hint=?(0),
     up=?(false), down=?(false), clear=?(false), pedal=?(false), filename=?("MySong"), rhythmchoice=?(0), about=?(false),
 	titlebgcolor = 0xFFFFFF, titlefgcolor = 0x2FA1E2, titlefont = ("arial", 12, bold), 
 	regbgcolor = 0xFFFFFF, regfgcolor = 0xFF6A26, regfont = ("arial", 10, bold),
@@ -65,14 +65,14 @@ MiddleArea<-
 		---
 		(RecentlyplayedSavetext:?x?)
 		---
-		(RhythmRecord:?x140)
+		(RhythmHints:?x140)
 		---
 		(WrappedPiano:?x?)
 	) |
 	(Leftmargin)
   )
  
-  RhythmRecord<-
+  RhythmHints<-
   (
 		  (
 					(Upmargin)
@@ -95,33 +95,22 @@ MiddleArea<-
 					  )
 					)
 	|
-		  
+	(Leftmargin)|
+	(Leftmargin)|
+	(Leftmargin)|	
 	(
 			(Upmargin)
 			---
-			(
-				(Leftmargin)|(Leftmargin)|
-				(
-					(
-							(label:100x80)[text={is_eng=>"Choose Audio File Name:", is_deu=>"Gib einen Audio dateinamen:", otherwise "Choose Audio File Name:"}, bgcolor=regbgcolor, fgcolor=regfgcolor, font=regfont]|
-							(
-									(textbox:140x30)[text=filename, enabled = renamingaudiofile, bgcolor = 0x7CC8FF, fgcolor = regfgcolor, font = regfont]
-									---
-									((button:70x32)[text={is_eng=>"Rename", is_deu=>"Umbenenn", otherwise "Rename"}, enabled=!renamingaudiofile]
-									|
-									(button:70x32)[text={is_eng=>"Done Renaming", is_deu=>"Getan", otherwise "Done Renaming"}, enabled=renamingaudiofile])
-									---
-									(Spacer)
-							)
-					)
-					---
-					(		(label:100x40)[text={is_eng=>"Recording Duration:", is_deu=>"Aufzeichnungsdauer:", otherwise "Recording Duration:"}, bgcolor=regbgcolor, fgcolor=regfgcolor, font=regfont]|
-							((:?x2)[bgcolor=regbgcolor]---((combo:63x25)[value=2, text ="10,15,30",enabled = true, bgcolor = regbgcolor, fgcolor = 0x000000])---(Spacer))|
-							(Spacer)
-					)
-				)|
-				(:20x?)[bgcolor=regbgcolor]|
-				((button:60x30)[text={is_eng=>"Record", is_deu=>"Rekord", otherwise "Record"}, bgcolor=0x0000FF, fgcolor=regfgcolor, font=regfont]---(Spacer))|
+			((label:80x20)[text="Too Hard?", bgcolor = regbgcolor, fgcolor = regfgcolor, font = regfont]|(Spacer))
+			---
+			(	     
+				(( (radio:20x20)[checked= hint = i, bgcolor = regbgcolor] | (label:120x?)[text = Hints[i], bgcolor = regbgcolor, fgcolor = regfgcolor, font = regfont] )	
+				*|*
+				[i=0...2,Hints={nohint, noteshint, keyboardhint}])
+				[ noteshint={is_eng=>"Music Notes Hints", is_deu=>"Tastatur Hinweise ", otherwise "Music Notes Hints"},
+				  keyboardhint={is_eng=>"Keyboard Hints", is_deu=>"Musiknoten Hinweise", otherwise "Keyboard Hints"},
+				  nohint={is_eng=>"No! No Hints", is_deu=>"Nein! Keine Hinweise", otherwise "No! No Hints"}
+				 ]|
 				(Spacer)
 			)
 			---
@@ -180,7 +169,7 @@ MiddleArea<-
 	(
 		(Leftmargin)|
 		(
-			(label:330x20)[text={is_eng=>"Welcome to The Maestro!", is_deu=>"Willkommen bei The Maestro!", otherwise "Welcome to The Maestro!"}, bgcolor=regbgcolor, fgcolor=regfgcolor, font=regfont]
+			((label:80x20)[text={is_eng=>"Welcome to ", is_deu=>"Willkommen bei ", otherwise "Welcome to "}, bgcolor=regbgcolor, fgcolor=regfgcolor, font=regfont]|(label:310x20)[text="The Maestro!", bgcolor=regbgcolor, fgcolor=regfgcolor, font = ("Monotype Corsiva", 11, bold)])
 			---
 			(label:?x20)[text={is_eng=>"Use the mouse or the keyboard to play.", is_deu=>"Mit der Maus oder der Tastatur zu spielen.", otherwise "Use the mouse or the keyboard to play."}, bgcolor=regbgcolor, fgcolor=regfgcolor, font=regfont]
 			---
@@ -210,7 +199,11 @@ MiddleArea<-
   
   WrappedPiano<-
   (
-	  ((Leftmargin)|(Piano:504x232)|(Spacer))
+	  ((Leftmargin)|
+		(Piano:504x232)|
+		(:100x?)[bgcolor=regbgcolor]|
+		((Spacer)---(image:98x130)[filename="Graphics\\mouseMaestro.png", bgcolor=regbgcolor])|
+		(Spacer))
 	  ---
 	  (Spacer)
   )
@@ -219,7 +212,9 @@ MiddleArea<-
   (
 	(Upmargin)
 	---
-	(image)[filename="Graphics\\pianoKeys.png", action=play]
+	(
+		(image)[filename={hint=0=>"Graphics\\pianoKeys.png", hint=1=>"Graphics\\notesHint.png", hint=2=>"Graphics\\keyboardHint.png", otherwise ""}, action=play]
+	)
   )
   
   Nowplaying<-
@@ -252,7 +247,7 @@ MiddleArea<-
 		(
 				(UpmarginControls)
 				---
-				(label:?x20)[text={is_eng=>"Controls", is_deu=>"Kontrol", otherwise "Controls"}, bgcolor = controlsbgcolor, fgcolor = controlsfgcolor, font = controlsfont]
+				(label:?x20)[text={is_eng=>"Audio Controls", is_deu=>"Kontrol", otherwise "Controls"}, bgcolor = controlsbgcolor, fgcolor = controlsfgcolor, font = controlsfont]
 				---
 				(UpmarginControls)
 				---
@@ -287,7 +282,7 @@ MiddleArea<-
   
   INSTRUMENT<-
   (
-		(label:?x20)[text={is_eng=>"Instrument:", is_deu=>"Instrument", otherwise "Instrument"}, bgcolor = controlsbgcolor, fgcolor = controlsfgcolor, font = controlsfont]
+		(label:?x20)[text={is_eng=>"Instrument:", is_deu=>"Instrument:", otherwise "Instrument:"}, bgcolor = controlsbgcolor, fgcolor = controlsfgcolor, font = controlsfont]
 		---
 		(
 			(( (radio:20x20) [checked= instrument = i, bgcolor = controlsbgcolor] | (label)[text = Instruments[i], bgcolor = controlsbgcolor, fgcolor = controlsfgcolor, font = controlsfont] )
@@ -317,7 +312,7 @@ MiddleArea<-
 		(
 				(:?x30)[bgcolor = controlsbgcolor]
 				---
-				(label)[text={is_eng=>"Octave", is_deu=>"Octave", otherwise "Octave"}, bgcolor = controlsbgcolor, fgcolor = controlsfgcolor, font = controlsfont]
+				(label)[text={is_eng=>"Octave:", is_deu=>"Octave", otherwise "Octave"}, bgcolor = controlsbgcolor, fgcolor = controlsfgcolor, font = controlsfont]
 		)|
     	(image:46x106)[filename={octave=1=>"Graphics\\sol8.png",octave=0=>"Graphics\\sol.png",octave=-1=>"Graphics\\fa.png",octave=-2=>"Graphics\\fa8.png", otherwise "Graphics\\sol.png"}, bgcolor = controlsbgcolor]|
     	(

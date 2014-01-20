@@ -20,8 +20,6 @@ object Piano {
     val code = Source.fromFile("src\\org\\tau\\dslworkshop\\piano\\Piano.dsl").mkString
 
 
-    //TODO mute disables volume feature (using another var)
-    //todo record button
     //todo get rid of titlebgcolor/font/fgcolor etc if unused
     //TODO catch exceptions
 
@@ -150,6 +148,7 @@ object Piano {
       mainChannel.allNotesOff
     }
 
+        
     instance.when_changed("vol", (_, newer) => {
       vol = newer.asInstanceOf[Int]
       for (i <- 0 until 16)
@@ -181,7 +180,7 @@ object Piano {
     instance.when_changed("rhythmchoice", (old, newer) => playRhythm(newer.asInstanceOf[Int], old.asInstanceOf[Int]))
     instance.when_changed("tempo", (_, newer) => rhythmsqr.setTempoFactor(math.pow(2, (newer.asInstanceOf[Int] - 1) / 4.0).toFloat))
     instance.when_changed("instrument", (_, newer) => changeInstrument(newer.asInstanceOf[Int]))
-
+    
     instance.bind("play", (x: Int, y: Int) =>
       play((x, y) match {
         case _ if x > 20 && x < 44 && y < 153 => doodiez

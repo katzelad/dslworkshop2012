@@ -189,7 +189,8 @@
     
        //Notepad
       //button image supprt???
-      main_window <-
+	
+     Notepad <-
       (
       	((button:32x32)|(button:32x?)|
       	(button:32x3?)|(:10x?)|

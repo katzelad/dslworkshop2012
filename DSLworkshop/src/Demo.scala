@@ -88,3 +88,26 @@ object Subprograms { // changed the names of the image files
     main_window <- ((L) | (I))[v=?(0)]
     """
 }
+
+
+object Notepad {
+  def apply() = """  Notepad <-
+      (
+      	((button:32x32)|(button:32x?)|
+      	(button:32x?)|(:10x?)|
+      	(button:32x?)|(button:32x?)|())
+      	---
+      	(textbox)[text="Enter your text here", font=("arial", 16, bold)]
+      	---
+      	(label)[text="Status: ready"]|(button:40x20)
+      ) 
+    
+     main_window <-(Notepad: 300x200)
+    """
+}
+
+object Test1 {
+  def apply() = """   
+     main_window <-(button:50x50)
+    """
+}
