@@ -81,12 +81,12 @@ MiddleArea<-
 						(
 								(label:80x40)[text={is_eng=>"Choose Beat:", is_deu=>"Rhythmus Selektieren:", otherwise "Choose Beat:"}, bgcolor=regbgcolor, fgcolor=regfgcolor, font=regfont]|
 								(:23x?)[bgcolor=regbgcolor]|
-								((combo:70x20 )[text = "None,Jazz,Rock, Country, Funk",enabled = true, bgcolor = regbgcolor, fgcolor = 0x000000, value=rhythmchoice]---(Spacer))|
+								((combo:81x20 )[text = "None,Jazz,Rock, Country, Funk",enabled = true, font=regfont, bgcolor = regbgcolor, fgcolor = 0x000000, value=rhythmchoice]---(Spacer))|
 								(Spacer)
 						)
 						---
 						(
-								(:46x?)[bgcolor=regbgcolor]|
+								(:48x?)[bgcolor=regbgcolor]|
 								(label:50x?)[text={is_eng=>"Slower", is_deu=>"Langsam", otherwise "Slower"}, bgcolor = regbgcolor, fgcolor = 0x000000, font=regfont ]|
 								(scale:80x70)[maxvalue=5, minvalue =1 , value=tempo, bgcolor = regbgcolor]|
 								(label:50x?)[text={is_eng=>"Faster", is_deu=>"Schnell", otherwise "Faster"}, bgcolor = regbgcolor, fgcolor = 0x000000, font=regfont]
@@ -126,7 +126,7 @@ MiddleArea<-
 			(label:120x?)[text={is_eng=>"Recently Played:", is_deu=>"Zuletzt gespielt:", otherwise "Recently Played:"}, bgcolor=regbgcolor, fgcolor=regfgcolor, font=regfont]|
 			(:20x?)[bgcolor=regbgcolor]|
 			(Spacer)|
-			((button:63x33)[text={is_eng=>"Clear", is_deu=>"Klar", otherwise "Clear"}, checked=clear])
+			((button:63x33)[text={is_eng=>"Clear", is_deu=>"Klar", otherwise "Clear"}, font=regfont ,checked=clear])
 		)
 		---
 		(Upmargin)
@@ -143,7 +143,7 @@ MiddleArea<-
 	(
 		((label:80x20)[text={is_eng=>"Language:", is_deu=>"Sprache:", otherwise "Language:"}, bgcolor=regbgcolor, fgcolor=regfgcolor, font=regfont]|(Spacer))
 		---
-		(combo:80x20 )[value=langchoice, text ="En,De",enabled = true, bgcolor = regbgcolor, fgcolor = 0x000000]
+		(combo:80x20 )[value=langchoice, text ="En,De",enabled = true, font=regfont, bgcolor = regbgcolor, fgcolor = 0x000000]
 		---
 		(Spacer)
 	)
