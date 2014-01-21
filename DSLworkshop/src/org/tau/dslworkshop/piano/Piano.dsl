@@ -5,9 +5,9 @@
 	((Controls:200x?)|(MiddleArea)|(LangAboutNowPlaying:300x?))
   )[vol=?(60), is_eng=langchoice=0, is_deu=langchoice=1, instrument = ?(0), tempo=?(3), hint=?(0),
     up=?(false), down=?(false), clear=?(false), pedal=?(false), filename=?("MySong"), rhythmchoice=?(0), about=?(false),
-	titlebgcolor = 0xFFFFFF, titlefgcolor = 0x2FA1E2, titlefont = ("arial", 12, bold), 
-	regbgcolor = 0xFFFFFF, regfgcolor = 0xFF6A26, regfont = ("Gill Sans MT", 11, regular),
-	controlsbgcolor = 0xD6FCFF, controlsfgcolor = 0xFF6A26, controlsfont = ("Gill Sans MT", 11, regular)]
+	smallfont = ("arial", 9, regular), 
+	regbgcolor = 0xFFFFFF, regfgcolor = 0xFF6A26, regfont = ("Arial", 11, regular),
+	controlsbgcolor = 0xD6FCFF, controlsfgcolor = 0xFF6A26, controlsfont = ("Arial", 11, regular)]
   
   Leftmargin<-
   (:20x?)[bgcolor = regbgcolor]
@@ -87,9 +87,9 @@ MiddleArea<-
 						---
 						(
 								(:48x?)[bgcolor=regbgcolor]|
-								(label:50x?)[text={is_eng=>"Slower", is_deu=>"Langsam", otherwise "Slower"}, bgcolor = regbgcolor, fgcolor = 0x000000, font=regfont ]|
+								(label:50x?)[text={is_eng=>"Slower", is_deu=>"Langsam", otherwise "Slower"}, bgcolor = regbgcolor, fgcolor = 0x000000, font=smallfont ]|
 								(scale:80x70)[maxvalue=5, minvalue =1 , value=tempo, bgcolor = regbgcolor]|
-								(label:50x?)[text={is_eng=>"Faster", is_deu=>"Schnell", otherwise "Faster"}, bgcolor = regbgcolor, fgcolor = 0x000000, font=regfont]
+								(label:50x?)[text={is_eng=>"Faster", is_deu=>"Schnell", otherwise "Faster"}, bgcolor = regbgcolor, fgcolor = 0x000000, font=smallfont]
 						)
 						---
 						(Spacer)
