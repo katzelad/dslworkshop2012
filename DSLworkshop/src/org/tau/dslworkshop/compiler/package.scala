@@ -6,24 +6,38 @@ import org.eclipse.swt.graphics.{ Color => swtColor }
 import org.eclipse.swt.graphics.{ Font => swtFont }
 import org.eclipse.swt.SWT
 
+/*
+ * Global declarations
+ */
 package object compiler {
 
-  type TEvaluatedVarMap = ScopingMap[String, Any]
+  // A variable -> value mapping of a specific scope
+  type TVarMap = ScopingMap[String, Any]
 
-  type TUnevaluatedVarMap = ScopingMap[String, Set[() => Unit]]
+  // A variable -> (internal) observers mapping of a specific scope
+  type TFlowMap = ScopingMap[String, Set[() => Unit]]
   
+  // A function which dynamically changes the size of a box, used in 'LayoutScope.scala'
   type TChangeSize = (Int, Int, Int, Int) => Unit
 
+  // A tuple of the values returned by EvalNode, used in 'LayoutScope.scala'
   type TEvalNodeReturn = (Int, Int, Boolean, Boolean, TChangeSize)
-  
+ 
+  // A variable -> extension (an external observer which is registered using 'when_changed') mapping of a subprogram
   type TExtensions = Map[String, (Any, Any) => Unit]
   
-  type mutableHashMap[K, V] = scala.collection.mutable.HashMap[K, V]
+  // An abbreviation for a mutable hash map
+  type mutableMap[K, V] = scala.collection.mutable.HashMap[K, V]
 
+  // A constant for the width of a splitter
   val SASH_WIDTH = 7
 
+  // A flag which is inserted to the 'Flow Map' to distinguish a constant from a variable
   val INITIAL_ATT_FLAG = () => {}
 
+  /*
+   * Converters
+   */
   def colorASTToSWT(astColor: Color, display: Display) =
     new swtColor(display, astColor.red, astColor.green, astColor.blue)
 

@@ -1,7 +1,6 @@
 package org.tau.dslworkshop.compiler
 
 import scala.collection.mutable.{ Buffer => mutableBuffer }
-import scala.collection.mutable.{ Map => mutableMap }
 
 import org.eclipse.swt.SWT
 import org.eclipse.swt.custom.ScrolledComposite
@@ -38,28 +37,16 @@ import org.tau.workshop2011.parser.AST.PropertyScope
 import org.tau.workshop2011.parser.AST.Variable
 import org.tau.workshop2011.parser.AST.Widget
 
+/*
+ * Represents the layout of an entire subprogram.
+ */
 class LayoutScope(widgetsMap: Map[String, Widget], extensions: TExtensions) {
 
-  private var params: TEvaluatedVarMap = null
+  private var params: TVarMap = null
 
   private var varsAffectedByCurrentUpdate: Set[String] = null
 
   def getParams = params
-
-  //  private def isReservedAtrribute(att: String) = att match {
-  //    case "halign" => true
-  //    case "text" => true
-  //    case "checked" => true
-  //    case "filename" => true
-  //    case "value" => true
-  //    case "maxvalue" => true
-  //    case "minvalue" => true
-  //    case "enabled" => true
-  //    case "fgcolor" => true
-  //    case "bgcolor" => true
-  //    case "font" => true
-  //    case _ => false
-  //  }
 
   private def createSash(parent: Composite, direction: Int) = new Sash(parent, direction | SWT.SMOOTH | SWT.BORDER)
 
@@ -69,12 +56,12 @@ class LayoutScope(widgetsMap: Map[String, Widget], extensions: TExtensions) {
     val childInfo = children map (evalNode(_, parent, env))
     val qms = childInfo count { case (_, _, b, _, _) => b } // total number of question marks (qms)
     val numWidth = childInfo map { case (w, _, _, _, _) => w } sum
-    var sashMap = mutableMap[Sash, Double]()
+    var sashMap = new mutableMap[Sash, Double]()
     var prevSashMap = Map[Sash, (Option[Sash], Int)]()
     var nextSashMap = Map[Sash, (Option[Sash], Int)]()
-    var sashLeftBounds = mutableMap[Sash, Int]()
-    var sashRightBounds = mutableMap[Sash, Int]()
-    var changeSizes = List[((Int, Int, Int, Int) => Unit, Option[Sash], Option[Int], Option[Sash], Option[Int], Option[Int])]()
+    var sashLeftBounds = new mutableMap[Sash, Int]()
+    var sashRightBounds = new mutableMap[Sash, Int]()
+    var changeSizes = List[(TChangeSize, Option[Sash], Option[Int], Option[Sash], Option[Int], Option[Int])]()
     var j = 0
     var isChangingSize = false
     for (i <- 0 to childInfo.length - 1) {
@@ -87,14 +74,14 @@ class LayoutScope(widgetsMap: Map[String, Widget], extensions: TExtensions) {
                 changeSizes ::= (changeSize, if (sashes isEmpty) None else Some(sashes last),
                   if (sashes isEmpty)
                     Some(childInfo take (childInfo prefixLength { case (_, _, b, _, _) => !b })
-                    map ({ case (w, _, false, _, _) => w; case _ => print("Error: 134"); 0 }) sum)
+                    map ({ case (w, _, false, _, _) => w; case _ => 0 }) sum)
                   else
                     Some(0), Some(leftSash), Some(0), None)
             }
             prevSashMap += leftSash -> (if (sashes.isEmpty) None else Some(sashes.last),
               if (sashes.isEmpty)
-                childInfo takeWhile { case (_, _, b, _, _) => !b } map { case (w, _, false, _, _) => w; case _ => print("Error: 143"); 0 } sum
-              else 0) // MARK 8.12, originally without adding the childInfo(j)._1
+                childInfo takeWhile { case (_, _, b, _, _) => !b } map { case (w, _, false, _, _) => w; case _ => 0 } sum
+              else 0)
             sashMap(leftSash) = 1.0 / qms
             sashes += leftSash
             if (i > j + 1) { // ... ? 20 20 20 ? ...
@@ -106,7 +93,7 @@ class LayoutScope(widgetsMap: Map[String, Widget], extensions: TExtensions) {
                   case (width, _, false, _, changeSize) =>
                     changeSizes ::= (changeSize, Some(leftSash), Some(accWidth), None, None, Some(width))
                     accWidth += width
-                  case _ => print("Error: 148")
+                  case _ =>
                 }
               prevSashMap += rightSash -> (Some(leftSash), accWidth)
               sashMap(rightSash) = 0
@@ -128,14 +115,14 @@ class LayoutScope(widgetsMap: Map[String, Widget], extensions: TExtensions) {
                     if (leftSash.getBounds.x + SASH_WIDTH > rightBound - childInfo(i)._1)
                       leftSash.setLocation(rightBound - SASH_WIDTH - childInfo(i)._1, leftSash.getBounds.y)
                     (childInfo(k): @unchecked) match {
-                      case (_, _, true, _, changeSize) => changeSize(leftBound /*BEGIN CHANGE 8.12 - prevSashMap(leftSash)._2 END CHANGE 8.12 */ , leftSash.getBounds.y, leftSash.getBounds.x, leftSash.getBounds.y + leftSash.getBounds.height)
+                      case (_, _, true, _, changeSize) => changeSize(leftBound, leftSash.getBounds.y, leftSash.getBounds.x, leftSash.getBounds.y + leftSash.getBounds.height)
                     }
                     var accWidth = 0
                     for (j <- k + 1 to i - 1) childInfo(j) match {
                       case (width, _, false, _, changeSize) =>
                         changeSize(leftSash.getBounds.x + SASH_WIDTH + accWidth, leftSash.getBounds.y, leftSash.getBounds.x + SASH_WIDTH + accWidth + width, leftSash.getBounds.y + leftSash.getBounds.height)
                         accWidth += width
-                      case _ => print("Error: 184")
+                      case _ =>
                     }
                     rightSash.setLocation(leftSash.getBounds.x + SASH_WIDTH + accWidth, leftSash.getBounds.y)
                     (childInfo(i): @unchecked) match {
@@ -172,7 +159,7 @@ class LayoutScope(widgetsMap: Map[String, Widget], extensions: TExtensions) {
                       case (width, _, false, _, changeSize) =>
                         changeSize(rightSash.getBounds.x - accWidth - width, rightSash.getBounds.y, rightSash.getBounds.x - accWidth, rightSash.getBounds.y + rightSash.getBounds.height)
                         accWidth += width
-                      case _ => print("Error: 215")
+                      case _ =>
                     }
                     leftSash.setLocation(rightSash.getBounds.x - SASH_WIDTH - accWidth, rightSash.getBounds.y)
                     (childInfo(k): @unchecked) match {
@@ -204,8 +191,8 @@ class LayoutScope(widgetsMap: Map[String, Widget], extensions: TExtensions) {
                       case (Some(prevSash), leftMargin) => prevSash.getBounds.x + SASH_WIDTH + leftMargin
                       case (None, leftMargin) => sashLeftBounds(leftSash) + leftMargin
                     }
-                    if (leftSash.getBounds.x < leftBound + childInfo(i - 1)._1) // MARK 9.12 - added 'childInfo(i-1)._1'
-                      leftSash.setLocation(leftBound + childInfo(i - 1)._1, leftSash.getBounds.y) // MARK 9.12 - added 'childInfo(i-1)._1'
+                    if (leftSash.getBounds.x < leftBound + childInfo(i - 1)._1)
+                      leftSash.setLocation(leftBound + childInfo(i - 1)._1, leftSash.getBounds.y)
                     val rightBound = nextSashMap(leftSash) match {
                       case (Some(nextSash), rightMargin) => nextSash.getBounds.x - rightMargin
                       case (None, rightMargin) => sashRightBounds(leftSash) - rightMargin
@@ -234,7 +221,7 @@ class LayoutScope(widgetsMap: Map[String, Widget], extensions: TExtensions) {
                 case (width, _, false, _, changeSize) =>
                   changeSizes ::= (changeSize, None, Some(accWidth), None, None, Some(width))
                   accWidth += width
-                case _ => print("Error: 158")
+                case _ =>
               }
             if (i == childInfo.length - 1)
               (childInfo(i): @unchecked) match {
@@ -262,7 +249,7 @@ class LayoutScope(widgetsMap: Map[String, Widget], extensions: TExtensions) {
                 case (width, _, false, _, changeSize) =>
                   changeSizes ::= (changeSize, None, None, None, Some(accWidth), Some(width))
                   accWidth += width
-                case _ => print("Error: 181")
+                case _ =>
               }
             (childInfo(j): @unchecked) match {
               case (_, _, true, _, changeSize) =>
@@ -311,7 +298,7 @@ class LayoutScope(widgetsMap: Map[String, Widget], extensions: TExtensions) {
           changeSize(leftSash.getBounds.x + leftSash.getBounds.width + leftMargin, top, right - rightMargin, bottom)
         case (changeSize, None, Some(leftMargin), None, Some(rightMargin), None) =>
           changeSize(left + leftMargin, top, right - rightMargin, bottom)
-        case _ => print("Error: 217")
+        case _ =>
       }
 
       isChangingSize = false
@@ -324,12 +311,12 @@ class LayoutScope(widgetsMap: Map[String, Widget], extensions: TExtensions) {
     val childInfo = children map (evalNode(_, parent, env))
     val qms = childInfo count { case (_, _, _, b, _) => b } // total number of question marks (qms)
     val numHeight = childInfo map { case (_, h, _, _, _) => h } sum
-    var sashMap = mutableMap[Sash, Double]()
+    var sashMap = new mutableMap[Sash, Double]()
     var prevSashMap = Map[Sash, (Option[Sash], Int)]()
     var nextSashMap = Map[Sash, (Option[Sash], Int)]()
-    var sashTopBounds = mutableMap[Sash, Int]()
-    var sashBottomBounds = mutableMap[Sash, Int]()
-    var changeSizes = List[((Int, Int, Int, Int) => Unit, Option[Sash], Option[Int], Option[Sash], Option[Int], Option[Int])]()
+    var sashTopBounds = new mutableMap[Sash, Int]()
+    var sashBottomBounds = new mutableMap[Sash, Int]()
+    var changeSizes = List[(TChangeSize, Option[Sash], Option[Int], Option[Sash], Option[Int], Option[Int])]()
     var j = 0
     var isChangingSize = false
     for (i <- 0 to childInfo.length - 1) {
@@ -342,14 +329,14 @@ class LayoutScope(widgetsMap: Map[String, Widget], extensions: TExtensions) {
                 changeSizes ::= (changeSize, if (sashes isEmpty) None else Some(sashes last),
                   if (sashes isEmpty)
                     Some(childInfo take (childInfo prefixLength { case (_, _, _, b, _) => !b })
-                    map ({ case (_, h, _, false, _) => h; case _ => print("Error: 346"); 0 }) sum)
+                    map ({ case (_, h, _, false, _) => h; case _ => 0 }) sum)
                   else
                     Some(0), Some(topSash), Some(0), None)
             }
             prevSashMap += topSash -> (if (sashes.isEmpty) None else Some(sashes.last),
               if (sashes.isEmpty)
-                childInfo takeWhile { case (_, _, _, b, _) => !b } map { case (_, h, _, false, _) => h; case _ => print("Error: 352"); 0 } sum
-              else 0) // MARK 8.12, originally without adding the childInfo(j)._1
+                childInfo takeWhile { case (_, _, _, b, _) => !b } map { case (_, h, _, false, _) => h; case _ => 0 } sum
+              else 0)
             sashMap(topSash) = 1.0 / qms
             sashes += topSash
             if (i > j + 1) { // ... ? 20 20 20 ? ...
@@ -361,7 +348,7 @@ class LayoutScope(widgetsMap: Map[String, Widget], extensions: TExtensions) {
                   case (_, height, _, false, changeSize) =>
                     changeSizes ::= (changeSize, Some(topSash), Some(accHeight), None, None, Some(height))
                     accHeight += height
-                  case _ => print("Error: 365")
+                  case _ =>
                 }
               prevSashMap += bottomSash -> (Some(topSash), accHeight)
               sashMap(bottomSash) = 0
@@ -390,7 +377,7 @@ class LayoutScope(widgetsMap: Map[String, Widget], extensions: TExtensions) {
                       case (_, height, _, false, changeSize) =>
                         changeSize(topSash.getBounds.x, topSash.getBounds.y + SASH_WIDTH + accHeight, topSash.getBounds.x + topSash.getBounds.width, topSash.getBounds.y + SASH_WIDTH + accHeight + height)
                         accHeight += height
-                      case _ => print("Error: 394")
+                      case _ =>
                     }
                     bottomSash.setLocation(topSash.getBounds.x, topSash.getBounds.y + SASH_WIDTH + accHeight)
                     (childInfo(i): @unchecked) match {
@@ -427,7 +414,7 @@ class LayoutScope(widgetsMap: Map[String, Widget], extensions: TExtensions) {
                       case (_, height, _, false, changeSize) =>
                         changeSize(bottomSash.getBounds.x, bottomSash.getBounds.y - accHeight - height, bottomSash.getBounds.x + bottomSash.getBounds.width, bottomSash.getBounds.y - accHeight)
                         accHeight += height
-                      case _ => print("Error: 431")
+                      case _ =>
                     }
                     topSash.setLocation(bottomSash.getBounds.x, bottomSash.getBounds.y - SASH_WIDTH - accHeight)
                     (childInfo(k): @unchecked) match {
@@ -459,8 +446,8 @@ class LayoutScope(widgetsMap: Map[String, Widget], extensions: TExtensions) {
                       case (Some(prevSash), topMargin) => prevSash.getBounds.y + SASH_WIDTH + topMargin
                       case (None, topMargin) => sashTopBounds(topSash) + topMargin
                     }
-                    if (topSash.getBounds.y < topBound + childInfo(i - 1)._2) // MARK 9.12 - added 'childInfo(i-1)._2'
-                      topSash.setLocation(topSash.getBounds.x, topBound + childInfo(i - 1)._2) // MARK 9.12 - added 'childInfo(i-1)._1'
+                    if (topSash.getBounds.y < topBound + childInfo(i - 1)._2)
+                      topSash.setLocation(topSash.getBounds.x, topBound + childInfo(i - 1)._2)
                     val bottomBound = nextSashMap(topSash) match {
                       case (Some(nextSash), bottomMargin) => nextSash.getBounds.y - bottomMargin
                       case (None, bottomMargin) => sashBottomBounds(topSash) - bottomMargin
@@ -489,7 +476,7 @@ class LayoutScope(widgetsMap: Map[String, Widget], extensions: TExtensions) {
                 case (_, height, _, false, changeSize) =>
                   changeSizes ::= (changeSize, None, Some(accHeight), None, None, Some(height))
                   accHeight += height
-                case _ => print("Error: 494")
+                case _ =>
               }
             if (i == childInfo.length - 1)
               (childInfo(i): @unchecked) match {
@@ -517,7 +504,7 @@ class LayoutScope(widgetsMap: Map[String, Widget], extensions: TExtensions) {
                 case (_, height, _, false, changeSize) =>
                   changeSizes ::= (changeSize, None, None, None, Some(accHeight), Some(height))
                   accHeight += height
-                case _ => print("Error: 522")
+                case _ =>
               }
             (childInfo(j): @unchecked) match {
               case (_, _, _, true, changeSize) =>
@@ -566,7 +553,7 @@ class LayoutScope(widgetsMap: Map[String, Widget], extensions: TExtensions) {
           changeSize(left, topSash.getBounds.y + topSash.getBounds.height + topMargin, right, bottom - bottomMargin)
         case (changeSize, None, Some(topMargin), None, Some(bottomMargin), None) =>
           changeSize(left, top + topMargin, right, bottom - bottomMargin)
-        case _ => print("Error: 572")
+        case _ =>
       }
 
       isChangingSize = false
@@ -634,23 +621,23 @@ class LayoutScope(widgetsMap: Map[String, Widget], extensions: TExtensions) {
   def evalNode(code: ASTNode, parent: Composite, env: Environment): TEvalNodeReturn = code match {
     //***case 1/3 atomic widget***
     case AtomicWidget(kind, attributes, widthExpr, heightExpr) =>
-      val changeAtt = mutableMap[String, () => Unit]()
+      val changeAtt = new mutableMap[String, () => Unit]()
       var hAlign = 0
       var text = ""
       var checked = false
-      // TODO change image location
       var image = "Graphics\\error.png"
       var minValue, maxValue = 0
       var value: Option[Int] = None
       var changeImageSize = (width: Int, height: Int) => {}
-      //Delete this line var (minWidth, minHeight, isWidthQM, isHeightQM) = (0, 0, true, true)
       var widthVar = (widthExpr match { case Some(w: Literal[_]) => widthExpr; case _ => None }).map(env.evalInt)
-      // NOTE: a known issue: the parser does not distinguish between (label) and (label:?x?)
-      // which causes handling that does not support native label and image size (3.2.2 in the project specs)
+      /*
+       * NOTE: a known issue: the parser does not distinguish between (label) and (label:?x?)
+       * which causes handling that does not support native label and image size (3.2.2 in the project specs)
+       */
       var heightVar = heightExpr.map(env.evalInt)
       for (att <- attributes) att.getName match {
         case "halign" => hAlign = hAlignASTToSWT(env.evalHAlign(att.getValue.get))
-        // valign not included due to lack of SWT support
+        // valign not supported due to lack of SWT support
         case "text" => text = env.evalString(att.getValue.get)
         case "checked" => checked = env.evalBoolean(att.getValue.get)
         case "filename" => image = env.evalString(att.getValue.get)
@@ -666,30 +653,26 @@ class LayoutScope(widgetsMap: Map[String, Widget], extensions: TExtensions) {
             if (name == null)
               return
             varsAffectedByCurrentUpdate = Set(name)
-            env.unevaluatedVarMap(name).foreach(_())
+            env.flowMap(name).foreach(_())
             if (extensions.contains(name))
-              extensions(name)(old, env.evaluatedVarMap(name))
+              extensions(name)(old, env.varMap(name))
             varsAffectedByCurrentUpdate = null
           }
         }
       }
-      //handling RTL
+      // handling RTL
       def changeAttRTL(attName: String, changeAtt: Expr => Unit) = attributes.foreach(att =>
         if (att.getName == attName)
           env.getVariables(att.getValue.get).foreach(name =>
-          env.unevaluatedVarMap(name) += (() => changeAtt(att.getValue.get))))
+          env.flowMap(name) += (() => changeAtt(att.getValue.get))))
       val widget = kind match {
         case "label" | "" =>
           val label = new Label(parent, SWT.WRAP | hAlign)
           label setText text
           changeAttRTL("halign", expr => label.setAlignment(hAlignASTToSWT(env.evalHAlign(expr))))
           changeAttRTL("text", expr => label.setText(env.evalString(expr)))
-          /*(if (widthVal.isEmpty)
-            widthVal = Some(label.computeSize(SWT.DEFAULT, SWT.DEFAULT).x)
-          if (heightVal.isEmpty)
-            heightVal = Some(label.computeSize(SWT.DEFAULT, SWT.DEFAULT).y)*/
           label
-        case "textbox" => // dynamic change of checkbox alignment not included due to lack of SWT support
+        case "textbox" => // dynamic change of textbox alignment not included due to lack of SWT support
           val textbox = new Text(parent, SWT.WRAP | SWT.V_SCROLL | hAlign)
           textbox setText text
           textbox.addSelectionListener(new WidgetSelectionAdapter[String]("text", () => textbox.getText(), env.changeVarLTR))
@@ -717,7 +700,7 @@ class LayoutScope(widgetsMap: Map[String, Widget], extensions: TExtensions) {
           changeAttRTL("text", expr => button.setText(env.evalString(expr)))
           button
         case "checkbox" =>
-          val checkbox = new Button(parent, SWT.CHECK) //TODO see if it's 0/1 or true/false
+          val checkbox = new Button(parent, SWT.CHECK)
           checkbox.setSelection(checked)
           checkbox.addSelectionListener(new WidgetSelectionAdapter[Boolean]("checked", () => checkbox.getSelection(), env.changeVarLTR))
           changeAttRTL("checked", expr => checkbox.setSelection(env.evalBoolean(expr)))
@@ -817,11 +800,11 @@ class LayoutScope(widgetsMap: Map[String, Widget], extensions: TExtensions) {
             if (params == null)
               env
             else
-              new Environment(new ScopingMap(env.evaluatedVarMap), new ScopingMap(env.unevaluatedVarMap))
-          newEnv.evaluatedVarMap.put("width", 0)
-          newEnv.evaluatedVarMap.put("height", 0)
-          newEnv.unevaluatedVarMap.put("width", Set())
-          newEnv.unevaluatedVarMap.put("height", Set())
+              new Environment(new ScopingMap(env.varMap), new ScopingMap(env.flowMap))
+          newEnv.varMap.put("width", 0)
+          newEnv.varMap.put("height", 0)
+          newEnv.flowMap.put("width", Set())
+          newEnv.flowMap.put("height", Set())
           val (width, height, isWidthQM, isHeightQM, changeSize) = evalNode(PropertyScope(widgetsMap(s), attributes), composite, newEnv)
           if (widthVar.isEmpty && !isWidthQM)
             widthVar = Some(width)
@@ -832,8 +815,8 @@ class LayoutScope(widgetsMap: Map[String, Widget], extensions: TExtensions) {
           scrolledComposite setSize (width, height)
           scrolledComposite addControlListener new ControlAdapter {
             override def controlResized(event: ControlEvent) {
-              newEnv.evaluatedVarMap("width") = scrolledComposite.getSize.x
-              newEnv.evaluatedVarMap("height") = scrolledComposite.getSize.y
+              newEnv.varMap("width") = scrolledComposite.getSize.x
+              newEnv.varMap("height") = scrolledComposite.getSize.y
               composite.setSize(scrolledComposite.getSize)
               changeSize(0, 0, composite.getSize.x, composite.getSize.y)
             }
@@ -853,20 +836,13 @@ class LayoutScope(widgetsMap: Map[String, Widget], extensions: TExtensions) {
         case "font" =>
           widget setFont fontASTToSWT(env.evalFont(att.getValue.get), widget.getDisplay())
           changeAttRTL("font", expr => widget.setFont(fontASTToSWT(env.evalFont(expr), widget.getDisplay())))
-        // attribute "code" helps handling "bind" 
-        //        case "code" =>
-        //          widget.addListener(SWT.Selection, new Listener {
-        //            override def handleEvent(e: Event) = {
-        //              env.eval(att.getValue.get)
-        //            }
-        //          })
         case _ =>
       }
       val widgetForResize = widget match { case w: Button if (w.getStyle & SWT.RADIO) == SWT.RADIO => widget.getParent; case _ => widget }
       (widthVar getOrElse 0,
         heightVar getOrElse 0,
         widthExpr match {
-          case Some(Variable(name, _, false)) => true //TODO value? handling (unrelatedly, also width/height expressions ltr update todo)
+          case Some(Variable(name, _, false)) => true
           case None => widthVar.isEmpty
           case _ => false
         },
@@ -880,16 +856,15 @@ class LayoutScope(widgetsMap: Map[String, Widget], extensions: TExtensions) {
             math.min(bottom - top, heightExpr.map(env.evalInt).getOrElse(Int.MaxValue)))
           changeImageSize(widgetForResize.getSize.x, widgetForResize.getSize.y)
         })
-    // TODO deal with vertical
 
     //***case 2/3 - container***
-    case Container(Container.Direction.Horizontal, children, _, _) => // TODO consider width and height
+    case Container(Container.Direction.Horizontal, children, _, _) =>
       if (children.forall({ case AtomicWidget(_, _, Some(_), _) => true; case _ => false }))
         handleDynamicHorizontalContainer(parent, env, children)
       else
         handleHorizontalContainer(parent, env, children)
 
-    case Container(Container.Direction.Vertical, children, _, _) => // TODO consider width and height
+    case Container(Container.Direction.Vertical, children, _, _) =>
       if (children.forall({ case AtomicWidget(_, _, _, Some(_)) => true; case _ => false }))
         handleDynamicVerticalContainer(parent, env, children)
       else
@@ -902,36 +877,36 @@ class LayoutScope(widgetsMap: Map[String, Widget], extensions: TExtensions) {
         if (params == null)
           env
         else
-          new Environment(new ScopingMap(env.evaluatedVarMap), new ScopingMap(env.unevaluatedVarMap))
+          new Environment(new ScopingMap(env.varMap), new ScopingMap(env.flowMap))
       attributes.map({
         case ExpressionAttribute(att, expr) => // var = value
-          if (!newEnv.unevaluatedVarMap.contains(att.id))
-            newEnv.unevaluatedVarMap.put(att.id, Set())
+          if (!newEnv.flowMap.contains(att.id))
+            newEnv.flowMap.put(att.id, Set())
           newEnv.getVariables(expr).map(variable =>
-            env.unevaluatedVarMap(variable) += (() => {
+            env.flowMap(variable) += (() => {
               if (!varsAffectedByCurrentUpdate(att.id)) {
-                val old = newEnv.evaluatedVarMap(att.id)
-                newEnv.evaluatedVarMap(att.id) = env.eval(expr)
+                val old = newEnv.varMap(att.id)
+                newEnv.varMap(att.id) = env.eval(expr)
                 varsAffectedByCurrentUpdate += att.id
-                newEnv.unevaluatedVarMap(att.id).foreach(_())
+                newEnv.flowMap(att.id).foreach(_())
                 if (extensions.contains(att.id))
-                  extensions(att.id)(old, env.evaluatedVarMap(att.id))
+                  extensions(att.id)(old, env.varMap(att.id))
               }
             }))
-          newEnv.evaluatedVarMap.put(att.id, env.eval(expr))
+          newEnv.varMap.put(att.id, env.eval(expr))
 
         case InitialAttribute(att, Some(expr)) => // var = ?(value)
-          if (!newEnv.unevaluatedVarMap.contains(att.id))
-            newEnv.unevaluatedVarMap.put(att.id, Set(INITIAL_ATT_FLAG))
+          if (!newEnv.flowMap.contains(att.id))
+            newEnv.flowMap.put(att.id, Set(INITIAL_ATT_FLAG))
           else
-            newEnv.unevaluatedVarMap(att.id) += INITIAL_ATT_FLAG
-          newEnv.evaluatedVarMap.put(att.id, env.eval(expr))
+            newEnv.flowMap(att.id) += INITIAL_ATT_FLAG
+          newEnv.varMap.put(att.id, env.eval(expr))
 
         case InitialAttribute(att, None) => // var = ?
 
       })
       if (params == null)
-        params = newEnv.evaluatedVarMap
+        params = newEnv.varMap
       //then, handle the rest of the container:
       evalNode(container, parent, newEnv)
     }

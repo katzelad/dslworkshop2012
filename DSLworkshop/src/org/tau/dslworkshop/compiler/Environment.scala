@@ -4,7 +4,19 @@ import org.tau.workshop2011.parser.AST._
 import org.tau.workshop2011.expressions._
 import org.tau.dslworkshop.compiler.exceptions.TypeMismatch
 
-class Environment(var evaluatedVarMap: TEvaluatedVarMap, var unevaluatedVarMap: TUnevaluatedVarMap) {
+/*
+ * Represents an environment of a specific scope in the program
+ * Contains the mappings of variables to values and observers of the scope
+ */
+class Environment(var varMap: TVarMap, var flowMap: TFlowMap) {
+  
+  /*
+   * Methods for evaluating expressions.
+   * Each receives an expression, performs type-checking and returns its value in the environment
+   * or throws a 'TypeMismatch' exception.
+   * Also, implicit conversions between integers and boolean-type variables are performed.
+   * Note: These methods have to be type-specific due to scala's type erasure.
+   */
   
   def evalInt(exp: Expr): Int = eval(exp, Type.tInt) match {
 
@@ -67,7 +79,10 @@ class Environment(var evaluatedVarMap: TEvaluatedVarMap, var unevaluatedVarMap: 
   }
 
   def eval(exp: Expr): Any = eval(exp, Type.tUnknown)
-
+  
+  /*
+   * Performs a generic evaluation of expressions.
+   */
   def eval(exp: Expr, expType: Type): Any = exp match {
 
     case Comparison(left, right) => eval(left) == eval(right)
@@ -98,10 +113,13 @@ class Environment(var evaluatedVarMap: TEvaluatedVarMap, var unevaluatedVarMap: 
 
     case Sum(add, sub) => add.map(evalInt).sum - sub.map(evalInt).sum
 
-    case Variable(id, _, _) => evaluatedVarMap(id)
+    case Variable(id, _, _) => varMap(id)
 
   }
 
+  /*
+   * Returns a set of all the variables which affect the value of the argument expression.
+   */
   def getVariables(exp: Expr): Set[String] = exp match {
     case Comparison(left, right) => getVariables(left) ++ getVariables(right)
     case Conjuction(elems) => elems.toSet.map(getVariables).flatten
@@ -109,7 +127,6 @@ class Environment(var evaluatedVarMap: TEvaluatedVarMap, var unevaluatedVarMap: 
       .reduce(_ ++ _) ++ getVariables(otherwise)
     case Disjunction(elems) => elems.toSet.map(getVariables).flatten
     case FunctionCall(_, args) => args.toSet.map(getVariables).flatten
-    // case IterationVariable(_, index, _) => Set(index)
     case Literal(_) => Set()
     case Negation(expr) => getVariables(expr)
     case Product(mul, div) => mul.toSet.map(getVariables).flatten ++ div.toSet.map(getVariables).flatten
@@ -117,21 +134,25 @@ class Environment(var evaluatedVarMap: TEvaluatedVarMap, var unevaluatedVarMap: 
     case Variable(name, _, isFunction) => if (isFunction) Set() else Set(name)
   }
 
-  // Returns the name of the changed variable or null if nothing was changed
-  // Changes the variable, does not recurse
+  /*
+   * Receives an expression and a value.
+   * Returns a name and a value of a variable such that the reassignment of the variable to the value
+   * would change the value of the expression in the environment to the received value.
+   * Returns '(null, null)' if no reassignment should occur, the change cannot occur or it is unsupported.
+   */
   def changeVarLTR(exp: Expr, value: Boolean): (String, Any) = exp match {
     case Negation(inside) => changeVarLTR(inside, !value)
-    case Comparison(left @ Variable(id, _, false), right) if unevaluatedVarMap(id)(INITIAL_ATT_FLAG) && value  =>
+    case Comparison(left @ Variable(id, _, false), right) if flowMap(id)(INITIAL_ATT_FLAG) && value  =>
       changeVarLTR(left, eval(right))
-    case Comparison(left, right @ Variable(id, _, false)) if unevaluatedVarMap(id)(INITIAL_ATT_FLAG) && value =>
+    case Comparison(left, right @ Variable(id, _, false)) if flowMap(id)(INITIAL_ATT_FLAG) && value =>
       changeVarLTR(right, eval(left))
     case _ => changeVarLTR(exp, value.asInstanceOf[Any])
   }
   
   def changeVarLTR(exp: Expr, value: Any) = exp match {
     case Variable(name, _, false) =>
-      val old = evaluatedVarMap(name)
-      evaluatedVarMap(name) = value
+      val old = varMap(name)
+      varMap(name) = value
       (name, old)
     case _ => (null, null)
   }

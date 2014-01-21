@@ -15,6 +15,9 @@ import org.tau.workshop2011.parser.AST.Literal
 import org.tau.workshop2011.parser.AST.Variable
 import org.tau.workshop2011.parser.LayoutParser
 
+/* Main procedural API class 
+ * Receives the DSL code as a parameter, use 'apply' to run.
+ */
 class DSLProgram(code: String) {
 
   private val display = new Display
@@ -24,36 +27,67 @@ class DSLProgram(code: String) {
     case LayoutParser.NoSuccess(msg, nextInput) => throw new ParsingError(msg, nextInput.pos.line, nextInput.pos.column)
   }
 
-  class DSLObject protected[DSLProgram] (name: String, title: String, icon: String, isDialog: Boolean, isMaximized: Boolean, defaultWidth: Int, defaultHeight: Int) {
+  /* This class represents an instance of a subprogram of DSLProgram.
+   * It is created using the 'apply' method of DSLProgram.
+   * After instantiation, different API method should be applied, followed by 'apply' to execute the subprogram.
+   */
+  class DSLObject protected[DSLProgram] (
+    name: String,
+    title: String,
+    icon: String,
+    isDialog: Boolean,
+    isMaximized: Boolean,
+    defaultWidth: Int,
+    defaultHeight: Int) {
 
     private val window = new Shell(display, if (isDialog) SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL else SWT.SHELL_TRIM)
 
-    private var evaluatedVarMap = new TEvaluatedVarMap()
+    private var varMap = new TVarMap()
 
-    private var unevaluatedVarMap = new TUnevaluatedVarMap()
+    private var flowMap = new TFlowMap()
 
     private var extensions: TExtensions = Map()
 
-    private val keyMap = new mutableHashMap[Char, Boolean]()
+    private val keyMap = new mutableMap[Char, Boolean]()
 
     private val widget = widgetsMap get name match {
       case Some(widget) => widget
       case None => throw new Exception("Error: " + name + " not found.")
     }
-
+    
+    /*
+     * Changes the value of a variable of 'main_window', meaning, given as a parameter to the subprogram.
+     * Receives the name of the variable and its new value.
+     * Can only be used while the program is running.
+     */
     def set(varName: String, value: Any) {
-      evaluatedVarMap(varName) = value
-      unevaluatedVarMap(varName) foreach (_())
+      varMap(varName) = value
+      flowMap(varName) foreach (_())
     }
 
+    /*
+     * Binds a function in the DSL code to its implementation.
+     * Receives the name of the function and its implementation.
+     * The function has to receive a parameters list of type 'Any *'.
+     */
     def bind(name: String, value: Any) {
-      evaluatedVarMap.put(name, value)
+      varMap.put(name, value)
     }
 
+    /*
+     * Adds an observer to a variable.
+     * Receives the variable name and notification function,
+     * which accepts the values of the variable before and after the modification.
+     * The observer is notified every time a variable is changed.
+     */
     def when_changed(varName: String, action: (Any, Any) => Unit) {
       extensions += varName -> action
     }
 
+    /*
+     * Adds a key listener to the program (a feature required by our application).
+     * The listener accepts the character of the key pressed, and is called upon every key press.
+     */
     def onKeyPress(action: Char => Unit) {
       display.addFilter(SWT.KeyDown, new Listener {
         override def handleEvent(event: Event) {
@@ -65,6 +99,10 @@ class DSLProgram(code: String) {
       })
     }
 
+    /*
+     * Adds a key listener to the program (a feature required by our application).
+     * The listener accepts the character of the key released, and is called upon every key releases.
+     */
     def onKeyRelease(action: Char => Unit) {
       display.addFilter(SWT.KeyUp, new Listener {
         override def handleEvent(event: Event) {
@@ -75,6 +113,12 @@ class DSLProgram(code: String) {
       })
     }
 
+    /*
+     * Executes the subprogram.
+     * Receives the arguments list (which must include all variables provided to 'set').
+     * The arguments must be strings (enclosed in quotation marks) or numbers.
+     * Returns the output of the program - A string of the arguments' names and values.
+     */
     def apply(args: Array[String]) = {
       val mainWidget = AtomicWidget(name, args.toList.map(arg => {
         val argName = Variable(arg.take(arg.indexOf("=")))
@@ -88,7 +132,7 @@ class DSLProgram(code: String) {
       }), None, None)
       val scope = new LayoutScope(widgetsMap, extensions)
       val (width, height, isWidthQM, isHeightQM, changeWindowSize) =
-        scope.evalNode(mainWidget, window, new Environment(evaluatedVarMap, unevaluatedVarMap))
+        scope.evalNode(mainWidget, window, new Environment(varMap, flowMap))
       window setLayout new FillLayout
       window.getChildren()(0).setSize(if (isWidthQM) defaultWidth else width, if (isHeightQM) defaultHeight else height)
       window.pack
@@ -108,6 +152,11 @@ class DSLProgram(code: String) {
 
   }
 
+  /*
+   * Creates a subprogram.
+   * Receives the name of the subexpression (to look for in the code) and some customization options for the window.
+   * Returns the created subprogram for processing and execution.
+   */
   def apply(name: String, title: String = "", icon: String = null, isDialog: Boolean = false, isMaximized: Boolean = false, defaultWidth: Int = 500, defaultHeight: Int = 500) =
     new DSLObject(name, title, icon, isDialog, isMaximized, defaultWidth, defaultHeight)
 
