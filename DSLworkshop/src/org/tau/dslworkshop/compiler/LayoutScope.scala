@@ -639,7 +639,7 @@ class LayoutScope(widgetsMap: Map[String, Widget], extensions: TExtensions) {
       var text = ""
       var checked = false
       // TODO change image location
-      var image = "E:/error.jpg"
+      var image = "Graphics\\error.png"
       var minValue, maxValue = 0
       var value: Option[Int] = None
       var changeImageSize = (width: Int, height: Int) => {}
@@ -698,6 +698,20 @@ class LayoutScope(widgetsMap: Map[String, Widget], extensions: TExtensions) {
         case "button" =>
           val button = new Button(parent, SWT.PUSH | SWT.WRAP | hAlign)
           button setText text
+          if (attributes.exists(_.getName == "filename")) {
+            button setImage new Image(button.getDisplay(), image)
+            changeImageSize = (width, height) => {
+              if (width > 0 && height > 0) {
+                button.getImage.dispose
+                button.setImage(new Image(button.getDisplay, new ImageData(image).scaledTo(button.getSize.x, button.getSize.y)))
+              }
+            }
+            changeAttRTL("filename", expr => {
+              image = env.evalString(expr)
+              button.getImage.dispose
+              button.setImage(new Image(button.getDisplay, new ImageData(image).scaledTo(button.getSize.x, button.getSize.y)))
+            })
+          }
           button.addSelectionListener(new WidgetSelectionAdapter[Boolean]("checked", () => button.getSelection(), env.changeVarLTR))
           changeAttRTL("halign", expr => button.setAlignment(hAlignASTToSWT(env.evalHAlign(expr))))
           changeAttRTL("text", expr => button.setText(env.evalString(expr)))

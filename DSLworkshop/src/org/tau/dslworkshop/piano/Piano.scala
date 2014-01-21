@@ -25,7 +25,7 @@ object Piano {
     val program = new DSLProgram(code)
     val instance = program(
       name = "main_window",
-      icon = "Graphics\\Icon.png",
+      icon = "Graphics\\MaestroIcon.png",
       isMaximized = true,
       title = "The Maestro",
       defaultWidth = 700)
@@ -169,7 +169,7 @@ object Piano {
       program(
         name = "AboutContent",
         title = "About",
-        icon = "Graphics\\Icon.png",
+        icon = "Graphics\\MaestroIcon.png",
         isDialog = true)(Array("is_eng=" + (1 - langchoice), "is_deu=" + langchoice))
     })
     instance.when_changed("filename", (_, newer) => filename = newer.asInstanceOf[String])
