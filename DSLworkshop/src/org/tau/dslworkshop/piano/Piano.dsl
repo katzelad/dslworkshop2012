@@ -6,8 +6,8 @@
   )[vol=?(60), is_eng=langchoice=0, is_deu=langchoice=1, instrument = ?(0), tempo=?(3), hint=?(0),
     up=?(false), down=?(false), clear=?(false), pedal=?(false), filename=?("MySong"), rhythmchoice=?(0), about=?(false),
 	titlebgcolor = 0xFFFFFF, titlefgcolor = 0x2FA1E2, titlefont = ("arial", 12, bold), 
-	regbgcolor = 0xFFFFFF, regfgcolor = 0xFF6A26, regfont = ("arial", 10, bold),
-	controlsbgcolor = 0xD6FCFF, controlsfgcolor = 0xFF6A26, controlsfont = ("arial", 10, bold)]
+	regbgcolor = 0xFFFFFF, regfgcolor = 0xFF6A26, regfont = ("Gill Sans MT", 11, regular),
+	controlsbgcolor = 0xD6FCFF, controlsfgcolor = 0xFF6A26, controlsfont = ("Gill Sans MT", 11, regular)]
   
   Leftmargin<-
   (:20x?)[bgcolor = regbgcolor]
@@ -80,15 +80,16 @@ MiddleArea<-
 					(
 						(
 								(label:80x40)[text={is_eng=>"Choose Beat:", is_deu=>"Rhythmus Selektieren:", otherwise "Choose Beat:"}, bgcolor=regbgcolor, fgcolor=regfgcolor, font=regfont]|
-								(:30x?)[bgcolor=regbgcolor]|
-								((combo:63x20 )[text = "None,Jazz,Rock, Country, Funk",enabled = true, bgcolor = regbgcolor, fgcolor = 0x000000, value=rhythmchoice]---(Spacer))|
+								(:23x?)[bgcolor=regbgcolor]|
+								((combo:81x20 )[text = "None,Jazz,Rock, Country, Funk",enabled = true, font=regfont, bgcolor = regbgcolor, fgcolor = 0x000000, value=rhythmchoice]---(Spacer))|
 								(Spacer)
 						)
 						---
 						(
-								(label:50x?)[text={is_eng=>"Slower", is_deu=>"Langsam", otherwise "Slower"}, bgcolor = regbgcolor]|
+								(:48x?)[bgcolor=regbgcolor]|
+								(label:50x?)[text={is_eng=>"Slower", is_deu=>"Langsam", otherwise "Slower"}, bgcolor = regbgcolor, fgcolor = 0x000000, font=regfont ]|
 								(scale:80x70)[maxvalue=5, minvalue =1 , value=tempo, bgcolor = regbgcolor]|
-								(label:50x?)[text={is_eng=>"Faster", is_deu=>"Schnell", otherwise "Faster"}, bgcolor = regbgcolor]
+								(label:50x?)[text={is_eng=>"Faster", is_deu=>"Schnell", otherwise "Faster"}, bgcolor = regbgcolor, fgcolor = 0x000000, font=regfont]
 						)
 						---
 						(Spacer)
@@ -97,11 +98,12 @@ MiddleArea<-
 	|
 	(Leftmargin)|
 	(Leftmargin)|
-	(Leftmargin)|	
+	(Leftmargin)|
+	(Leftmargin)|
 	(
 			(Upmargin)
 			---
-			((label:120x20)[text={is_eng=>"Too Difficult?", is_deu=>"zu schwierig?", otherwise "Too Difficult?"}, bgcolor = regbgcolor, fgcolor = regfgcolor, font = regfont]|(Spacer))
+			((label:120x20)[text={is_eng=>"Too Difficult?", is_deu=>"Zu schwierig?", otherwise "Too Difficult?"}, bgcolor = regbgcolor, fgcolor = regfgcolor, font = regfont]|(Spacer))
 			---
 			(	     
 				(( (radio:20x20)[checked= hint = i, bgcolor = regbgcolor] | (label:140x?)[text = Hints[i], bgcolor = regbgcolor, fgcolor = regfgcolor, font = regfont] )	
@@ -109,7 +111,7 @@ MiddleArea<-
 				[i=0...2,Hints={nohint, noteshint, keyboardhint}])
 				[ noteshint={is_eng=>"Music Notes Hints", is_deu=>"Tastatur Hinweise", otherwise "Tastatur Hinweise"},
 				  keyboardhint={is_eng=>"Keyboard Hints", is_deu=>"Musiknoten Hinweise", otherwise "Musiknoten Hinweise"},
-				  nohint={is_eng=>"No! No Hints", is_deu=>"Nein! Keine Hinweise", otherwise "Nein! Keine Hinweise"}
+				  nohint={is_eng=>"No! No Hints", is_deu=>"Keine Hinweise!", otherwise "Keine Hinweise!"}
 				 ]|
 				(Spacer)
 			)
@@ -121,10 +123,10 @@ MiddleArea<-
   RecentlyplayedSavetext<-
   (
 		(
-			(label:80x?)[text={is_eng=>"Recently Played:", is_deu=>"Zuletzt gespielt:", otherwise "Recently Played:"}, bgcolor=regbgcolor, fgcolor=regfgcolor, font=regfont]|
+			(label:120x?)[text={is_eng=>"Recently Played:", is_deu=>"Zuletzt gespielt:", otherwise "Recently Played:"}, bgcolor=regbgcolor, fgcolor=regfgcolor, font=regfont]|
 			(:20x?)[bgcolor=regbgcolor]|
 			(Spacer)|
-			((button:63x33)[text={is_eng=>"Clear", is_deu=>"Klar", otherwise "Clear"}, checked=clear])
+			((button:63x33)[text={is_eng=>"Clear", is_deu=>"Klar", otherwise "Clear"}, font=regfont ,checked=clear])
 		)
 		---
 		(Upmargin)
@@ -141,7 +143,7 @@ MiddleArea<-
 	(
 		((label:80x20)[text={is_eng=>"Language:", is_deu=>"Sprache:", otherwise "Language:"}, bgcolor=regbgcolor, fgcolor=regfgcolor, font=regfont]|(Spacer))
 		---
-		(combo:80x20 )[value=langchoice, text ="En,De",enabled = true, bgcolor = regbgcolor, fgcolor = 0x000000]
+		(combo:80x20 )[value=langchoice, text ="En,De",enabled = true, font=regfont, bgcolor = regbgcolor, fgcolor = 0x000000]
 		---
 		(Spacer)
 	)
@@ -169,11 +171,11 @@ MiddleArea<-
 	(
 		(Leftmargin)|
 		(
-			((label:80x20)[text={is_eng=>"Welcome to ", is_deu=>"Willkommen bei ", otherwise "Willkommen bei "}, bgcolor=regbgcolor, fgcolor=regfgcolor, font=regfont]|(label:310x20)[text="The Maestro!", bgcolor=regbgcolor, fgcolor=regfgcolor, font = ("Monotype Corsiva", 11, bold)])
+			((label:85x20)[text="The Maestro", bgcolor=regbgcolor, fgcolor=regfgcolor, font = ("Monotype Corsiva", 11, bold)]|(label:350x20)[text={is_eng=>" welcomes you aboard!", is_deu=>" heisst Sie herzlich willkommen an Bord!", otherwise " heisst Sie herzlich willkommen an Bord!"}, bgcolor=regbgcolor, fgcolor=regfgcolor, font=regfont])
 			---
 			(label:?x20)[text={is_eng=>"Use the mouse or the keyboard to play.", is_deu=>"Mit der Maus oder der Tastatur zu spielen.", otherwise "Use the mouse or the keyboard to play."}, bgcolor=regbgcolor, fgcolor=regfgcolor, font=regfont]
 			---
-			(label:?x20)[text={is_eng=>"Use the mouse to personalize the various settings.", is_deu=>"Benutzen Sie die Maus, um die verschiedenen Einstellungen personalisieren.", otherwise "Use the mouse to personalize the various settings."}, bgcolor=regbgcolor, fgcolor=regfgcolor, font=regfont]
+			(label:?x40)[text={is_eng=>"Use the mouse to personalize the various settings.", is_deu=>"Benutzen Sie die Maus, um die verschiedenen Einstellungen personalisieren.", otherwise "Use the mouse to personalize the various settings."}, bgcolor=regbgcolor, fgcolor=regfgcolor, font=regfont]
 			---
 			(
 					(image:250x120)[filename="Graphics\\Keyboard.png", bgcolor=regbgcolor]|
@@ -302,7 +304,7 @@ MiddleArea<-
   PEDAL<-
   (
 		(checkbox:20x20)[checked = pedal, bgcolor = controlsbgcolor, enabled = instrument = 0] |
-		(label:40x?)[text={is_eng=>"Pedal", is_deu=>"Pedal", otherwise "Pedal"}, bgcolor = controlsbgcolor, fgcolor=regfgcolor, font=regfont, enabled = instrument = 0]|
+		(label:40x?)[text={is_eng=>"Pedal", is_deu=>"Pedal", otherwise "Pedal"}, bgcolor = controlsbgcolor, fgcolor=controlsfgcolor, font=controlsfont, enabled = instrument = 0]|
 		(SpacerControls)
   ) [pedal = ?(false)]
 			
@@ -316,13 +318,13 @@ MiddleArea<-
 		)|
     	(image:46x106)[filename={octave=1=>"Graphics\\sol8.png",octave=0=>"Graphics\\sol.png",octave=-1=>"Graphics\\fa.png",octave=-2=>"Graphics\\fa8.png", otherwise "Graphics\\sol.png"}, bgcolor = controlsbgcolor]|
     	(
-    		(:?x30)[bgcolor = controlsbgcolor]
+    		(:?x10)[bgcolor = controlsbgcolor]
     		---
-    		(button:50x20)[text={is_eng=>"Up", is_deu=>"Herauf", otherwise "Up"}, checked = up, enabled=!(octave=1) ]
+    		(button:40x40)[filename="Graphics\\up.png", checked = up, enabled=!(octave=1),bgcolor = controlsbgcolor]
     		---
-    		(:?x6)[bgcolor = controlsbgcolor]
+    		(:?x10)[bgcolor = controlsbgcolor]
     		---
-    		(button:?x20)[text={is_eng=>"Down", is_deu=>"Hinab", otherwise "Down"}, checked = down, enabled=!(octave=-2)]
+    		(button:40x40)[filename="Graphics\\down.png", checked = down, enabled=!(octave=-2),bgcolor = controlsbgcolor]
     		---
     		(SpacerControls)
     	)
