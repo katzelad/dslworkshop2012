@@ -111,15 +111,17 @@ object Piano {
     //    seqer.startRecording
 
     def play(note: Int, autoStop: Boolean = false) {
-      if (!pedal)
-        mainChannel.allNotesOff
-      mainChannel.noteOn(note + octave * 12, vol)
-      recent = recent + noteToString(note) + ' '
-      instance.set("recent", recent)
-      if (autoStop) new Thread {
-        Thread.sleep(200)
-        mainChannel.noteOff(note, vol)
-      }.start
+      mainChannel.synchronized {
+        if (!pedal)
+          mainChannel.allNotesOff
+        mainChannel.noteOn(note + octave * 12, vol)
+        recent = recent + noteToString(note) + ' '
+        instance.set("recent", recent)
+        if (autoStop) new Thread {
+          Thread.sleep(200)
+          mainChannel.noteOff(note, vol)
+        }.start
+      }
     }
 
     def playRhythm(rhythm: Int, prev: Int) {
@@ -137,7 +139,7 @@ object Piano {
       }
     }
 
-    def changeInstrument(instrument: Int) {
+    def changeInstrument(instrument: Int) = mainChannel.synchronized {
       mainChannel.programChange(instrument match {
         case 0 => 0
         case 1 => 40
@@ -217,7 +219,7 @@ object Piano {
       if (note != -1)
         play(note)
     })
-    instance.onKeyRelease(key => {
+    instance.onKeyRelease(key => mainChannel.synchronized {
       if (!pedal && keyToNote(key) != -1)
         mainChannel.allNotesOff
     })
