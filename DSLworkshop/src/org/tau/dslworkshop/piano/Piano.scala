@@ -110,12 +110,16 @@ object Piano {
 
     //    seqer.startRecording
 
-    def play(note: Int) {
+    def play(note: Int, autoStop: Boolean = false) {
       if (!pedal)
         mainChannel.allNotesOff
       mainChannel.noteOn(note + octave * 12, vol)
       recent = recent + noteToString(note) + ' '
       instance.set("recent", recent)
+      if (autoStop) new Thread {
+        Thread.sleep(200)
+        mainChannel.noteOff(note, vol)
+      }.start
     }
 
     def playRhythm(rhythm: Int, prev: Int) {
@@ -179,7 +183,7 @@ object Piano {
     instance.when_changed("instrument", (_, newer) => changeInstrument(newer.asInstanceOf[Int]))
     instance.when_changed("langchoice", (_, newer) => langchoice = newer.asInstanceOf[Int])
 
-    instance.bind("play", (x: Int, y: Int) =>
+    instance.bind("play", (x: Int, y: Int) => {
       play((x, y) match {
         case _ if x > 20 && x < 44 && y < 153 => doodiez
         case _ if x > 62 && x < 86 && y < 153 => rediez
@@ -205,7 +209,8 @@ object Piano {
         case _ if x < 432 => sol + 12
         case _ if x < 468 => la + 12
         case _ if x < 504 => si + 12
-      }))
+      }, true)
+    })
 
     instance.onKeyPress(key => {
       val note = keyToNote(key)
