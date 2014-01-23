@@ -738,7 +738,7 @@ class LayoutScope(widgetsMap: Map[String, Widget], extensions: TExtensions) {
           attributes.find(_.getName == "action") match {
             case Some(att) =>
               label addMouseListener new MouseAdapter {
-                override def mouseUp(info: MouseEvent) {
+                override def mouseDown(info: MouseEvent) {
                   val expr = att.getValue.get
                   val untyped = env.eval(expr)
                   try
