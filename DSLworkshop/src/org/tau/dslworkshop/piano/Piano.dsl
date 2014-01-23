@@ -81,7 +81,7 @@ MiddleArea<-
 						(
 								(label:80x40)[text={is_eng=>"Choose Beat:", is_deu=>"Rhythmus Selektieren:", otherwise "Choose Beat:"}, bgcolor=regbgcolor, fgcolor=regfgcolor, font=regfont]|
 								(:23x?)[bgcolor=regbgcolor]|
-								((combo:81x20 )[text = "None,Jazz,Rock, Country, Funk",enabled = true, font=regfont, bgcolor = regbgcolor, fgcolor = 0x000000, value=rhythmchoice]---(Spacer))|
+								((combo:81x20 )[text = "None,Jazz,Rock,Country,Funk",enabled = true, font=regfont, bgcolor = regbgcolor, fgcolor = 0x000000, value=rhythmchoice]---(Spacer))|
 								(Spacer)
 						)
 						---
