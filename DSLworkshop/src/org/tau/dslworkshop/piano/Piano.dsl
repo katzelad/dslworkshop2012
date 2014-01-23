@@ -86,8 +86,8 @@ MiddleArea<-
 						)
 						---
 						(
-								(:48x?)[bgcolor=regbgcolor]|
-								(label:50x?)[text={is_eng=>"Slower", is_deu=>"Langsam", otherwise "Slower"}, bgcolor = regbgcolor, fgcolor = 0x000000, font=smallfont ]|
+								(:45x?)[bgcolor=regbgcolor]|
+								(label:53x?)[text={is_eng=>"Slower", is_deu=>"Langsam", otherwise "Slower"}, bgcolor = regbgcolor, fgcolor = 0x000000, font=smallfont ]|
 								(scale:80x70)[maxvalue=5, minvalue =1 , value=tempo, bgcolor = regbgcolor]|
 								(label:50x?)[text={is_eng=>"Faster", is_deu=>"Schnell", otherwise "Faster"}, bgcolor = regbgcolor, fgcolor = 0x000000, font=smallfont]
 						)
@@ -171,7 +171,7 @@ MiddleArea<-
 	(
 		(Leftmargin)|
 		(
-			((label:85x20)[text="The Maestro", bgcolor=regbgcolor, fgcolor=regfgcolor, font = ("Monotype Corsiva", 11, bold)]|(label:350x20)[text={is_eng=>" welcomes you aboard!", is_deu=>" heisst Sie herzlich willkommen an Bord!", otherwise " heisst Sie herzlich willkommen an Bord!"}, bgcolor=regbgcolor, fgcolor=regfgcolor, font=regfont])
+			((label:85x20)[text="The Maestro", bgcolor=regbgcolor, fgcolor=regfgcolor, font = ("Monotype Corsiva", 11, bold)]|(label:300x20)[text={is_eng=>" welcomes you aboard!", is_deu=>" heisst Sie herzlich willkommen an Bord!", otherwise " heisst Sie herzlich willkommen an Bord!"}, bgcolor=regbgcolor, fgcolor=regfgcolor, font=regfont])
 			---
 			(label:?x20)[text={is_eng=>"Use the mouse or the keyboard to play.", is_deu=>"Mit der Maus oder der Tastatur zu spielen.", otherwise "Use the mouse or the keyboard to play."}, bgcolor=regbgcolor, fgcolor=regfgcolor, font=regfont]
 			---
@@ -316,15 +316,21 @@ MiddleArea<-
 				---
 				(label)[text={is_eng=>"Octave:", is_deu=>"Octave", otherwise "Octave"}, bgcolor = controlsbgcolor, fgcolor = controlsfgcolor, font = controlsfont]
 		)|
-    	(image:46x106)[filename={octave=1=>"Graphics\\sol8.png",octave=0=>"Graphics\\sol.png",octave=-1=>"Graphics\\fa.png",octave=-2=>"Graphics\\fa8.png", otherwise "Graphics\\sol.png"}, bgcolor = controlsbgcolor]|
     	(
-    		(:?x10)[bgcolor = controlsbgcolor]
+    			(image:46x106)[filename={octave=1=>"Graphics\\sol8.png",octave=0=>"Graphics\\sol.png",octave=-1=>"Graphics\\fa.png",octave=-2=>"Graphics\\fa8.png", otherwise "Graphics\\sol.png"}, bgcolor = controlsbgcolor]
+    					---
+    			(image:46x106)[filename={octave=1=>"Graphics\\sol.png",octave=0=>"Graphics\\fa.png",octave=-1=>"Graphics\\fa8.png", otherwise "Graphics\\sol.png"}, bgcolor = controlsbgcolor]
+    			
+    	)|
+    	(LeftmarginControls)|
+    	(
+    		(:?x63)[bgcolor = controlsbgcolor]
     		---
     		(button:40x40)[filename="Graphics\\up.png", checked = up, enabled=!(octave=1),bgcolor = controlsbgcolor]
     		---
     		(:?x10)[bgcolor = controlsbgcolor]
     		---
-    		(button:40x40)[filename="Graphics\\down.png", checked = down, enabled=!(octave=-2),bgcolor = controlsbgcolor]
+    		(button:40x40)[filename="Graphics\\down.png", checked = down, enabled=!(octave=-1),bgcolor = controlsbgcolor]
     		---
     		(SpacerControls)
     	)
