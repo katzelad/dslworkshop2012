@@ -34,6 +34,9 @@ package object compiler {
 
   // A flag which is inserted to the 'Flow Map' to distinguish a constant from a variable
   val INITIAL_ATT_FLAG = () => {}
+  
+  // An image to be displayed if the specified image was not found
+  val ERROR_IMAGE = "Graphics\\error.png"
 
   /*
    * Converters

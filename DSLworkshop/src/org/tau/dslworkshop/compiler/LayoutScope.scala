@@ -73,13 +73,16 @@ class LayoutScope(widgetsMap: Map[String, Widget], extensions: TExtensions) {
     var sashMap = new mutableMap[Sash, Double]() // a mapping of every splitter to the relative part of the container to its left
     var prevSashMap = Map[Sash, (Option[Sash], Int)]() // a mapping of every splitter to the splitter to its left (if one exists) and the distance between them
     var nextSashMap = Map[Sash, (Option[Sash], Int)]() // a mapping of every splitter to the splitter to its right (if one exists) and the distance between them
-    var sashLeftBounds = new mutableMap[Sash, Int]() // 
-    var sashRightBounds = new mutableMap[Sash, Int]()
-    var changeSizes = List[(TChangeSize, Option[Sash], Option[Int], Option[Sash], Option[Int], Option[Int])]()
-    var j = 0
-    var isChangingSize = false
+    var (containerLeft, containerRight) = (0, 0) // the left and right coordinates of the container
+    var changeSizes = List[(TChangeSize, Option[Sash], Option[Int], Option[Sash], Option[Int], Option[Int])]() // the values used to determine the dimensions of the child boxes 
+    var j = 0 // index of a box to the left of the current left splitter
+    var isChangingSize = false // indicates whether the user is currently resizing the window or dragging a splitter
+    /*
+     * The following loop iterates over the boxes, creating splitters and maintaining the variables above.
+     * takes into consideration the different scenarios and combinations of boxes with fixed width or '?'  
+     */
     for (i <- 0 to childInfo.length - 1) {
-      childInfo(i) match { //i is the right mark
+      childInfo(i) match { // index of a box to the right of the current right splitter
         case (_, _, true, _, qmChangeSize) =>
           if (seenQM > 0) { // ... ? ... ? ...
             val leftSash = createSash(parent, SWT.VERTICAL)
@@ -118,13 +121,13 @@ class LayoutScope(widgetsMap: Map[String, Widget], extensions: TExtensions) {
                   if (!isChangingSize) {
                     val leftBound = prevSashMap(leftSash) match {
                       case (Some(prevSash), leftMargin) => prevSash.getBounds.x + SASH_WIDTH + leftMargin
-                      case (None, leftMargin) => sashLeftBounds(leftSash) + leftMargin
+                      case (None, leftMargin) => containerLeft + leftMargin
                     }
                     if (leftSash.getBounds.x < leftBound + childInfo(k)._1)
                       leftSash.setLocation(leftBound + childInfo(k)._1, leftSash.getBounds.y)
                     val rightBound = nextSashMap(rightSash) match {
                       case (Some(nextSash), rightMargin) => nextSash.getBounds.x - rightMargin - sashDist - SASH_WIDTH
-                      case (None, rightMargin) => sashRightBounds(rightSash) - rightMargin - sashDist - SASH_WIDTH
+                      case (None, rightMargin) => containerRight - rightMargin - sashDist - SASH_WIDTH
                     }
                     if (leftSash.getBounds.x + SASH_WIDTH > rightBound - childInfo(i)._1)
                       leftSash.setLocation(rightBound - SASH_WIDTH - childInfo(i)._1, leftSash.getBounds.y)
@@ -142,9 +145,9 @@ class LayoutScope(widgetsMap: Map[String, Widget], extensions: TExtensions) {
                     (childInfo(i): @unchecked) match {
                       case (_, _, true, _, changeSize) => changeSize(rightSash.getBounds.x + SASH_WIDTH, leftSash.getBounds.y, rightBound + accWidth + SASH_WIDTH, leftSash.getBounds.y + leftSash.getBounds.height)
                     }
-                    sashMap(leftSash) = (leftSash.getBounds.x - leftBound) * 1.0 / (sashRightBounds(leftSash) - sashLeftBounds(leftSash) - numWidth - sashes.length * SASH_WIDTH)
+                    sashMap(leftSash) = (leftSash.getBounds.x - leftBound) * 1.0 / (containerRight - containerLeft - numWidth - sashes.length * SASH_WIDTH)
                     nextSashMap(rightSash) match {
-                      case (Some(nextSash), _) => sashMap(nextSash) = (rightBound + accWidth - rightSash.getBounds.x) * 1.0 / (sashRightBounds(leftSash) - sashLeftBounds(leftSash) - numWidth - sashes.length * SASH_WIDTH)
+                      case (Some(nextSash), _) => sashMap(nextSash) = (rightBound + accWidth - rightSash.getBounds.x) * 1.0 / (containerRight - containerLeft - numWidth - sashes.length * SASH_WIDTH)
                       case _ =>
                     }
                   }
@@ -155,13 +158,13 @@ class LayoutScope(widgetsMap: Map[String, Widget], extensions: TExtensions) {
                   if (!isChangingSize) {
                     val leftBound = prevSashMap(leftSash) match {
                       case (Some(prevSash), leftMargin) => prevSash.getBounds.x + 2 * SASH_WIDTH + leftMargin + sashDist
-                      case (None, leftMargin) => sashLeftBounds(rightSash) + leftMargin + SASH_WIDTH + sashDist
+                      case (None, leftMargin) => containerLeft + leftMargin + SASH_WIDTH + sashDist
                     }
                     if (rightSash.getBounds.x < leftBound + childInfo(k)._1)
                       rightSash.setLocation(leftBound + childInfo(k)._1, rightSash.getBounds.y)
                     val rightBound = nextSashMap(rightSash) match {
                       case (Some(nextSash), rightMargin) => nextSash.getBounds.x - rightMargin
-                      case (None, rightMargin) => sashRightBounds(rightSash) - rightMargin
+                      case (None, rightMargin) => containerRight - rightMargin
                     }
                     if (rightSash.getBounds.x + SASH_WIDTH > rightBound - childInfo(i)._1)
                       rightSash.setLocation(rightBound - SASH_WIDTH - childInfo(i)._1, rightSash.getBounds.y)
@@ -179,9 +182,9 @@ class LayoutScope(widgetsMap: Map[String, Widget], extensions: TExtensions) {
                     (childInfo(k): @unchecked) match {
                       case (_, _, true, _, changeSize) => changeSize(leftBound - accWidth - SASH_WIDTH, rightSash.getBounds.y, leftSash.getBounds.x, rightSash.getBounds.y + rightSash.getBounds.height)
                     }
-                    sashMap(leftSash) = (leftSash.getBounds.x - leftBound + accWidth + SASH_WIDTH) * 1.0 / (sashRightBounds(leftSash) - sashLeftBounds(leftSash) - numWidth - sashes.length * SASH_WIDTH)
+                    sashMap(leftSash) = (leftSash.getBounds.x - leftBound + accWidth + SASH_WIDTH) * 1.0 / (containerRight - containerLeft - numWidth - sashes.length * SASH_WIDTH)
                     nextSashMap(rightSash) match {
-                      case (Some(nextSash), _) => sashMap(nextSash) = (rightBound - rightSash.getBounds.x - SASH_WIDTH) * 1.0 / (sashRightBounds(rightSash) - sashLeftBounds(rightSash) - numWidth - sashes.length * SASH_WIDTH)
+                      case (Some(nextSash), _) => sashMap(nextSash) = (rightBound - rightSash.getBounds.x - SASH_WIDTH) * 1.0 / (containerRight - containerLeft - numWidth - sashes.length * SASH_WIDTH)
                       case _ =>
                     }
                   }
@@ -203,13 +206,13 @@ class LayoutScope(widgetsMap: Map[String, Widget], extensions: TExtensions) {
                   if (!isChangingSize) {
                     val leftBound = prevSashMap(leftSash) match {
                       case (Some(prevSash), leftMargin) => prevSash.getBounds.x + SASH_WIDTH + leftMargin
-                      case (None, leftMargin) => sashLeftBounds(leftSash) + leftMargin
+                      case (None, leftMargin) => containerLeft + leftMargin
                     }
                     if (leftSash.getBounds.x < leftBound + childInfo(i - 1)._1)
                       leftSash.setLocation(leftBound + childInfo(i - 1)._1, leftSash.getBounds.y)
                     val rightBound = nextSashMap(leftSash) match {
                       case (Some(nextSash), rightMargin) => nextSash.getBounds.x - rightMargin
-                      case (None, rightMargin) => sashRightBounds(leftSash) - rightMargin
+                      case (None, rightMargin) => containerRight - rightMargin
                     }
                     if (leftSash.getBounds.x + SASH_WIDTH > rightBound - childInfo(i)._1)
                       leftSash.setLocation(rightBound - SASH_WIDTH - childInfo(i)._1, leftSash.getBounds.y)
@@ -219,9 +222,9 @@ class LayoutScope(widgetsMap: Map[String, Widget], extensions: TExtensions) {
                     (childInfo(i): @unchecked) match {
                       case (_, _, true, _, changeSize) => changeSize(leftSash.getBounds.x + SASH_WIDTH, leftSash.getBounds.y, rightBound, leftSash.getBounds.y + leftSash.getBounds.height)
                     }
-                    sashMap(leftSash) = (leftSash.getBounds.x - leftBound) * 1.0 / (sashRightBounds(leftSash) - sashLeftBounds(leftSash) - numWidth - sashes.length * SASH_WIDTH)
+                    sashMap(leftSash) = (leftSash.getBounds.x - leftBound) * 1.0 / (containerRight - containerLeft - numWidth - sashes.length * SASH_WIDTH)
                     nextSashMap(leftSash) match {
-                      case (Some(nextSash), _) => sashMap(nextSash) = (rightBound - leftSash.getBounds.x - SASH_WIDTH) * 1.0 / (sashRightBounds(leftSash) - sashLeftBounds(leftSash) - numWidth - sashes.length * SASH_WIDTH)
+                      case (Some(nextSash), _) => sashMap(nextSash) = (rightBound - leftSash.getBounds.x - SASH_WIDTH) * 1.0 / (containerRight - containerLeft - numWidth - sashes.length * SASH_WIDTH)
                       case _ =>
                     }
                   }
@@ -275,20 +278,21 @@ class LayoutScope(widgetsMap: Map[String, Widget], extensions: TExtensions) {
           }
       }
     }
+    
     for ((sash, (prevSash, const)) <- prevSashMap) prevSash match {
       case Some(prevSash) => nextSashMap += prevSash -> (Some(sash), const)
       case _ =>
     }
     if (!sashes.isEmpty)
       nextSashMap += sashes.last -> (None, (childInfo reverse) takeWhile { case (_, _, b, _, _) => !b } map { case (w, _, false, _, _) => w; case _ => 0 } sum)
-    val totalWidth = numWidth + sashes.length * SASH_WIDTH
-    val height = childInfo map { case (_, h, _, _, _) => h } max
-    val isHeightQM = childInfo.count({ case (_, _, _, isQM, _) => !isQM }) == 0
+    val totalWidth = numWidth + sashes.length * SASH_WIDTH // the combined width of the child boxes with fixed widths and the splitters
+    val height = childInfo map { case (_, h, _, _, _) => h } max // the maximal fixed height of a box, 0 if none are fixed
+    val isHeightQM = childInfo.count({ case (_, _, _, isQM, _) => !isQM }) == 0 // indicates whether all boxes are of height '?'
+    
+    // Return value:
     (totalWidth, height, seenQM > 0, isHeightQM, (left: Int, top: Int, right: Int, bottom: Int) => {
-      sashes foreach (sash => {
-        sashLeftBounds(sash) = left
-        sashRightBounds(sash) = right
-      })
+      containerLeft = left
+      containerRight = right
       isChangingSize = true
       sashes foreach (sash => {
         val (prevSash, constMargin) = prevSashMap(sash)
@@ -319,22 +323,31 @@ class LayoutScope(widgetsMap: Map[String, Widget], extensions: TExtensions) {
     })
   }
 
+  
+   /*
+   * Draws a container of vertical combinators.
+   * Receives the parent canvas, the environment of the container's scope, and the list of boxes to be drawn.
+   * Returns the unevaluated dimensions of the container and a function used to dynamically modify its dimensions.
+   */
   private def handleVerticalContainer(parent: Composite, env: Environment, children: List[Widget]): TEvalNodeReturn = {
-    var seenQM = 0
-    var sashes = mutableBuffer[Sash]()
-    val childInfo = children map (evalNode(_, parent, env))
-    val qms = childInfo count { case (_, _, _, b, _) => b } // total number of question marks (qms)
-    val numHeight = childInfo map { case (_, h, _, _, _) => h } sum
-    var sashMap = new mutableMap[Sash, Double]()
-    var prevSashMap = Map[Sash, (Option[Sash], Int)]()
-    var nextSashMap = Map[Sash, (Option[Sash], Int)]()
-    var sashTopBounds = new mutableMap[Sash, Int]()
-    var sashBottomBounds = new mutableMap[Sash, Int]()
-    var changeSizes = List[(TChangeSize, Option[Sash], Option[Int], Option[Sash], Option[Int], Option[Int])]()
-    var j = 0
-    var isChangingSize = false
+    var seenQM = 0 // the number of child boxes of height '?' processed
+    var sashes = mutableBuffer[Sash]() // the splitters between the boxes
+    val childInfo = children map (evalNode(_, parent, env))// recursively evaluate the child boxes and store the returned values
+    val qms = childInfo count { case (_, _, _, b, _) => b } // the number of child boxes of height '?'
+    val numHeight = childInfo map { case (_, h, _, _, _) => h } sum // the minimal total height of the container (with all '?' as 0) 
+    var sashMap = new mutableMap[Sash, Double]() // a mapping of every splitter to the relative part of the container to its left
+    var prevSashMap = Map[Sash, (Option[Sash], Int)]() // a mapping of every splitter to the splitter above it (if one exists) and the distance between them
+    var nextSashMap = Map[Sash, (Option[Sash], Int)]() // a mapping of every splitter to the splitter below it (if one exists) and the distance between them
+    var (containerTop, containerBottom) = (0, 0) // the top and bottom coordinates of the container
+    var changeSizes = List[(TChangeSize, Option[Sash], Option[Int], Option[Sash], Option[Int], Option[Int])]() // the values used to determine the dimensions of the child boxes 
+    var j = 0 // index of a box above the current top splitter
+    var isChangingSize = false  // indicates whether the user is currently resizing the window or dragging a splitter
+    /*
+     * The following loop iterates over the boxes, creating splitters and maintaining the variables above.
+     * takes into consideration the different scenarios and combinations of boxes with fixed height or '?'  
+     */
     for (i <- 0 to childInfo.length - 1) {
-      childInfo(i) match { //i is the right mark
+      childInfo(i) match {  // index of a box below the current bottom splitter
         case (_, _, _, true, qmChangeSize) =>
           if (seenQM > 0) { // ... ? ... ? ...
             val topSash = createSash(parent, SWT.HORIZONTAL)
@@ -373,13 +386,13 @@ class LayoutScope(widgetsMap: Map[String, Widget], extensions: TExtensions) {
                   if (!isChangingSize) {
                     val topBound = prevSashMap(topSash) match {
                       case (Some(prevSash), topMargin) => prevSash.getBounds.y + SASH_WIDTH + topMargin
-                      case (None, topMargin) => sashTopBounds(topSash) + topMargin
+                      case (None, topMargin) => containerTop + topMargin
                     }
                     if (topSash.getBounds.y < topBound + childInfo(k)._2)
                       topSash.setLocation(topSash.getBounds.x, topBound + childInfo(k)._2)
                     val bottomBound = nextSashMap(bottomSash) match {
                       case (Some(nextSash), bottomMargin) => nextSash.getBounds.y - bottomMargin - sashDist - SASH_WIDTH
-                      case (None, bottomMargin) => sashBottomBounds(bottomSash) - bottomMargin - sashDist - SASH_WIDTH
+                      case (None, bottomMargin) => containerBottom - bottomMargin - sashDist - SASH_WIDTH
                     }
                     if (topSash.getBounds.y + SASH_WIDTH > bottomBound - childInfo(i)._2)
                       topSash.setLocation(topSash.getBounds.x, bottomBound - SASH_WIDTH - childInfo(i)._2)
@@ -397,9 +410,9 @@ class LayoutScope(widgetsMap: Map[String, Widget], extensions: TExtensions) {
                     (childInfo(i): @unchecked) match {
                       case (_, _, _, true, changeSize) => changeSize(topSash.getBounds.x, bottomSash.getBounds.y + SASH_WIDTH, topSash.getBounds.x + topSash.getBounds.width, bottomBound + accHeight + SASH_WIDTH)
                     }
-                    sashMap(topSash) = (topSash.getBounds.y - topBound) * 1.0 / (sashBottomBounds(topSash) - sashTopBounds(topSash) - numHeight - sashes.length * SASH_WIDTH)
+                    sashMap(topSash) = (topSash.getBounds.y - topBound) * 1.0 / (containerBottom - containerTop - numHeight - sashes.length * SASH_WIDTH)
                     nextSashMap(bottomSash) match {
-                      case (Some(nextSash), _) => sashMap(nextSash) = (bottomBound + accHeight - bottomSash.getBounds.y) * 1.0 / (sashBottomBounds(topSash) - sashTopBounds(topSash) - numHeight - sashes.length * SASH_WIDTH)
+                      case (Some(nextSash), _) => sashMap(nextSash) = (bottomBound + accHeight - bottomSash.getBounds.y) * 1.0 / (containerBottom - containerTop - numHeight - sashes.length * SASH_WIDTH)
                       case _ =>
                     }
                   }
@@ -410,13 +423,13 @@ class LayoutScope(widgetsMap: Map[String, Widget], extensions: TExtensions) {
                   if (!isChangingSize) {
                     val topBound = prevSashMap(topSash) match {
                       case (Some(prevSash), topMargin) => prevSash.getBounds.y + 2 * SASH_WIDTH + topMargin + sashDist
-                      case (None, topMargin) => sashTopBounds(bottomSash) + topMargin + SASH_WIDTH + sashDist
+                      case (None, topMargin) => containerTop + topMargin + SASH_WIDTH + sashDist
                     }
                     if (bottomSash.getBounds.y < topBound + childInfo(k)._2)
                       bottomSash.setLocation(bottomSash.getBounds.x, topBound + childInfo(k)._2)
                     val bottomBound = nextSashMap(bottomSash) match {
                       case (Some(nextSash), bottomMargin) => nextSash.getBounds.y - bottomMargin
-                      case (None, bottomMargin) => sashBottomBounds(bottomSash) - bottomMargin
+                      case (None, bottomMargin) => containerBottom - bottomMargin
                     }
                     if (bottomSash.getBounds.y + SASH_WIDTH > bottomBound - childInfo(i)._2)
                       bottomSash.setLocation(bottomSash.getBounds.x, bottomBound - SASH_WIDTH - childInfo(i)._2)
@@ -434,9 +447,9 @@ class LayoutScope(widgetsMap: Map[String, Widget], extensions: TExtensions) {
                     (childInfo(k): @unchecked) match {
                       case (_, _, _, true, changeSize) => changeSize(bottomSash.getBounds.x, topBound - accHeight - SASH_WIDTH, bottomSash.getBounds.x + bottomSash.getBounds.width, topSash.getBounds.y)
                     }
-                    sashMap(topSash) = (topSash.getBounds.y - topBound + accHeight + SASH_WIDTH) * 1.0 / (sashBottomBounds(topSash) - sashTopBounds(topSash) - numHeight - sashes.length * SASH_WIDTH)
+                    sashMap(topSash) = (topSash.getBounds.y - topBound + accHeight + SASH_WIDTH) * 1.0 / (containerBottom - containerTop - numHeight - sashes.length * SASH_WIDTH)
                     nextSashMap(bottomSash) match {
-                      case (Some(nextSash), _) => sashMap(nextSash) = (bottomBound - bottomSash.getBounds.y - SASH_WIDTH) * 1.0 / (sashBottomBounds(bottomSash) - sashTopBounds(bottomSash) - numHeight - sashes.length * SASH_WIDTH)
+                      case (Some(nextSash), _) => sashMap(nextSash) = (bottomBound - bottomSash.getBounds.y - SASH_WIDTH) * 1.0 / (containerBottom - containerTop - numHeight - sashes.length * SASH_WIDTH)
                       case _ =>
                     }
                   }
@@ -458,13 +471,13 @@ class LayoutScope(widgetsMap: Map[String, Widget], extensions: TExtensions) {
                   if (!isChangingSize) {
                     val topBound = prevSashMap(topSash) match {
                       case (Some(prevSash), topMargin) => prevSash.getBounds.y + SASH_WIDTH + topMargin
-                      case (None, topMargin) => sashTopBounds(topSash) + topMargin
+                      case (None, topMargin) => containerTop + topMargin
                     }
                     if (topSash.getBounds.y < topBound + childInfo(i - 1)._2)
                       topSash.setLocation(topSash.getBounds.x, topBound + childInfo(i - 1)._2)
                     val bottomBound = nextSashMap(topSash) match {
                       case (Some(nextSash), bottomMargin) => nextSash.getBounds.y - bottomMargin
-                      case (None, bottomMargin) => sashBottomBounds(topSash) - bottomMargin
+                      case (None, bottomMargin) => containerBottom - bottomMargin
                     }
                     if (topSash.getBounds.y + SASH_WIDTH > bottomBound - childInfo(i)._2)
                       topSash.setLocation(topSash.getBounds.x, bottomBound - SASH_WIDTH - childInfo(i)._2)
@@ -474,9 +487,9 @@ class LayoutScope(widgetsMap: Map[String, Widget], extensions: TExtensions) {
                     (childInfo(i): @unchecked) match {
                       case (_, _, _, true, changeSize) => changeSize(topSash.getBounds.x, topSash.getBounds.y + SASH_WIDTH, topSash.getBounds.x + topSash.getBounds.width, bottomBound)
                     }
-                    sashMap(topSash) = (topSash.getBounds.y - topBound) * 1.0 / (sashBottomBounds(topSash) - sashTopBounds(topSash) - numHeight - sashes.length * SASH_WIDTH)
+                    sashMap(topSash) = (topSash.getBounds.y - topBound) * 1.0 / (containerBottom - containerTop - numHeight - sashes.length * SASH_WIDTH)
                     nextSashMap(topSash) match {
-                      case (Some(nextSash), _) => sashMap(nextSash) = (bottomBound - topSash.getBounds.y - SASH_WIDTH) * 1.0 / (sashBottomBounds(topSash) - sashTopBounds(topSash) - numHeight - sashes.length * SASH_WIDTH)
+                      case (Some(nextSash), _) => sashMap(nextSash) = (bottomBound - topSash.getBounds.y - SASH_WIDTH) * 1.0 / (containerBottom - containerTop - numHeight - sashes.length * SASH_WIDTH)
                       case _ =>
                     }
                   }
@@ -530,20 +543,21 @@ class LayoutScope(widgetsMap: Map[String, Widget], extensions: TExtensions) {
           }
       }
     }
+    
     for ((sash, (prevSash, const)) <- prevSashMap) prevSash match {
       case Some(prevSash) => nextSashMap += prevSash -> (Some(sash), const)
       case _ =>
     }
     if (!sashes.isEmpty)
       nextSashMap += sashes.last -> (None, (childInfo reverse) takeWhile { case (_, _, _, b, _) => !b } map { case (_, h, _, false, _) => h; case _ => 0 } sum)
-    val totalHeight = numHeight + sashes.length * SASH_WIDTH
-    val width = childInfo map { case (w, _, _, _, _) => w } max
-    val isWidthQM = childInfo.count({ case (_, _, isQM, _, _) => !isQM }) == 0
+    val totalHeight = numHeight + sashes.length * SASH_WIDTH // the combined width of the child boxes with fixed widths and the splitters
+    val width = childInfo map { case (w, _, _, _, _) => w } max // the maximal fixed height of a box, 0 if none are fixed
+    val isWidthQM = childInfo.count({ case (_, _, isQM, _, _) => !isQM }) == 0  // indicates whether all boxes are of width '?'
+    
+    // Return value:
     (width, totalHeight, isWidthQM, seenQM > 0, (left: Int, top: Int, right: Int, bottom: Int) => {
-      sashes foreach (sash => {
-        sashTopBounds(sash) = top
-        sashBottomBounds(sash) = bottom
-      })
+      containerTop = top
+      containerBottom = bottom
       isChangingSize = true
       sashes foreach (sash => {
         val (prevSash, constMargin) = prevSashMap(sash)
@@ -574,6 +588,12 @@ class LayoutScope(widgetsMap: Map[String, Widget], extensions: TExtensions) {
     })
   }
 
+  
+   /*
+   * Draws a container of horizontal combinators of boxes with dimensions specified dynamically by the program
+   * Receives the parent canvas, the environment of the container's scope, and the list of boxes to be drawn.
+   * Returns the unevaluated dimensions of the container and a function used to dynamically modify its dimensions.
+   */
   private def handleDynamicHorizontalContainer(parent: Composite, env: Environment, children: List[Widget]): TEvalNodeReturn = {
     val scrolledComposite = new ScrolledComposite(parent, SWT.H_SCROLL | SWT.V_SCROLL)
     scrolledComposite setLayout new FillLayout
@@ -603,6 +623,12 @@ class LayoutScope(widgetsMap: Map[String, Widget], extensions: TExtensions) {
     })
   }
 
+  
+   /*
+   * Draws a container of vertical combinators of boxes with dimensions specified dynamically by the program
+   * Receives the parent canvas, the environment of the container's scope, and the list of boxes to be drawn.
+   * Returns the unevaluated dimensions of the container and a function used to dynamically modify its dimensions.
+   */
   private def handleDynamicVerticalContainer(parent: Composite, env: Environment, children: List[Widget]): TEvalNodeReturn = {
     val scrolledComposite = new ScrolledComposite(parent, SWT.H_SCROLL | SWT.V_SCROLL)
     scrolledComposite setLayout new FillLayout
@@ -632,20 +658,28 @@ class LayoutScope(widgetsMap: Map[String, Widget], extensions: TExtensions) {
     })
   }
 
+  /*
+   * Recursively draws a box on the canvas.
+   * Receives the box, the parent canvas and the environment of the box's scope.
+   * Returns the unevaluated dimensions of the box and a function used to dynamically modify its dimensions.
+   */
   def evalNode(code: ASTNode, parent: Composite, env: Environment): TEvalNodeReturn = code match {
-    //***case 1/3 atomic widget***
+    
+    // *** Case 1/4: Atomic Widget ***
     case AtomicWidget(kind, attributes, widthExpr, heightExpr) =>
-      val changeAtt = new mutableMap[String, () => Unit]()
+      /*
+       * General attribute definitions
+       */
       var hAlign = 0
       var text = ""
       var checked = false
-      var image = "Graphics\\error.png"
+      var image = ERROR_IMAGE
       var minValue, maxValue = 0
       var value: Option[Int] = None
-      var changeImageSize = (width: Int, height: Int) => {}
+      var changeImageSize = (width: Int, height: Int) => {} 
       var widthVar = (widthExpr match { case Some(w: Literal[_]) => widthExpr; case _ => None }).map(env.evalInt)
       /*
-       * NOTE: a known issue: the parser does not distinguish between (label) and (label:?x?)
+       * NOTE: the parser does not distinguish between (label) and (label:?x?)
        * which causes handling that does not support native label and image size (3.2.2 in the project specs)
        */
       var heightVar = heightExpr.map(env.evalInt)
@@ -871,7 +905,7 @@ class LayoutScope(widgetsMap: Map[String, Widget], extensions: TExtensions) {
           changeImageSize(widgetForResize.getSize.x, widgetForResize.getSize.y)
         })
 
-    //***case 2/3 - container***
+    // *** Case 2/4: Container ***
     case Container(Container.Direction.Horizontal, children, _, _) =>
       if (children.forall({ case AtomicWidget(_, _, Some(_), _) => true; case _ => false }))
         handleDynamicHorizontalContainer(parent, env, children)
@@ -884,7 +918,7 @@ class LayoutScope(widgetsMap: Map[String, Widget], extensions: TExtensions) {
       else
         handleVerticalContainer(parent, env, children)
 
-    //***case 3/3 property scope
+    // *** Case 3/4: Property Scope ***
     case PropertyScope(container, attributes) => {
       //first add the variables to the varmap:
       val newEnv =
@@ -924,7 +958,8 @@ class LayoutScope(widgetsMap: Map[String, Widget], extensions: TExtensions) {
       //then, handle the rest of the container:
       evalNode(container, parent, newEnv)
     }
-
+    
+    // *** Case 4/4: Iteration ***
     case IterationMacro(widget, direction, props) => evalNode(IterationMacro.expand(widget, direction, props), parent, env)
 
   }
