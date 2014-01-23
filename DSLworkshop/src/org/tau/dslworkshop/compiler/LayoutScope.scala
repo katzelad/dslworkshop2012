@@ -42,24 +42,38 @@ import org.tau.workshop2011.parser.AST.Widget
  */
 class LayoutScope(widgetsMap: Map[String, Widget], extensions: TExtensions) {
 
+  /*
+   * The arguments passed to the program.
+   */
   private var params: TVarMap = null
 
+  /*
+   * Contains the variables modified by the current user action, resets before every new action.
+   */
   private var varsAffectedByCurrentUpdate: Set[String] = null
 
   def getParams = params
 
+  /*
+   * Creates a new splitter.
+   */
   private def createSash(parent: Composite, direction: Int) = new Sash(parent, direction | SWT.SMOOTH | SWT.BORDER)
 
-  private def handleHorizontalContainer(parent: Composite, env: Environment, children: List[Widget]): TEvalNodeReturn = {
-    var seenQM = 0
-    var sashes = mutableBuffer[Sash]()
-    val childInfo = children map (evalNode(_, parent, env))
-    val qms = childInfo count { case (_, _, b, _, _) => b } // total number of question marks (qms)
-    val numWidth = childInfo map { case (w, _, _, _, _) => w } sum
-    var sashMap = new mutableMap[Sash, Double]()
-    var prevSashMap = Map[Sash, (Option[Sash], Int)]()
-    var nextSashMap = Map[Sash, (Option[Sash], Int)]()
-    var sashLeftBounds = new mutableMap[Sash, Int]()
+  /*
+   * Draws a container of horizontal combinators.
+   * Receives the parent canvas, the environment of the container's scope, and the list of boxes to be drawn.
+   * Returns the unevaluated dimensions of the container and a function used to dynamically modify its dimensions.
+   */
+  private def handleHorizontalContainer(parent: Composite, env: Environment, children: List[Widget]): TEvalNodeReturn = {    
+    var seenQM = 0 // the number of child boxes of width '?' processed
+    var sashes = mutableBuffer[Sash]() // the splitters between the boxes
+    val childInfo = children map (evalNode(_, parent, env)) // recursively evaluate the child boxes and store the returned values 
+    val qms = childInfo count { case (_, _, b, _, _) => b } // the number of child boxes of width '?'
+    val numWidth = childInfo.map({ case (w, _, _, _, _) => w }).sum // the minimal total width of the container (with all '?' as 0)
+    var sashMap = new mutableMap[Sash, Double]() // a mapping of every splitter to the relative part of the container to its left
+    var prevSashMap = Map[Sash, (Option[Sash], Int)]() // a mapping of every splitter to the splitter to its left (if one exists) and the distance between them
+    var nextSashMap = Map[Sash, (Option[Sash], Int)]() // a mapping of every splitter to the splitter to its right (if one exists) and the distance between them
+    var sashLeftBounds = new mutableMap[Sash, Int]() // 
     var sashRightBounds = new mutableMap[Sash, Int]()
     var changeSizes = List[(TChangeSize, Option[Sash], Option[Int], Option[Sash], Option[Int], Option[Int])]()
     var j = 0
