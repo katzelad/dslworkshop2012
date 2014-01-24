@@ -796,6 +796,10 @@ class LayoutScope(widgetsMap: Map[String, Widget], extensions: TExtensions) {
             label.getImage.dispose
             label.setImage(new Image(label.getDisplay, new ImageData(image).scaledTo(label.getSize.x, label.getSize.y)))
           })
+          /*
+           * The "action" attribute is used to capture the precise clicking spot on an image.
+           * Its value is the name of a bound (Int, Int) => Unit function, which receives the coordinates of the click.
+           */
           attributes.find(_.getName == "action") match {
             case Some(att) =>
               label addMouseListener new MouseAdapter {
