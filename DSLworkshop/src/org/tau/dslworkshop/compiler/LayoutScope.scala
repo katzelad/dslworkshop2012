@@ -64,7 +64,7 @@ class LayoutScope(widgetsMap: Map[String, Widget], extensions: TExtensions) {
    * Receives the parent canvas, the environment of the container's scope, and the list of boxes to be drawn.
    * Returns the unevaluated dimensions of the container and a function used to dynamically modify its dimensions.
    */
-  private def handleHorizontalContainer(parent: Composite, env: Environment, children: List[Widget]): TEvalNodeReturn = {    
+  private def handleHorizontalContainer(parent: Composite, env: Environment, children: List[Widget]): TEvalNodeReturn = {
     var seenQM = 0 // the number of child boxes of width '?' processed
     var sashes = mutableBuffer[Sash]() // the splitters between the boxes
     val childInfo = children map (evalNode(_, parent, env)) // recursively evaluate the child boxes and store the returned values 
@@ -278,7 +278,7 @@ class LayoutScope(widgetsMap: Map[String, Widget], extensions: TExtensions) {
           }
       }
     }
-    
+
     for ((sash, (prevSash, const)) <- prevSashMap) prevSash match {
       case Some(prevSash) => nextSashMap += prevSash -> (Some(sash), const)
       case _ =>
@@ -288,7 +288,7 @@ class LayoutScope(widgetsMap: Map[String, Widget], extensions: TExtensions) {
     val totalWidth = numWidth + sashes.length * SASH_WIDTH // the combined width of the child boxes with fixed widths and the splitters
     val height = childInfo map { case (_, h, _, _, _) => h } max // the maximal fixed height of a box, 0 if none are fixed
     val isHeightQM = childInfo.count({ case (_, _, _, isQM, _) => !isQM }) == 0 // indicates whether all boxes are of height '?'
-    
+
     // Return value:
     (totalWidth, height, seenQM > 0, isHeightQM, (left: Int, top: Int, right: Int, bottom: Int) => {
       containerLeft = left
@@ -323,8 +323,7 @@ class LayoutScope(widgetsMap: Map[String, Widget], extensions: TExtensions) {
     })
   }
 
-  
-   /*
+  /*
    * Draws a container of vertical combinators.
    * Receives the parent canvas, the environment of the container's scope, and the list of boxes to be drawn.
    * Returns the unevaluated dimensions of the container and a function used to dynamically modify its dimensions.
@@ -332,7 +331,7 @@ class LayoutScope(widgetsMap: Map[String, Widget], extensions: TExtensions) {
   private def handleVerticalContainer(parent: Composite, env: Environment, children: List[Widget]): TEvalNodeReturn = {
     var seenQM = 0 // the number of child boxes of height '?' processed
     var sashes = mutableBuffer[Sash]() // the splitters between the boxes
-    val childInfo = children map (evalNode(_, parent, env))// recursively evaluate the child boxes and store the returned values
+    val childInfo = children map (evalNode(_, parent, env)) // recursively evaluate the child boxes and store the returned values
     val qms = childInfo count { case (_, _, _, b, _) => b } // the number of child boxes of height '?'
     val numHeight = childInfo map { case (_, h, _, _, _) => h } sum // the minimal total height of the container (with all '?' as 0) 
     var sashMap = new mutableMap[Sash, Double]() // a mapping of every splitter to the relative part of the container to its left
@@ -341,13 +340,13 @@ class LayoutScope(widgetsMap: Map[String, Widget], extensions: TExtensions) {
     var (containerTop, containerBottom) = (0, 0) // the top and bottom coordinates of the container
     var changeSizes = List[(TChangeSize, Option[Sash], Option[Int], Option[Sash], Option[Int], Option[Int])]() // the values used to determine the dimensions of the child boxes 
     var j = 0 // index of a box above the current top splitter
-    var isChangingSize = false  // indicates whether the user is currently resizing the window or dragging a splitter
+    var isChangingSize = false // indicates whether the user is currently resizing the window or dragging a splitter
     /*
      * The following loop iterates over the boxes, creating splitters and maintaining the variables above.
      * takes into consideration the different scenarios and combinations of boxes with fixed height or '?'  
      */
     for (i <- 0 to childInfo.length - 1) {
-      childInfo(i) match {  // index of a box below the current bottom splitter
+      childInfo(i) match { // index of a box below the current bottom splitter
         case (_, _, _, true, qmChangeSize) =>
           if (seenQM > 0) { // ... ? ... ? ...
             val topSash = createSash(parent, SWT.HORIZONTAL)
@@ -543,7 +542,7 @@ class LayoutScope(widgetsMap: Map[String, Widget], extensions: TExtensions) {
           }
       }
     }
-    
+
     for ((sash, (prevSash, const)) <- prevSashMap) prevSash match {
       case Some(prevSash) => nextSashMap += prevSash -> (Some(sash), const)
       case _ =>
@@ -552,8 +551,8 @@ class LayoutScope(widgetsMap: Map[String, Widget], extensions: TExtensions) {
       nextSashMap += sashes.last -> (None, (childInfo reverse) takeWhile { case (_, _, _, b, _) => !b } map { case (_, h, _, false, _) => h; case _ => 0 } sum)
     val totalHeight = numHeight + sashes.length * SASH_WIDTH // the combined width of the child boxes with fixed widths and the splitters
     val width = childInfo map { case (w, _, _, _, _) => w } max // the maximal fixed height of a box, 0 if none are fixed
-    val isWidthQM = childInfo.count({ case (_, _, isQM, _, _) => !isQM }) == 0  // indicates whether all boxes are of width '?'
-    
+    val isWidthQM = childInfo.count({ case (_, _, isQM, _, _) => !isQM }) == 0 // indicates whether all boxes are of width '?'
+
     // Return value:
     (width, totalHeight, isWidthQM, seenQM > 0, (left: Int, top: Int, right: Int, bottom: Int) => {
       containerTop = top
@@ -588,8 +587,7 @@ class LayoutScope(widgetsMap: Map[String, Widget], extensions: TExtensions) {
     })
   }
 
-  
-   /*
+  /*
    * Draws a container of horizontal combinators of boxes with dimensions specified dynamically by the program
    * Receives the parent canvas, the environment of the container's scope, and the list of boxes to be drawn.
    * Returns the unevaluated dimensions of the container and a function used to dynamically modify its dimensions.
@@ -623,8 +621,7 @@ class LayoutScope(widgetsMap: Map[String, Widget], extensions: TExtensions) {
     })
   }
 
-  
-   /*
+  /*
    * Draws a container of vertical combinators of boxes with dimensions specified dynamically by the program
    * Receives the parent canvas, the environment of the container's scope, and the list of boxes to be drawn.
    * Returns the unevaluated dimensions of the container and a function used to dynamically modify its dimensions.
@@ -664,9 +661,10 @@ class LayoutScope(widgetsMap: Map[String, Widget], extensions: TExtensions) {
    * Returns the unevaluated dimensions of the box and a function used to dynamically modify its dimensions.
    */
   def evalNode(code: ASTNode, parent: Composite, env: Environment): TEvalNodeReturn = code match {
-    
-    // *** Case 1/4: Atomic Widget ***
+
+    // *** Case 1/5: Atomic Widget ***
     case AtomicWidget(kind, attributes, widthExpr, heightExpr) =>
+
       /*
        * General attribute definitions
        */
@@ -676,16 +674,20 @@ class LayoutScope(widgetsMap: Map[String, Widget], extensions: TExtensions) {
       var image = ERROR_IMAGE
       var minValue, maxValue = 0
       var value: Option[Int] = None
-      var changeImageSize = (width: Int, height: Int) => {} 
-      var widthVar = (widthExpr match { case Some(w: Literal[_]) => widthExpr; case _ => None }).map(env.evalInt)
+      var changeImageSize = (width: Int, height: Int) => {} // when changing the widget's size, scales the image if the widget is an image
+
       /*
+       * Calculate the widget's dimensions
        * NOTE: the parser does not distinguish between (label) and (label:?x?)
-       * which causes handling that does not support native label and image size (3.2.2 in the project specs)
+       * which causes handling that does not support native label and image size (3.2.2 in the project specifications)
        */
+      var widthVar = (widthExpr match { case Some(w: Literal[_]) => widthExpr; case _ => None }).map(env.evalInt)
       var heightVar = heightExpr.map(env.evalInt)
+
+      // Evaluate attributes
       for (att <- attributes) att.getName match {
         case "halign" => hAlign = hAlignASTToSWT(env.evalHAlign(att.getValue.get))
-        // valign not supported due to lack of SWT support
+        // "valign" is missing due to lack of SWT support
         case "text" => text = env.evalString(att.getValue.get)
         case "checked" => checked = env.evalBoolean(att.getValue.get)
         case "filename" => image = env.evalString(att.getValue.get)
@@ -694,6 +696,8 @@ class LayoutScope(widgetsMap: Map[String, Widget], extensions: TExtensions) {
         case "minvalue" => minValue = env.evalInt(att.getValue.get)
         case _ =>
       }
+
+      // A generic listener to GUI events
       class WidgetSelectionAdapter[T](attName: String, attValue: () => T, changeVarLTR: (Expr, T) => (String, Any)) extends SelectionAdapter {
         override def widgetSelected(e: SelectionEvent) {
           if (attributes.exists(_.getName == attName)) {
@@ -708,24 +712,30 @@ class LayoutScope(widgetsMap: Map[String, Widget], extensions: TExtensions) {
           }
         }
       }
-      // handling RTL
+
+      // Generic dynamic attribute modification
       def changeAttRTL(attName: String, changeAtt: Expr => Unit) = attributes.foreach(att =>
         if (att.getName == attName)
           env.getVariables(att.getValue.get).foreach(name =>
           env.flowMap(name) += (() => changeAtt(att.getValue.get))))
+
+      // Create the actual widget
       val widget = kind match {
+
         case "label" | "" =>
           val label = new Label(parent, SWT.WRAP | hAlign)
           label setText text
           changeAttRTL("halign", expr => label.setAlignment(hAlignASTToSWT(env.evalHAlign(expr))))
           changeAttRTL("text", expr => label.setText(env.evalString(expr)))
           label
-        case "textbox" => // dynamic change of textbox alignment not included due to lack of SWT support
+
+        case "textbox" => // Note: dynamic change of textbox alignment not included due to lack of SWT support
           val textbox = new Text(parent, SWT.WRAP | SWT.V_SCROLL | hAlign)
           textbox setText text
           textbox.addSelectionListener(new WidgetSelectionAdapter[String]("text", () => textbox.getText(), env.changeVarLTR))
           changeAttRTL("text", expr => textbox.setText(env.evalString(expr)))
           textbox
+
         case "button" =>
           val button = new Button(parent, SWT.PUSH | SWT.WRAP | hAlign)
           button setText text
@@ -747,15 +757,17 @@ class LayoutScope(widgetsMap: Map[String, Widget], extensions: TExtensions) {
           changeAttRTL("halign", expr => button.setAlignment(hAlignASTToSWT(env.evalHAlign(expr))))
           changeAttRTL("text", expr => button.setText(env.evalString(expr)))
           button
+
         case "checkbox" =>
           val checkbox = new Button(parent, SWT.CHECK)
           checkbox.setSelection(checked)
           checkbox.addSelectionListener(new WidgetSelectionAdapter[Boolean]("checked", () => checkbox.getSelection(), env.changeVarLTR))
           changeAttRTL("checked", expr => checkbox.setSelection(env.evalBoolean(expr)))
           checkbox
+
         case "radio" =>
           val box = new Group(parent, SWT.NONE)
-          // dummy radio button allows a default "false" state for all the other radio buttons (a workaround to an swt limitation)
+          // NOTE: Dummy radio button allows a default "false" state for all the other radio buttons (a workaround to an swt limitation)
           val dummy = new Button(box, SWT.RADIO)
           dummy.setSelection(true)
           dummy.setBounds(-20000, -20000, 100, 100) // left top width height
@@ -769,8 +781,9 @@ class LayoutScope(widgetsMap: Map[String, Widget], extensions: TExtensions) {
           })
           changeAttRTL("checked", expr => radio.setSelection(env.evalBoolean(expr)))
           radio
+
         case "image" =>
-          val label = new Label(parent, SWT.NONE)
+          val label = new Label(parent, SWT.NONE) // NOTE: image is created using a label widget, since there is no image widget in SWT
           label setImage new Image(label.getDisplay(), image)
           changeImageSize = (width, height) => {
             if (width > 0 && height > 0) {
@@ -800,6 +813,7 @@ class LayoutScope(widgetsMap: Map[String, Widget], extensions: TExtensions) {
             case None =>
           }
           label
+
         case "combo" =>
           val combo = new Combo(parent, SWT.DROP_DOWN | SWT.READ_ONLY)
           combo.addKeyListener(new KeyAdapter {
@@ -816,6 +830,7 @@ class LayoutScope(widgetsMap: Map[String, Widget], extensions: TExtensions) {
           changeAttRTL("text", expr => combo.setItems(env.evalString(expr).split(",")))
           changeAttRTL("value", expr => combo.select(env.evalInt(expr)))
           combo
+
         case "slider" =>
           val slider = new Slider(parent, SWT.HORIZONTAL)
           slider setMaximum maxValue
@@ -826,6 +841,7 @@ class LayoutScope(widgetsMap: Map[String, Widget], extensions: TExtensions) {
           changeAttRTL("minvalue", expr => slider.setMinimum(env.evalInt(expr)))
           changeAttRTL("value", expr => slider.setSelection(env.evalInt(expr)))
           slider
+
         case "scale" =>
           val scale = new Scale(parent, SWT.HORIZONTAL)
           scale setMaximum maxValue
@@ -837,22 +853,24 @@ class LayoutScope(widgetsMap: Map[String, Widget], extensions: TExtensions) {
           changeAttRTL("minvalue", expr => scale.setMinimum(env.evalInt(expr)))
           changeAttRTL("value", expr => scale.setSelection(env.evalInt(expr)))
           scale
-        case s =>
+
+        case s => // a custom attribute
           val scrolledComposite = new ScrolledComposite(parent, SWT.H_SCROLL | SWT.V_SCROLL)
           scrolledComposite setLayout new FillLayout
-          scrolledComposite setExpandHorizontal true
+          scrolledComposite setExpandHorizontal true // Enable scrolling
           scrolledComposite setExpandVertical true
           val composite = new Composite(scrolledComposite, SWT.NONE)
           scrolledComposite setContent composite
           val newEnv =
             if (params == null)
-              env
+              env // 'main_window' attributes are the program's parameters
             else
               new Environment(new ScopingMap(env.varMap), new ScopingMap(env.flowMap))
           newEnv.varMap.put("width", 0)
           newEnv.varMap.put("height", 0)
           newEnv.flowMap.put("width", Set())
           newEnv.flowMap.put("height", Set())
+          // Evaluate the subprogram
           val (width, height, isWidthQM, isHeightQM, changeSize) = evalNode(PropertyScope(widgetsMap(s), attributes), composite, newEnv)
           if (widthVar.isEmpty && !isWidthQM)
             widthVar = Some(width)
@@ -861,6 +879,7 @@ class LayoutScope(widgetsMap: Map[String, Widget], extensions: TExtensions) {
           scrolledComposite setMinWidth width
           scrolledComposite setMinHeight height
           scrolledComposite setSize (width, height)
+          // Change the size of the subprogram's widgets on user action
           scrolledComposite addControlListener new ControlAdapter {
             override def controlResized(event: ControlEvent) {
               newEnv.varMap("width") = scrolledComposite.getSize.x
@@ -870,7 +889,10 @@ class LayoutScope(widgetsMap: Map[String, Widget], extensions: TExtensions) {
             }
           }
           scrolledComposite
+
       }
+
+      // These attributes are not widget-specific
       for (att <- attributes) att.getName match {
         case "enabled" =>
           widget setEnabled env.evalBoolean(att.getValue.get)
@@ -886,6 +908,8 @@ class LayoutScope(widgetsMap: Map[String, Widget], extensions: TExtensions) {
           changeAttRTL("font", expr => widget.setFont(fontASTToSWT(env.evalFont(expr), widget.getDisplay())))
         case _ =>
       }
+
+      // Return value
       val widgetForResize = widget match { case w: Button if (w.getStyle & SWT.RADIO) == SWT.RADIO => widget.getParent; case _ => widget }
       (widthVar getOrElse 0,
         heightVar getOrElse 0,
@@ -905,29 +929,32 @@ class LayoutScope(widgetsMap: Map[String, Widget], extensions: TExtensions) {
           changeImageSize(widgetForResize.getSize.x, widgetForResize.getSize.y)
         })
 
-    // *** Case 2/4: Container ***
+    // *** Case 2/5: Horizontal Container ***
     case Container(Container.Direction.Horizontal, children, _, _) =>
       if (children.forall({ case AtomicWidget(_, _, Some(_), _) => true; case _ => false }))
         handleDynamicHorizontalContainer(parent, env, children)
       else
         handleHorizontalContainer(parent, env, children)
 
+    // *** Case 3/5: Vertical Container ***
     case Container(Container.Direction.Vertical, children, _, _) =>
       if (children.forall({ case AtomicWidget(_, _, _, Some(_)) => true; case _ => false }))
         handleDynamicVerticalContainer(parent, env, children)
       else
         handleVerticalContainer(parent, env, children)
 
-    // *** Case 3/4: Property Scope ***
+    // *** Case 4/5: Property Scope ***
     case PropertyScope(container, attributes) => {
-      //first add the variables to the varmap:
+      
+      // Add the new variables to the environment
       val newEnv =
         if (params == null)
           env
         else
           new Environment(new ScopingMap(env.varMap), new ScopingMap(env.flowMap))
       attributes.map({
-        case ExpressionAttribute(att, expr) => // var = value
+        
+        case ExpressionAttribute(att, expr) => // <var> = <value>
           if (!newEnv.flowMap.contains(att.id))
             newEnv.flowMap.put(att.id, Set())
           newEnv.getVariables(expr).map(variable =>
@@ -943,23 +970,26 @@ class LayoutScope(widgetsMap: Map[String, Widget], extensions: TExtensions) {
             }))
           newEnv.varMap.put(att.id, env.eval(expr))
 
-        case InitialAttribute(att, Some(expr)) => // var = ?(value)
+        case InitialAttribute(att, Some(expr)) => // <var> = ?(<value>)
           if (!newEnv.flowMap.contains(att.id))
             newEnv.flowMap.put(att.id, Set(INITIAL_ATT_FLAG))
           else
             newEnv.flowMap(att.id) += INITIAL_ATT_FLAG
           newEnv.varMap.put(att.id, env.eval(expr))
 
-        case InitialAttribute(att, None) => // var = ?
+        case InitialAttribute(att, None) => // <var> = ?
 
       })
+      
       if (params == null)
         params = newEnv.varMap
-      //then, handle the rest of the container:
+        
+      // Evaluate the container enclosed in the scope
       evalNode(container, parent, newEnv)
+      
     }
-    
-    // *** Case 4/4: Iteration ***
+
+    // *** Case 5/5: Iteration ***
     case IterationMacro(widget, direction, props) => evalNode(IterationMacro.expand(widget, direction, props), parent, env)
 
   }
