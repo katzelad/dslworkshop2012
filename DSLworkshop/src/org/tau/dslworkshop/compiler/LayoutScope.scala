@@ -949,7 +949,7 @@ class LayoutScope(widgetsMap: Map[String, Widget], extensions: TExtensions) {
 
     // *** Case 4/5: Property Scope ***
     case PropertyScope(container, attributes) => {
-      
+
       // Add the new variables to the environment
       val newEnv =
         if (params == null)
@@ -957,7 +957,7 @@ class LayoutScope(widgetsMap: Map[String, Widget], extensions: TExtensions) {
         else
           new Environment(new ScopingMap(env.varMap), new ScopingMap(env.flowMap))
       attributes.map({
-        
+
         case ExpressionAttribute(att, expr) => // <var> = <value>
           if (!newEnv.flowMap.contains(att.id))
             newEnv.flowMap.put(att.id, Set())
@@ -984,13 +984,13 @@ class LayoutScope(widgetsMap: Map[String, Widget], extensions: TExtensions) {
         case InitialAttribute(att, None) => // <var> = ?
 
       })
-      
+
       if (params == null)
         params = newEnv.varMap
-        
+
       // Evaluate the container enclosed in the scope
       evalNode(container, parent, newEnv)
-      
+
     }
 
     // *** Case 5/5: Iteration ***

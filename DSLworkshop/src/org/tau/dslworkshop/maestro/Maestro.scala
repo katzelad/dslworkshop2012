@@ -19,9 +19,24 @@ object Maestro {
 
     val code = Source.fromFile("src\\org\\tau\\dslworkshop\\maestro\\Maestro.dsl").mkString // Read the file which contains the DSL code
 
-    val program = new DSLProgram(code) // Parse the program
-    
-    val instance = program( // Evaluate the "main_window" subprogram
+    print("The program is being parsed. This might take a few seconds")
+
+    @volatile var done = false
+
+    new Thread {
+      override def run {
+        while (!done) {
+          print(".")
+          Thread.sleep(1000)
+        }
+      }
+    }.start
+
+    val program = try { new DSLProgram(code) } finally { done = true } // Parse the program
+
+    done = true
+
+    val mainInstance = program( // Evaluate the "main_window" subprogram
       name = "main_window",
       icon = "Graphics\\MaestroIcon.png",
       isMaximized = true,
@@ -33,7 +48,6 @@ object Maestro {
     var octave = 0
     var recent = ""
     var pedal = false
-    var filename = ""
     val (doo, doodiez, re, rediez, mi, fa, fadiez, sol, soldiez, la, ladiez, si) = (60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71)
 
     def noteToString(pitch: Int) = pitch % 12 + 60 match {
@@ -103,10 +117,14 @@ object Maestro {
           mainChannel.allNotesOff
         mainChannel.noteOn(pitch + octave * 12, volume)
         recent = recent + noteToString(pitch) + ' '
-        instance.set("recent", recent)
+        mainInstance.set("recent", recent)
         if (autoStop) new Thread {
-          Thread.sleep(200)
-          mainChannel.noteOff(pitch, volume)
+          override def run {
+            Thread.sleep(200)
+            mainChannel.synchronized {
+              mainChannel.noteOff(pitch, volume)
+            }
+          }
         }.start
       }
     }
@@ -147,46 +165,50 @@ object Maestro {
         case _ => 0
       })
       mainChannel.allNotesOff
+      pedal = false
+      mainInstance.set("pedal", pedal)
     }
 
     /*
      * Listeners of variables in the program, which make use of the procedural API.
      */
-    instance.when_changed("vol", (_, newVol) => {
+    mainInstance.when_changed("vol", (_, newVol) => {
       volume = newVol.asInstanceOf[Int]
       for (i <- 0 until 16)
         receiver.send(new ShortMessage(ShortMessage.CONTROL_CHANGE, i, 7, volume), -1)
     })
-    instance.when_changed("up", (_, _) => {
+    mainInstance.when_changed("up", (_, _) => {
       octave = octave + 1
-      instance.set("octave", octave)
+      mainInstance.set("octave", octave)
     })
-    instance.when_changed("down", (_, _) => {
+    mainInstance.when_changed("down", (_, _) => {
       octave = octave - 1
-      instance.set("octave", octave)
+      mainInstance.set("octave", octave)
     })
-    instance.when_changed("clear", (_, _) => {
+    mainInstance.when_changed("clear", (_, _) => {
       recent = ""
-      instance.set("recent", "")
+      mainInstance.set("recent", "")
     })
-    instance.when_changed("about", (_, _) => {
-      program(
+    mainInstance.when_changed("about", (_, _) => {
+      val aboutInstance = program(
         name = "AboutContent",
         title = "About",
         icon = "Graphics\\MaestroIcon.png",
-        isDialog = true)(Array("is_eng=" + (1 - language), "is_deu=" + language))
+        isDialog = true)
+      aboutInstance.bind("fullPath", graphicsPath _)
+      aboutInstance(Array("is_eng=" + (1 - language), "is_deu=" + language))
     })
-    instance.when_changed("pedal", (_, newPedal) => pedal = newPedal.asInstanceOf[Boolean])
-    instance.when_changed("rhythmchoice", (oldBeat, newBeat) => playBeat(newBeat.asInstanceOf[Int], oldBeat.asInstanceOf[Int]))
-    instance.when_changed("tempo", (_, newTempo) => sequencer.setTempoFactor(math.pow(2, (newTempo.asInstanceOf[Int] - 1) / 4.0).toFloat))
-    instance.when_changed("instrument", (_, newInst) => changeInstrument(newInst.asInstanceOf[Int]))
-    instance.when_changed("langchoice", (_, newLang) => language = newLang.asInstanceOf[Int])
+    mainInstance.when_changed("pedal", (_, newPedal) => pedal = newPedal.asInstanceOf[Boolean])
+    mainInstance.when_changed("rhythmchoice", (oldBeat, newBeat) => playBeat(newBeat.asInstanceOf[Int], oldBeat.asInstanceOf[Int]))
+    mainInstance.when_changed("tempo", (_, newTempo) => sequencer.setTempoFactor(math.pow(2, (newTempo.asInstanceOf[Int] - 1) / 4.0).toFloat))
+    mainInstance.when_changed("instrument", (_, newInst) => changeInstrument(newInst.asInstanceOf[Int]))
+    mainInstance.when_changed("langchoice", (_, newLang) => language = newLang.asInstanceOf[Int])
 
     /*
      * The "play" function is invoked when the user clicks on the image (using the special "action" attribute), and is registered here.
      * It accepts the coordinates of the click and plays the note of the corresponding pitch.
      */
-    instance.bind("play", (x: Int, y: Int) => {
+    mainInstance.bind("play", (x: Int, y: Int) => {
       play((x, y) match {
         case _ if x > 20 && x < 44 && y < 153 => doodiez - 12
         case _ if x > 62 && x < 86 && y < 153 => rediez - 12
@@ -212,21 +234,23 @@ object Maestro {
         case _ if x < 432 => sol
         case _ if x < 468 => la
         case _ if x < 504 => si
-      }, true)
+      }, !pedal)
     })
+    def graphicsPath(s: String*) = "Graphics\\" + s(0)
+    mainInstance.bind("fullPath", graphicsPath _)
 
     // Some key listeners
-    instance.onKeyPress(key => {
+    mainInstance.onKeyPress(key => {
       val pitch = keyToNote(key)
       if (pitch != -1)
-        play(pitch)
+        play(pitch, !pedal)
     })
-    instance.onKeyRelease(key => mainChannel.synchronized {
+    mainInstance.onKeyRelease(key => mainChannel.synchronized {
       if (!pedal && keyToNote(key) != -1)
         mainChannel.allNotesOff
     })
 
-    val output = instance(args = Array(s"langchoice=$language", "recent=\"\"", "octave=0")) // Run
+    val output = mainInstance(args = Array(s"langchoice=$language", "recent=\"\"", "octave=0", "pedal=0")) // Run
 
     // Close MIDI devices
     synthesizer.close
@@ -234,4 +258,5 @@ object Maestro {
     receiver.close
 
   }
+
 }

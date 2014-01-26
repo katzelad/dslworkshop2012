@@ -4,7 +4,7 @@
 	---
 	((Controls:200x?)|(MiddleArea)|(LangAboutNowPlaying:300x?))
   )[vol=?(60), is_eng=langchoice=0, is_deu=langchoice=1, instrument = ?(0), tempo=?(3), hint=?(0),
-    up=?(false), down=?(false), clear=?(false), pedal=?(false), filename=?("MySong"), rhythmchoice=?(0), about=?(false),
+    up=?(false), down=?(false), clear=?(false), filename=?("MySong"), rhythmchoice=?(0), about=?(false),
 	smallfont = ("arial", 9, regular), 
 	regbgcolor = 0xFFFFFF, regfgcolor = 0xFF6A26, regfont = ("Arial", 11, regular),
 	controlsbgcolor = 0xD6FCFF, controlsfgcolor = 0xFF6A26, controlsfont = ("Arial", 11, regular)]
@@ -150,7 +150,7 @@ MiddleArea<-
 	|
 	(Leftmargin)
 	|
-	((image:60x40)[filename={is_eng=>"Graphics\\UKFlag.png", is_deu=>"Graphics\\GermanyFlag.png", otherwise "Graphics\\UKFlag.png"},bgcolor = regbgcolor]---(Spacer))
+	((image:60x40)[filename={is_eng=>fullPath("UKFlag.png"), is_deu=>fullPath("GermanyFlag.png"), otherwise fullPath("UKFlag.png")},bgcolor = regbgcolor]---(Spacer))
 	|
 	(Spacer)
   )
@@ -178,9 +178,9 @@ MiddleArea<-
 			(label:?x40)[text={is_eng=>"Use the mouse to personalize the various settings.", is_deu=>"Benutzen Sie die Maus, um die verschiedenen Einstellungen personalisieren.", otherwise "Use the mouse to personalize the various settings."}, bgcolor=regbgcolor, fgcolor=regfgcolor, font=regfont]
 			---
 			(
-					(image:250x120)[filename="Graphics\\Keyboard.png", bgcolor=regbgcolor]|
+					(image:250x120)[filename=fullPath("Keyboard.png"), bgcolor=regbgcolor]|
 					(
-							(image:50x100)[filename="Graphics\\Mouse.png", bgcolor=regbgcolor]
+							(image:50x100)[filename=fullPath("Mouse.png"), bgcolor=regbgcolor]
 							---
 							(Spacer)
 					)|
@@ -204,7 +204,7 @@ MiddleArea<-
 	  ((Leftmargin)|
 		(Piano:504x232)|
 		(:100x?)[bgcolor=regbgcolor]|
-		((Spacer)---(image:98x130)[filename="Graphics\\mouseMaestro.png", bgcolor=regbgcolor])|
+		((Spacer)---(image:98x130)[filename=fullPath("mouseMaestro.png"), bgcolor=regbgcolor])|
 		(Spacer))
 	  ---
 	  (Spacer)
@@ -215,7 +215,7 @@ MiddleArea<-
 	(Upmargin)
 	---
 	(
-		(image)[filename={hint=0=>"Graphics\\pianoKeys.png", hint=1=>"Graphics\\notesHint.png", hint=2=>"Graphics\\keyboardHint.png", otherwise ""}, action=play]
+		(image)[filename={hint=0=>fullPath("pianoKeys.png"), hint=1=>fullPath("notesHint.png"), hint=2=>fullPath("keyboardHint.png"), otherwise ""}, action=play]
 	)
   )
   
@@ -227,8 +227,8 @@ MiddleArea<-
 		(Upmargin)
 		---
 		(
-				(image:100x100)[filename={instrument=0=>"Graphics\\piano.png", instrument=1=>"Graphics\\violin.png",
-						instrument=2=>"Graphics\\saxophone.png",instrument=3=>"Graphics\\guitar.png",instrument=4=>"Graphics\\trumpet.png",instrument=5=>"Graphics\\harp.png",instrument=6=>"Graphics\\drums.png",instrument=7=>"Graphics\\bird.png",otherwise ""},
+				(image:100x100)[filename={instrument=0=>fullPath("piano.png"), instrument=1=>fullPath("violin.png"),
+						instrument=2=>fullPath("saxophone.png"),instrument=3=>fullPath("guitar.png"),instrument=4=>fullPath("trumpet.png"),instrument=5=>fullPath("harp.png"),instrument=6=>fullPath("drums.png"),instrument=7=>fullPath("bird.png"),otherwise ""},
 						bgcolor = regbgcolor]|
 				(Spacer)
 		)
@@ -306,7 +306,7 @@ MiddleArea<-
 		(checkbox:20x20)[checked = pedal, bgcolor = controlsbgcolor, enabled = instrument = 0] |
 		(label:40x?)[text={is_eng=>"Pedal", is_deu=>"Pedal", otherwise "Pedal"}, bgcolor = controlsbgcolor, fgcolor=controlsfgcolor, font=controlsfont, enabled = instrument = 0]|
 		(SpacerControls)
-  ) [pedal = ?(false)]
+  )
 			
   
   OCTAVE<-
@@ -317,20 +317,20 @@ MiddleArea<-
 				(label)[text={is_eng=>"Octave:", is_deu=>"Octave", otherwise "Octave"}, bgcolor = controlsbgcolor, fgcolor = controlsfgcolor, font = controlsfont]
 		)|
     	(
-    			(image:46x106)[filename={octave=1=>"Graphics\\sol8.png",octave=0=>"Graphics\\sol.png",octave=-1=>"Graphics\\fa.png",octave=-2=>"Graphics\\fa8.png", otherwise "Graphics\\sol.png"}, bgcolor = controlsbgcolor]
+    			(image:46x106)[filename={octave=1=>fullPath("sol8.png"),octave=0=>fullPath("sol.png"),octave=-1=>fullPath("fa.png"),octave=-2=>fullPath("fa8.png"), otherwise fullPath("sol.png")}, bgcolor = controlsbgcolor]
     					---
-    			(image:46x106)[filename={octave=1=>"Graphics\\sol.png",octave=0=>"Graphics\\fa.png",octave=-1=>"Graphics\\fa8.png", otherwise "Graphics\\sol.png"}, bgcolor = controlsbgcolor]
+    			(image:46x106)[filename={octave=1=>fullPath("sol.png"),octave=0=>fullPath("fa.png"),octave=-1=>fullPath("fa8.png"), otherwise fullPath("sol.png")}, bgcolor = controlsbgcolor]
     			
     	)|
     	(LeftmarginControls)|
     	(
     		(:?x63)[bgcolor = controlsbgcolor]
     		---
-    		(button:40x40)[filename="Graphics\\up.png", checked = up, enabled=!(octave=1),bgcolor = controlsbgcolor]
+    		(button:40x40)[filename=fullPath("up.png"), checked = up, enabled=!(octave=1),bgcolor = controlsbgcolor]
     		---
     		(:?x10)[bgcolor = controlsbgcolor]
     		---
-    		(button:40x40)[filename="Graphics\\down.png", checked = down, enabled=!(octave=-1),bgcolor = controlsbgcolor]
+    		(button:40x40)[filename=fullPath("down.png"), checked = down, enabled=!(octave=-1),bgcolor = controlsbgcolor]
     		---
     		(SpacerControls)
     	)

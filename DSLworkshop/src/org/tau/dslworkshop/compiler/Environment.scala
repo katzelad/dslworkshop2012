@@ -9,7 +9,7 @@ import org.tau.dslworkshop.compiler.exceptions.TypeMismatch
  * Contains the mappings of variables to values and observers of the scope
  */
 class Environment(var varMap: TVarMap, var flowMap: TFlowMap) {
-  
+
   /*
    * Methods for evaluating expressions.
    * Each receives an expression, performs type-checking and returns its value in the environment
@@ -17,11 +17,11 @@ class Environment(var varMap: TVarMap, var flowMap: TFlowMap) {
    * Also, implicit conversions between integers and boolean-type variables are performed.
    * Note: These methods have to be type-specific due to scala's type erasure.
    */
-  
+
   def evalInt(exp: Expr): Int = eval(exp, Type.tInt) match {
 
     case typed: Int => typed
-    
+
     case typed: Boolean => if (typed) 1 else 0
 
     case other => throw new TypeMismatch(Type.tInt, other, exp)
@@ -31,7 +31,7 @@ class Environment(var varMap: TVarMap, var flowMap: TFlowMap) {
   def evalBoolean(exp: Expr): Boolean = eval(exp, Type.tBoolean) match {
 
     case typed: Boolean => typed
-    
+
     case typed: Int if typed == 0 || typed == 1 => typed == 1
 
     case other => throw new TypeMismatch(Type.tBoolean, other, exp)
@@ -79,7 +79,7 @@ class Environment(var varMap: TVarMap, var flowMap: TFlowMap) {
   }
 
   def eval(exp: Expr): Any = eval(exp, Type.tUnknown)
-  
+
   /*
    * Performs a generic evaluation of expressions.
    */
@@ -100,7 +100,7 @@ class Environment(var varMap: TVarMap, var flowMap: TFlowMap) {
     case FunctionCall(func, args) =>
       val ret = eval(func, Type.result2function(expType))
       try
-        ret.asInstanceOf[(Any*) => Any].apply(args)
+        ret.asInstanceOf[Seq[Any] => Any].apply(args.map(eval))
       catch { case e: ClassCastException => throw new TypeMismatch(Type.result2function(expType), ret, exp) }
 
     case IterationVariable(_, _, _) => throw new Exception("Syntax Error")
@@ -142,13 +142,13 @@ class Environment(var varMap: TVarMap, var flowMap: TFlowMap) {
    */
   def changeVarLTR(exp: Expr, value: Boolean): (String, Any) = exp match {
     case Negation(inside) => changeVarLTR(inside, !value)
-    case Comparison(left @ Variable(id, _, false), right) if flowMap(id)(INITIAL_ATT_FLAG) && value  =>
+    case Comparison(left @ Variable(id, _, false), right) if flowMap(id)(INITIAL_ATT_FLAG) && value =>
       changeVarLTR(left, eval(right))
     case Comparison(left, right @ Variable(id, _, false)) if flowMap(id)(INITIAL_ATT_FLAG) && value =>
       changeVarLTR(right, eval(left))
     case _ => changeVarLTR(exp, value.asInstanceOf[Any])
   }
-  
+
   def changeVarLTR(exp: Expr, value: Any) = exp match {
     case Variable(name, _, false) =>
       val old = varMap(name)
@@ -156,5 +156,5 @@ class Environment(var varMap: TVarMap, var flowMap: TFlowMap) {
       (name, old)
     case _ => (null, null)
   }
-  
+
 }
