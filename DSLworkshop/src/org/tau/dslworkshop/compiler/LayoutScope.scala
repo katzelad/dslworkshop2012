@@ -50,7 +50,7 @@ class LayoutScope(widgetsMap: Map[String, Widget], extensions: TExtensions) {
   /*
    * Contains the variables modified by the current user action, resets before every new action.
    */
-  private var varsAffectedByCurrentUpdate: Set[String] = null
+  private var chain: Set[String] = null
 
   def getParams = params
 
@@ -704,11 +704,11 @@ class LayoutScope(widgetsMap: Map[String, Widget], extensions: TExtensions) {
             val (name, old) = changeVarLTR(attributes.find(_.getName == attName).get.getValue.get, attValue())
             if (name == null)
               return
-            varsAffectedByCurrentUpdate = Set(name)
+            chain = Set(name)
             env.flowMap(name).foreach(_())
             if (extensions.contains(name))
               extensions(name)(old, env.varMap(name))
-            varsAffectedByCurrentUpdate = null
+            chain = null
           }
         }
       }
@@ -963,10 +963,10 @@ class LayoutScope(widgetsMap: Map[String, Widget], extensions: TExtensions) {
             newEnv.flowMap.put(att.id, Set())
           newEnv.getVariables(expr).map(variable =>
             env.flowMap(variable) += (() => {
-              if (!varsAffectedByCurrentUpdate(att.id)) {
+              if (!chain(att.id)) {
                 val old = newEnv.varMap(att.id)
                 newEnv.varMap(att.id) = env.eval(expr)
-                varsAffectedByCurrentUpdate += att.id
+                chain += att.id
                 newEnv.flowMap(att.id).foreach(_())
                 if (extensions.contains(att.id))
                   extensions(att.id)(old, env.varMap(att.id))
