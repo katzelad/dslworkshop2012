@@ -16,7 +16,7 @@ import org.tau.workshop2011.parser.AST.Variable
 import org.tau.workshop2011.parser.LayoutParser
 
 /* Main procedural API class 
- * Receives the DSL code as a parameter, use 'apply' to run.
+ * Receives the DSL code as a parameter, use 'apply' to instantiate a subprogram.
  */
 class DSLProgram(code: String) {
 
@@ -56,7 +56,7 @@ class DSLProgram(code: String) {
     }
     
     /*
-     * Changes the value of a variable of 'main_window', meaning, given as a parameter to the subprogram.
+     * Changes the value of a variable given as a parameter to the subprogram.
      * Receives the name of the variable and its new value.
      * Can only be used while the program is running.
      */
@@ -78,7 +78,7 @@ class DSLProgram(code: String) {
      * Adds an observer to a variable.
      * Receives the variable name and notification function,
      * which accepts the values of the variable before and after the modification.
-     * The observer is notified every time a variable is changed.
+     * The observer is notified every time the variable is changed.
      */
     def when_changed(varName: String, action: (Any, Any) => Unit) {
       extensions += varName -> action
