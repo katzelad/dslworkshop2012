@@ -175,7 +175,11 @@ object Maestro {
     mainInstance.when_changed("vol", (_, newVol) => {
       volume = newVol.asInstanceOf[Int]
       for (i <- 0 until 16)
-        receiver.send(new ShortMessage(ShortMessage.CONTROL_CHANGE, i, 7, volume), -1)
+        receiver.send({
+          val msg = new ShortMessage()
+          msg.setMessage(ShortMessage.CONTROL_CHANGE, i, 7, volume)
+          msg
+        }, -1)
     })
     mainInstance.when_changed("up", (_, _) => {
       octave = octave + 1
